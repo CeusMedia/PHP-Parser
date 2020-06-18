@@ -28,7 +28,10 @@
  */
 namespace CeusMedia\PhpParser\Parser;
 
-use CeusMedia\PhpParser\Structure;
+use CeusMedia\PhpParser\Structure\File_;
+use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\Interface_;
+use CeusMedia\PhpParser\Structure\Variable_;
 
 /**
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).
@@ -63,10 +66,161 @@ class Regular
 	protected $regexDocVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
 	protected $regexVariable	= '@^(static\s+)?(protected|private|public|var)\s+(static\s+)?\$(\w+)(\s+=\s+([^(]+))?.*$@';
 	protected $varBlocks		= array();
-
 	protected $openBlocks		= array();
 	protected $lineNumber		= 0;
 
+	/**
+	 *	Parses a PHP File and returns nested Array of collected Information.
+	 *	@access		public
+	 *	@param		string		$fileName		File Name of PHP File to parse
+	 *	@param		string		$innerPath		Base Path to File to be removed in Information
+	 *	@return		array
+	 */
+	public function parseFile( $fileName, $innerPath )
+	{
+		$content		= \FS_File_Reader::load( $fileName );
+		if( !\Alg_Text_Unicoder::isUnicode( $content ) )
+			$content	= \Alg_Text_Unicoder::convertToUnicode( $content );
+
+
+		$lines			= explode( "\n", $content );
+		$fileBlock		= NULL;
+		$openClass		= FALSE;
+		$function		= NULL;
+		$functionBody	= array();
+		$file			= new File_;
+		$file->setBasename( basename( $fileName ) );
+		$file->setPathname( substr( str_replace( "\\", "/", $fileName ), strlen( $innerPath ) ) );
+		$file->setUri( str_replace( "\\", "/", $fileName ) );
+
+		$level	= 0;
+		$class	= NULL;
+		do
+		{
+			$line	= trim( array_shift( $lines ) );
+#			remark( ( $openClass ? "I" : "O" )." :: ".$level." :: ".$this->lineNumber." :: ".$line );
+			$this->lineNumber ++;
+			if( preg_match( "@^(<\?(php)?)|((php)?\?>)$@", $line ) )
+				continue;
+
+			if( preg_match( '@}$@', $line ) )
+				$level--;
+
+			if( $line == "/**" && $level < 2 )
+			{
+				$list	= array();
+				while( !preg_match( "@\*?\*/\s*$@", $line ) )
+				{
+					$list[]	= $line;
+					$line	= trim( array_shift( $lines ) );
+					$this->lineNumber ++;
+				}
+				array_unshift( $lines, $line );
+				$this->lineNumber --;
+				if( $list )
+				{
+					$this->openBlocks[]	= $this->parseDocBlock( $list );
+					if( !$fileBlock && !$class )
+					{
+						$fileBlock	= array_shift( $this->openBlocks );
+						array_unshift( $this->openBlocks, $fileBlock );
+						$this->decorateCodeDataWithDocData( $file, $fileBlock );
+					}
+				}
+				continue;
+			}
+			if( !$openClass )
+			{
+				if( preg_match( $this->regexClass, $line, $matches ) )
+				{
+					$parts	= array_slice( $matches, -1 );
+					while( !trim( array_pop( $parts ) ) )
+						array_pop( $matches );
+					$class	= $this->parseClassOrInterface( $file, $matches );
+					$openClass	= TRUE;
+				}
+				else if( preg_match( $this->regexMethod, $line, $matches ) )
+				{
+					$openClass	= FALSE;
+					$function	= $this->parseFunction( $file, $matches );
+					$file->setFunction( $function );
+				}
+			}
+			else
+			{
+				if( preg_match( $this->regexClass, $line, $matches ) )
+				{
+					if( $class instanceof Class_ )
+						$file->addClass( $class );
+					else if( $class instanceof Interface_ )
+						$file->addInterface( $class );
+					array_unshift( $lines, $line );
+					$this->lineNumber --;
+					$openClass	= FALSE;
+					$level		= 1;
+					continue;
+				}
+				if( preg_match( $this->regexMethod, $line, $matches ) )
+				{
+					$method		= $this->parseMethod( $class, $matches );
+					$function	= $matches[6];
+					$class->setMethod( $method );
+				}
+				else if( $level <= 1 )
+				{
+					if( preg_match( $this->regexDocVariable, $line, $matches ) )
+					{
+						if( $openClass && $class )
+							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->parseDocMember( $matches );
+						else
+							$this->varBlocks[$matches[2]]	= $this->parseDocVariable( $matches );
+					}
+					else if( preg_match( $this->regexVariable, $line, $matches ) )
+					{
+						$name		= $matches[4];
+						if( $openClass && $class )
+						{
+							$key		= $class->getName()."::".$name;
+							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
+							$variable	= $this->parseMember( $class, $matches, $varBlock );
+							$class->setMember( $variable );
+						}
+						else
+						{
+							remark( "Parser Error: found var after class -> not handled yet" );
+/*							$key		= $name;
+							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
+							$variable	= $this->parseMember( $matches, $varBlock );*/
+						}
+					}
+				}
+				else if( $level > 1 && $function )
+				{
+					$functionBody[$function][]	= $line;
+				}
+			}
+			if( preg_match( '@{$@', $line ) )
+				$level++;
+			if( $level < 1 && !preg_match( $this->regexClass, $line, $matches ) )
+				$openClass	= FALSE;
+		}
+		while( $lines );
+
+		$file->setSourceCode( $content );
+		if( $class )
+		{
+			foreach( $class->getMethods() as $methodName => $method )
+				if( isset( $functionBody[$methodName] ) )
+					$method->setSourceCode( $functionBody[$methodName] );
+			if( $class instanceof Class_ )
+				$file->addClass( $class );
+			else if( $class instanceof Interface_ )
+				$file->addInterface( $class );
+		}
+		return $file;
+	}
+
+	//  --  PROTECTED  --  //
 
 	/**
 	 *	Appends all collected Documentation Information to already collected Code Information.
@@ -95,7 +249,7 @@ class Regular
 				{
 					switch( $key )
 					{
-						case 'return':		$codeData->setReturn( $value ); break;
+						case 'return':	$codeData->setReturn( $value ); break;
 					}
 				}
 			}
@@ -426,157 +580,6 @@ class Regular
 	{
 		$variable	= new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
 		return $variable;
-	}
-
-	/**
-	 *	Parses a PHP File and returns nested Array of collected Information.
-	 *	@access		public
-	 *	@param		string		$fileName		File Name of PHP File to parse
-	 *	@param		string		$innerPath		Base Path to File to be removed in Information
-	 *	@return		array
-	 */
-	public function parseFile( $fileName, $innerPath )
-	{
-		$content		= \FS_File_Reader::load( $fileName );
-		if( !\Alg_Text_Unicoder::isUnicode( $content ) )
-			$content		= \Alg_Text_Unicoder::convertToUnicode( $content );
-
-
-		$lines			= explode( "\n", $content );
-		$fileBlock		= NULL;
-		$openClass		= FALSE;
-		$function		= NULL;
-		$functionBody	= array();
-		$file			= new File_;
-		$file->setBasename( basename( $fileName ) );
-		$file->setPathname( substr( str_replace( "\\", "/", $fileName ), strlen( $innerPath ) ) );
-		$file->setUri( str_replace( "\\", "/", $fileName ) );
-
-		$level	= 0;
-		$class	= NULL;
-		do
-		{
-			$line	= trim( array_shift( $lines ) );
-#			remark( ( $openClass ? "I" : "O" )." :: ".$level." :: ".$this->lineNumber." :: ".$line );
-			$this->lineNumber ++;
-			if( preg_match( "@^(<\?(php)?)|((php)?\?>)$@", $line ) )
-				continue;
-
-			if( preg_match( '@}$@', $line ) )
-				$level--;
-
-			if( $line == "/**" && $level < 2 )
-			{
-				$list	= array();
-				while( !preg_match( "@\*?\*/\s*$@", $line ) )
-				{
-					$list[]	= $line;
-					$line	= trim( array_shift( $lines ) );
-					$this->lineNumber ++;
-				}
-				array_unshift( $lines, $line );
-				$this->lineNumber --;
-				if( $list )
-				{
-					$this->openBlocks[]	= $this->parseDocBlock( $list );
-					if( !$fileBlock && !$class )
-					{
-						$fileBlock	= array_shift( $this->openBlocks );
-						array_unshift( $this->openBlocks, $fileBlock );
-						$this->decorateCodeDataWithDocData( $file, $fileBlock );
-					}
-				}
-				continue;
-			}
-			if( !$openClass )
-			{
-				if( preg_match( $this->regexClass, $line, $matches ) )
-				{
-					$parts	= array_slice( $matches, -1 );
-					while( !trim( array_pop( $parts ) ) )
-						array_pop( $matches );
-					$class	= $this->parseClassOrInterface( $file, $matches );
-					$openClass	= TRUE;
-				}
-				else if( preg_match( $this->regexMethod, $line, $matches ) )
-				{
-					$openClass	= FALSE;
-					$function	= $this->parseFunction( $file, $matches );
-					$file->setFunction( $function );
-				}
-			}
-			else
-			{
-				if( preg_match( $this->regexClass, $line, $matches ) )
-				{
-					if( $class instanceof Class_ )
-						$file->addClass( $class );
-					else if( $class instanceof Interface_ )
-						$file->addInterface( $class );
-					array_unshift( $lines, $line );
-					$this->lineNumber --;
-					$openClass	= FALSE;
-					$level		= 1;
-					continue;
-				}
-				if( preg_match( $this->regexMethod, $line, $matches ) )
-				{
-					$method		= $this->parseMethod( $class, $matches );
-					$function	= $matches[6];
-					$class->setMethod( $method );
-				}
-				else if( $level <= 1 )
-				{
-					if( preg_match( $this->regexDocVariable, $line, $matches ) )
-					{
-						if( $openClass && $class )
-							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->parseDocMember( $matches );
-						else
-							$this->varBlocks[$matches[2]]	= $this->parseDocVariable( $matches );
-					}
-					else if( preg_match( $this->regexVariable, $line, $matches ) )
-					{
-						$name		= $matches[4];
-						if( $openClass && $class )
-						{
-							$key		= $class->getName()."::".$name;
-							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
-							$variable	= $this->parseMember( $class, $matches, $varBlock );
-							$class->setMember( $variable );
-						}
-						else
-						{
-							remark( "Parser Error: found var after class -> not handled yet" );
-/*							$key		= $name;
-							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
-							$variable	= $this->parseMember( $matches, $varBlock );*/
-						}
-					}
-				}
-				else if( $level > 1 && $function )
-				{
-					$functionBody[$function][]	= $line;
-				}
-			}
-			if( preg_match( '@{$@', $line ) )
-				$level++;
-			if( $level < 1 && !preg_match( $this->regexClass, $line, $matches ) )
-				$openClass	= FALSE;
-		}
-		while( $lines );
-
-		$file->setSourceCode( $content );
-		if( $class )
-		{
-			foreach( $class->getMethods() as $methodName => $method )
-				if( isset( $functionBody[$methodName] ) )
-					$method->setSourceCode( $functionBody[$methodName] );
-			if( $class instanceof Class_ )
-				$file->addClass( $class );
-			else if( $class instanceof Interface_ )
-				$file->addInterface( $class );
-		}
-		return $file;
 	}
 
 	/**
