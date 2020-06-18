@@ -32,6 +32,14 @@ use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Class_;
 use CeusMedia\PhpParser\Structure\Interface_;
 use CeusMedia\PhpParser\Structure\Variable_;
+use CeusMedia\PhpParser\Structure\Member_;
+use CeusMedia\PhpParser\Structure\Function_;
+use CeusMedia\PhpParser\Structure\Method_;
+use CeusMedia\PhpParser\Structure\Parameter_;
+use CeusMedia\PhpParser\Structure\Author_;
+use CeusMedia\PhpParser\Structure\License_;
+use CeusMedia\PhpParser\Structure\Return_;
+use CeusMedia\PhpParser\Structure\Throws_;
 
 /**
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).

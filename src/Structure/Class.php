@@ -104,7 +104,7 @@ class Class_ extends Interface_
 		foreach( $this->implements as $interfaceName => $interfaceObject )
 			if( $interface == $interfaceObject )
 				return TRUE;
-		return FALSE;ADT_PHP_
+		return FALSE;
 	}
 
 	public function isUsingClass( Class_ $class )
@@ -161,7 +161,7 @@ class Class_ extends Interface_
 
 	public function setExtendingInterface( Interface_ $interface )
 	{
-		throw new RuntimeException( 'Interface cannot extend class' );ADT_PHP_
+		throw new RuntimeException( 'Interface cannot extend class' );
 	}
 
 	public function setFinal( $isFinal = TRUE )
