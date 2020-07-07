@@ -23,8 +23,23 @@
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			0.6.8
  */
+namespace CeusMedia\PhpParser\Parser;
+
+use CeusMedia\PhpParser\Structure\File_;
+use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\Interface_;
+use CeusMedia\PhpParser\Structure\Trait_;
+use CeusMedia\PhpParser\Structure\Variable_;
+use CeusMedia\PhpParser\Structure\Member_;
+use CeusMedia\PhpParser\Structure\Function_;
+use CeusMedia\PhpParser\Structure\Method_;
+use CeusMedia\PhpParser\Structure\Parameter_;
+use CeusMedia\PhpParser\Structure\Author_;
+use CeusMedia\PhpParser\Structure\License_;
+use CeusMedia\PhpParser\Structure\Return_;
+use CeusMedia\PhpParser\Structure\Throws_;
+
 /**
  *	...
  *
@@ -34,10 +49,11 @@
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			0.6.8
  */
-class FS_File_PHP_Parser_Reflection
+class Reflection
 {
+	protected $verbose	= TRUE;
+
 	/**
 	 *	Parses a PHP File and returns nested Array of collected Information.
 	 *	@access		public
@@ -47,21 +63,25 @@ class FS_File_PHP_Parser_Reflection
 	 */
 	public function parseFile( $fileName, $innerPath )
 	{
-		$content		= FS_File_Reader::load( $fileName );
-		if( !Alg_Text_Unicoder::isUnicode( $content ) )
-			$content		= Alg_Text_Unicoder::convertToUnicode( $content );
+		$content		= \FS_File_Reader::load( $fileName );
+		if( !\Alg_Text_Unicoder::isUnicode( $content ) )
+			$content		= \Alg_Text_Unicoder::convertToUnicode( $content );
 
 		//  list builtin Classes
 		$listClasses	= get_declared_classes();
 		//  list builtin Interfaces
 		$listInterfaces	= get_declared_interfaces();
+		//  list builtin Interfaces
+		$listTraits	= get_declared_traits();
 		require_once( $fileName );
 		//  get only own Classes
 		$listClasses	= array_diff( get_declared_classes(), $listClasses );
 		//  get only own Interfaces
 		$listInterfaces	= array_diff( get_declared_interfaces(), $listInterfaces );
+		//  get only own Traits
+		$listInterfaces	= array_diff( get_declared_traits(), $listTraits );
 
-		$file			= new ADT_PHP_File;
+		$file			= new File_;
 		$file->setBasename( basename( $fileName ) );
 		$file->setPathname( substr( str_replace( "\\", "/", $fileName ), strlen( $innerPath ) ) );
 		$file->setUri( str_replace( "\\", "/", $fileName ) );
@@ -69,16 +89,16 @@ class FS_File_PHP_Parser_Reflection
 
 		//  --  READING CLASSES  --  //
 		//  count own Classes
-		$countClasses	= count( $listClasses );
+/*		$countClasses	= count( $listClasses );
 		if( $countClasses )
 		{
 			if( $this->verbose )
 				remark( 'Parsing Classes ('.$countClasses.'):'.PHP_EOL );
 			$listClasses	= $this->readFromClassList( $listClasses );
 			$this->application->updateStatus( 'Done.', $countClasses, $countClasses );
-		}
+		}*/
 		foreach( $listClasses as $class )
-			if( $class instanceof ADT_PHP_Class )
+			if( $class instanceof Class_ )
 				$file->addClass( $class );
 
 		//  --  READING INTERFACES  --  //
@@ -92,7 +112,7 @@ class FS_File_PHP_Parser_Reflection
 			$this->application->updateStatus( 'Done.', $countInterfaces, $countInterfaces );
 		}
 		foreach( $listInterfaces as $interface )
-			if( $interface instanceof ADT_PHP_Interface )
+			if( $interface instanceof Interface_ )
 				$file->addInterface( $interface );
 
 /*		$functionBody	= array();
@@ -117,14 +137,14 @@ class FS_File_PHP_Parser_Reflection
 
 		if( $class->isInterface() )
 		{
-			$object	= new ADT_PHP_Interface( $class->name );
+			$object	= new Interface_( $class->name );
 			//  NOT WORKING !!!
 			if( $class->getParentClass() )
 				$object->setExtendedInterfaceName( $class->getParentClass()->name );
 		}
 		else
 		{
-			$object	= new ADT_PHP_Class( $class->name );
+			$object	= new Class_( $class->name );
 			if( $class->getParentClass() )
 				$object->setExtendedClassName( $class->getParentClass()->name );
 			foreach( $class->getInterfaceNames() as $interfaceName )
@@ -142,16 +162,16 @@ class FS_File_PHP_Parser_Reflection
 			$object->setMethod( $this->readMethod( $method ) );
 
 
-		$parser		= new FS_File_PHP_Parser_Doc_Regular;
+		$parser		= new CeusMedia\PhpParser\Parser\Doc\Regular;
 		$docData	= $parser->parseDocBlock( $class->getDocComment() );
-		$decorator	= new FS_File_PHP_Parser_DocDecorator();
+		$decorator	= new CeusMedia\PhpParser\Parser\Doc\Decorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
 	}
 
 	public function readMethod( ReflectionMethod $method )
 	{
-		$object	= new ADT_PHP_Method( $method->name );
+		$object	= new Method_( $method->name );
 		$object->setDescription( $method->getDocComment() );
 		foreach( $method->getParameters() as $parameter )
 		{
@@ -168,7 +188,7 @@ class FS_File_PHP_Parser_Reflection
 
 	public function readParameter( ReflectionParameter $parameter )
 	{
-		$object	= new ADT_PHP_Parameter( $parameter->name );
+		$object	= new Parameter_( $parameter->name );
 		$object->setReference( $parameter->isPassedByReference() );
 		if( $parameter->getClass() )
 			$object->setCast( $parameter->getClass()->name );
@@ -179,7 +199,7 @@ class FS_File_PHP_Parser_Reflection
 
 	public function readProperty( ReflectionProperty $property )
 	{
-		$object	= new ADT_PHP_Member( $property->name );
+		$object	= new Member_( $property->name );
 		return $object;
 	}
 }

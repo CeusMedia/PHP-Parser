@@ -27,6 +27,8 @@
  */
 namespace CeusMedia\PhpParser\Parser;
 
+use CeusMedia\PhpParser\Parser\Doc\Regular as DocParser;
+use CeusMedia\PhpParser\Parser\Doc\Decorator as DocDecorator;
 use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Class_;
 use CeusMedia\PhpParser\Structure\Interface_;
@@ -40,6 +42,7 @@ use CeusMedia\PhpParser\Structure\Author_;
 use CeusMedia\PhpParser\Structure\License_;
 use CeusMedia\PhpParser\Structure\Return_;
 use CeusMedia\PhpParser\Structure\Throws_;
+
 
 /**
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).
@@ -56,12 +59,19 @@ class Regular
 	protected $regexClass		= '@^(abstract )?(final )?(interface |class |trait )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
 	protected $regexMethod		= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
 	protected $regexParam		= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
-	protected $regexDocParam	= '@^\*\s+\@param\s+(([\S]+)\s+)?(\$?([\S]+))\s*(.+)?$@';
-	protected $regexDocVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
 	protected $regexVariable	= '@^(static\s+)?(protected|private|public|var)\s+(static\s+)?\$(\w+)(\s+=\s+([^(]+))?.*$@';
 	protected $varBlocks		= array();
 	protected $openBlocks		= array();
 	protected $lineNumber		= 0;
+
+	protected $docParser;
+	protected $docDecorator;
+
+	public function __construct()
+	{
+		$this->docParser	= new DocParser;
+		$this->docDecorator	= new DocDecorator();
+	}
 
 	/**
 	 *	Parses a PHP File and returns nested Array of collected Information.
@@ -112,12 +122,12 @@ class Regular
 				$this->lineNumber --;
 				if( $list )
 				{
-					$this->openBlocks[]	= $this->parseDocBlock( $list );
+					$this->openBlocks[]	= $this->docParser->parseBlock( join( PHP_EOL, $list ) );
 					if( !$fileBlock && !$class )
 					{
 						$fileBlock	= array_shift( $this->openBlocks );
 						array_unshift( $this->openBlocks, $fileBlock );
-						$this->decorateCodeDataWithDocData( $file, $fileBlock );
+						$this->docDecorator->decorateCodeDataWithDocData( $file, $fileBlock );
 					}
 				}
 				continue;
@@ -163,15 +173,16 @@ class Regular
 				}
 				else if( $level <= 1 )
 				{
-					if( preg_match( $this->regexDocVariable, $line, $matches ) )
+					if( preg_match( $this->docParser->regexVariable, $line, $matches ) )
 					{
 						if( $openClass && $class )
-							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->parseDocMember( $matches );
+							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->docParser->parseMember( $matches );
 						else
-							$this->varBlocks[$matches[2]]	= $this->parseDocVariable( $matches );
+							$this->varBlocks[$matches[2]]	= $this->docParser->parseVariable( $matches );
 					}
 					else if( preg_match( $this->regexVariable, $line, $matches ) )
 					{
+//						print_m( $this->openBlocks );die;
 						$name		= $matches[4];
 						if( $openClass && $class )
 						{
@@ -220,138 +231,6 @@ class Regular
 	//  --  PROTECTED  --  //
 
 	/**
-	 *	Appends all collected Documentation Information to already collected Code Information.
-	 *	In general, found doc parser data are added to the php parser data.
-	 *	Found doc data can contain strings, objects and lists of strings or objects.
-	 *	Since parameters are defined in signature and doc block, they need to be merged.
-	 *	Parameters are given with an associatove list indexed by parameter name.
-	 *
-	 *	@access		protected
-	 *	@param		object		$codeData		Data collected by parsing Code
-	 *	@param		array		$docData		Data collected by parsing Documentation
-	 *	@return		void
-	 *	@todo		fix merge problem -> seems to be fixed (what was the problem again?)
-	 */
-	protected function decorateCodeDataWithDocData( object $codeData, array $docData )
-	{
-		foreach( $docData as $key => $value )
-		{
-			if( !$value )
-				continue;
-
-			//  value is an object
-			if( is_object( $value ) )
-			{
-				if( $codeData instanceof Function_ )
-				{
-					switch( $key )
-					{
-						case 'return':	$codeData->setReturn( $value ); break;
-					}
-				}
-			}
-			//  value is a simple string
-			else if( is_string( $value ) )
-			{
-				switch( $key )
-				{
-					//  extend category
-					case 'category':	$codeData->setCategory( $value ); break;
-					//  extend package
-					case 'package':		$codeData->setPackage( $value ); break;
-					//  extend subpackage
-					case 'subpackage':	$codeData->setSubpackage( $value ); break;
-					//  extend version
-					case 'version':		$codeData->setVersion( $value ); break;
-					//  extend since
-					case 'since':		$codeData->setSince( $value ); break;
-					//  extend description
-					case 'description':	$codeData->setDescription( $value ); break;
-					//  extend todos
-					case 'todo':		$codeData->setTodo( $itemValue ); break;
-				}
-				if( $codeData instanceof Interface_ )
-				{
-					switch( $key )
-					{
-						case 'access':
-							//  only if no access type given by signature
-							if( !$codeData->getAccess() )
-								//  extend access type
-								$codeData->setAccess( $value );
-							break;
-						//  extend extends
-						case 'extends':		$codeData->setExtendedClassName( $value ); break;
-					}
-				}
-				if( $codeData instanceof Method_ )
-				{
-					switch( $key )
-					{
-						case 'access':
-							//  only if no access type given by signature
-							if( !$codeData->getAccess() )
-								//  extend access type
-								$codeData->setAccess( $value );
-							break;
-					}
-				}
-			}
-			//  value is a list of objects or strings
-			else if( is_array( $value ) )
-			{
-				//  iterate list
-				foreach( $value as $itemKey => $itemValue )
-				{
-					//  special case: value is associative array -> a parameter to merge
-					if( is_string( $itemKey ) )
-					{
-						switch( $key )
-						{
-							case 'param':
-								foreach( $codeData->getParameters() as $parameter )
-									if( $parameter->getName() == $itemKey ){
-										$parameter->merge( $itemValue );
-									}
-								break;
-						}
-					}
-					//  value is normal list of objects or strings
-					else
-					{
-						switch( $key )
-						{
-							case 'license':		$codeData->setLicense( $itemValue ); break;
-							case 'copyright':	$codeData->setCopyright( $itemValue ); break;
-							case 'author':		$codeData->setAuthor( $itemValue ); break;
-							case 'link':		$codeData->setLink( $itemValue ); break;
-							case 'see':			$codeData->setSee( $itemValue ); break;
-							case 'deprecated':	$codeData->setDeprecation( $itemValue ); break;
-							case 'todo':		$codeData->setTodo( $itemValue ); break;
-						}
-						if( $codeData instanceof Interface_ )
-						{
-							switch( $key )
-							{
-								case 'implements':	$codeData->setImplementedInterfaceName( $itemValue ); break;
-								case 'uses':		$codeData->setUsedClassName( $itemValue ); break;
-							}
-						}
-						else if( $codeData instanceof Function_ )
-						{
-							switch( $key )
-							{
-								case 'throws':		$codeData->setThrows( $itemValue ); break;
-								case 'trigger':		$codeData->setTrigger( $itemValue ); break;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 *	Parses a Class Signature and returns collected Information.
 	 *	@access		protected
 	 *	@param		File_				$parent			File Object of current Class
@@ -391,7 +270,7 @@ class Regular
 		$artefact->type		= $matches[3];
 		if( $this->openBlocks )
 		{
-			$this->decorateCodeDataWithDocData( $artefact, array_pop( $this->openBlocks ) );
+			$this->docDecorator->decorateCodeDataWithDocData( $artefact, array_pop( $this->openBlocks ) );
 			$this->openBlocks	= array();
 		}
 		if( !$artefact->getCategory() && $parent->getCategory() )
@@ -399,179 +278,6 @@ class Regular
 		if( !$artefact->getPackage() && $parent->getPackage() )
 			$artefact->setPackage( $parent->getPackage() );
 		return $artefact;
-	}
-
-	/**
-	 *	Parses a Doc Block and returns Array of collected Information.
-	 *	@access		protected
-	 *	@param		array		$lines			Lines of Doc Block
-	 *	@return		array
-	 */
-	protected function parseDocBlock( array $lines ): array
-	{
-		$data		= array();
-		$descLines	= array();
-		foreach( $lines as $line ){
-			if( preg_match( $this->regexDocParam, $line, $matches ) ){
-				$data['param'][$matches[4]]	= $this->parseDocParameter( $matches );
-			}
-			else if( preg_match( "@\*\s+\@return\s+(\w+)\s*(.+)?$@i", $line, $matches ) ){
-				$data['return']	= $this->parseDocReturn( $matches );
-			}
-			else if( preg_match( "@\*\s+\@throws\s+(\w+)\s*(.+)?$@i", $line, $matches ) ){
-				$data['throws'][]	= $this->parseDocThrows( $matches );
-			}
-			else if( preg_match( "@\*\s+\@trigger\s+(\w+)\s*(.+)?$@i", $line, $matches ) ){
-				$data['trigger'][]	= $this->parseDocTrigger( $matches );
-			}
-			else if( preg_match( "@\*\s+\@author\s+(.+)\s*(<(.+)>)?$@iU", $line, $matches ) ){
-				$author	= new Author_( trim( $matches[1] ) );
-				if( isset( $matches[3] ) )
-					$author->setEmail( trim( $matches[3] ) );
-				$data['author'][]	= $author;
-			}
-			else if( preg_match( "@\*\s+\@license\s+(\S+)( .+)?$@i", $line, $matches ) ){
-				$data['license'][]	= $this->parseDocLicense( $matches );
-			}
-			else if( preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) ){
-				switch( $matches[1] ){
-					case 'implements':
-					case 'deprecated':
-					case 'todo':
-					case 'copyright':
-					case 'see':
-					case 'uses':
-					case 'link':
-						$data[$matches[1]][]	= $matches[2];
-						break;
-					case 'since':
-					case 'version':
-					case 'access':
-					case 'category':
-					case 'package':
-					case 'subpackage':
-						$data[$matches[1]]	= $matches[2];
-						break;
-					default:
-						break;
-				}
-			}
-			else if( !$data && preg_match( "/^\*\s*([^@].+)?$/", $line, $matches ) ){
-				$descLines[]	= isset( $matches[1] ) ? trim( $matches[1] ) : "";
-			}
-		}
-		$data['description']	= trim( implode( "\n", $descLines ) );
-
-		if( !isset( $data['throws'] ) )
-			$data['throws']	= array();
-		return $data;
-	}
-
-	/**
-	 *	Parses a File/Class License Doc Tag and returns collected Information.
-	 *	@access		protected
-	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		License_
-	 */
-	protected function parseDocLicense( array $matches ): License_
-	{
-		$name	= NULL;
-		$url	= NULL;
-		if( isset( $matches[2] ) ){
-			$url	= trim( $matches[1] );
-			$name	= trim( $matches[2] );
-			if( preg_match( "@^http://@", $matches[2] ) ){
-				$url	= trim( $matches[2] );
-				$name	= trim( $matches[1] );
-			}
-		}
-		else{
-			$name	= trim( $matches[1] );
-			if( preg_match( "@^http://@", $matches[1] ) )
-				$url	= trim( $matches[1] );
-		}
-		$license	= new License_( $name, $url );
-		return $license;
-	}
-
-	/**
-	 *	Parses a Class Member Doc Tag and returns collected Information.
-	 *	@access		protected
-	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		Member_
-	 */
-	protected function parseDocMember( array $matches ): Member_
-	{
-		$member	= new Member_( $matches[2], $matches[1], trim( $matches[4] ) );
-		return $member;
-	}
-
-	/**
-	 *	Parses a Function/Method Parameter Doc Tag and returns collected Information.
-	 *	@access		protected
-	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		Parameter_
-	 */
-	protected function parseDocParameter( array $matches ): Parameter_
-	{
-		$parameter	= new Parameter_( $matches[4], $matches[2] );
-		if( isset( $matches[5] ) )
-			$parameter->setDescription( $matches[5] );
-		return $parameter;
-	}
-
-	/**
-	 *	Parses a Function/Method Return Doc Tag and returns collected Information.
-	 *	@access		protected
-	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		Return_
-	 */
-	protected function parseDocReturn( array $matches ): Return_
-	{
-		$return	= new Return_( trim( $matches[1] ) );
-		if( isset( $matches[2] ) )
-			$return->setDescription( trim( $matches[2] ) );
-		return $return;
-	}
-
-	/**
-	 *	Parses a Function/Method Throws Doc Tag and returns collected Information.
-	 *	@access		protected
-	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		Throws_
-	 */
-	protected function parseDocThrows( array $matches ): Throws_
-	{
-		$throws	= new Throws_( trim( $matches[1] ) );
-		if( isset( $matches[2] ) )
-			$throws->setReason( trim( $matches[2] ) );
-		return $throws;
-	}
-
-	/**
-	 *	Parses a Function/Method Trigger Doc Tag and returns collected Information.
-	 *	@access		protected
-	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		Trigger_
-	 */
-	protected function parseDocTrigger( array $matches ): Trigger_
-	{
-		$trigger	= new Trigger_( trim( $matches[1] ) );
-		if( isset( $matches[2] ) )
-			$trigger->setCondition( trim( $matches[2] ) );
-		return $trigger;
-	}
-
-	/**
-	 *	Parses a Class Varible Doc Tag and returns collected Information.
-	 *	@access		protected
-	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		Variable_
-	 */
-	protected function parseDocVariable( array $matches ): Variable_
-	{
-		$variable	= new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
-		return $variable;
 	}
 
 	/**
@@ -601,7 +307,7 @@ class Regular
 		if( $this->openBlocks )
 		{
 			$methodBlock	= array_pop( $this->openBlocks );
-			$this->decorateCodeDataWithDocData( $function, $methodBlock );
+			$this->docDecorator->decorateCodeDataWithDocData( $function, $methodBlock );
 			$this->openBlocks	= array();
 		}
 		return $function;
@@ -666,7 +372,7 @@ class Regular
 		}
 		if( $this->openBlocks ){
 			$methodBlock	= array_pop( $this->openBlocks );
-			$this->decorateCodeDataWithDocData( $method, $methodBlock );
+			$this->docDecorator->decorateCodeDataWithDocData( $method, $methodBlock );
 			$this->openBlocks	= array();
 		}
 #		if( !$method->getAccess() )

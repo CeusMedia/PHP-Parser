@@ -40,6 +40,16 @@ class Member_ extends Variable_
 	protected $static		= FALSE;
 	protected $default		= NULL;
 
+	public function __toArray(): array
+	{
+		return [
+			'name'			=> $this->getName(),
+			'access'		=> $this->getAccess(),
+			'static'		=> $this->isStatic(),
+			'description'	=> $this->getDescription(),
+		];
+	}
+
 	/**
 	 *	Returns member access.
 	 *	@access		public

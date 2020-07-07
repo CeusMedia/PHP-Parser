@@ -23,8 +23,9 @@
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			0.6.8
  */
+namespace CeusMedia\PhpParser\Parser\Doc;
+
 /**
  *	...
  *
@@ -34,9 +35,8 @@
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			0.6.8
  */
-class FS_File_PHP_Parser_Doc_Decorator
+class Decorator
 {
 	/**
 	 *	Appends all collected Documentation Information to already collected Code Information.
@@ -47,37 +47,35 @@ class FS_File_PHP_Parser_Doc_Decorator
 	 *
 	 *	@access		protected
 	 *	@param		object		$codeData		Data collected by parsing Code
-	 *	@param		string		$docData		Data collected by parsing Documentation
+	 *	@param		array		$docData		Data collected by parsing Documentation
 	 *	@return		void
 	 *	@todo		fix merge problem -> seems to be fixed (what was the problem again?)
 	 */
-	public function decorateCodeDataWithDocData( &$codeData, $docData )
+	public function decorateCodeDataWithDocData( object $codeData, array $docData )
 	{
-		foreach( $docData as $key => $value )
-		{
+		foreach( $docData as $key => $value ){
 			if( !$value )
 				continue;
 
 			//  value is an object
-			if( is_object( $value ) )
-			{
-				if( $codeData instanceof ADT_PHP_Function )
-				{
-					switch( $key )
-					{
-						case 'return':	$codeData->setReturn( $value ); break;
+			if( is_object( $value ) ){
+				if( $codeData instanceof Function_ ){
+					switch( $key ){
+						case 'return':
+							$codeData->setReturn( $value );
+							break;
 					}
 				}
 			}
 			//  value is a simple string
-			else if( is_string( $value ) )
-			{
-				switch( $key )
-				{
+			else if( is_string( $value ) ){
+				switch( $key ){
 					//  extend category
 					case 'category':	$codeData->setCategory( $value ); break;
 					//  extend package
 					case 'package':		$codeData->setPackage( $value ); break;
+					//  extend subpackage
+					case 'subpackage':	$codeData->setSubpackage( $value ); break;
 					//  extend version
 					case 'version':		$codeData->setVersion( $value ); break;
 					//  extend since
@@ -87,24 +85,22 @@ class FS_File_PHP_Parser_Doc_Decorator
 					//  extend todos
 					case 'todo':		$codeData->setTodo( $itemValue ); break;
 				}
-				if( $codeData instanceof ADT_PHP_Interface )
-				{
-					switch( $key )
-					{
+				if( $codeData instanceof Interface_ ){
+					switch( $key ){
 						case 'access':
 							//  only if no access type given by signature
 							if( !$codeData->getAccess() )
 								//  extend access type
 								$codeData->setAccess( $value );
-							break;								
+							break;
 						//  extend extends
-						case 'extends':		$codeData->setExtendedClassName( $value ); break;
+						case 'extends':
+							$codeData->setExtendedClassName( $value );
+							break;
 					}
 				}
-				if( $codeData instanceof ADT_PHP_Method )
-				{
-					switch( $key )
-					{
+				if( $codeData instanceof Method_ ){
+					switch( $key ){
 						case 'access':
 							//  only if no access type given by signature
 							if( !$codeData->getAccess() )
@@ -115,28 +111,23 @@ class FS_File_PHP_Parser_Doc_Decorator
 				}
 			}
 			//  value is a list of objects or strings
-			else if( is_array( $value ) )
-			{
+			else if( is_array( $value ) ){
 				//  iterate list
-				foreach( $value as $itemKey => $itemValue )
-				{
+				foreach( $value as $itemKey => $itemValue ){
 					//  special case: value is associative array -> a parameter to merge
-					if( is_string( $itemKey ) )
-					{
-						switch( $key )
-						{
+					if( is_string( $itemKey ) ){
+						switch( $key ){
 							case 'param':
 								foreach( $codeData->getParameters() as $parameter )
-									if( $parameter->getName() == $itemKey )
+									if( $parameter->getName() == $itemKey ){
 										$parameter->merge( $itemValue );
+									}
 								break;
 						}
 					}
 					//  value is normal list of objects or strings
-					else
-					{
-						switch( $key )
-						{
+					else{
+						switch( $key ){
 							case 'license':		$codeData->setLicense( $itemValue ); break;
 							case 'copyright':	$codeData->setCopyright( $itemValue ); break;
 							case 'author':		$codeData->setAuthor( $itemValue ); break;
@@ -145,19 +136,16 @@ class FS_File_PHP_Parser_Doc_Decorator
 							case 'deprecated':	$codeData->setDeprecation( $itemValue ); break;
 							case 'todo':		$codeData->setTodo( $itemValue ); break;
 						}
-						if( $codeData instanceof ADT_PHP_Interface )
-						{
-							switch( $key )
-							{
+						if( $codeData instanceof Interface_ ){
+							switch( $key ){
 								case 'implements':	$codeData->setImplementedInterfaceName( $itemValue ); break;
 								case 'uses':		$codeData->setUsedClassName( $itemValue ); break;
 							}
 						}
-						else if( $codeData instanceof ADT_PHP_Function )
-						{
-							switch( $key )
-							{
+						else if( $codeData instanceof Function_ ){
+							switch( $key ){
 								case 'throws':		$codeData->setThrows( $itemValue ); break;
+								case 'trigger':		$codeData->setTrigger( $itemValue ); break;
 							}
 						}
 					}

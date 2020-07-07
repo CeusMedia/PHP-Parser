@@ -23,8 +23,18 @@
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			0.6.8
  */
+namespace CeusMedia\PhpParser\Parser\Doc;
+
+use CeusMedia\PhpParser\Structure\Variable_;
+use CeusMedia\PhpParser\Structure\Member_;
+use CeusMedia\PhpParser\Structure\Parameter_;
+use CeusMedia\PhpParser\Structure\Author_;
+use CeusMedia\PhpParser\Structure\License_;
+use CeusMedia\PhpParser\Structure\Return_;
+use CeusMedia\PhpParser\Structure\Throws_;
+use CeusMedia\PhpParser\Structure\Trigger_;
+
 /**
  *	...
  *
@@ -34,54 +44,53 @@
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			0.6.8
  */
-class FS_File_PHP_Parser_Doc_Regular
+class Regular
 {
-	protected $regexDocParam	= '@^\*\s+\@param\s+(([\S]+)\s+)?(\$?([\S]+))\s*(.+)?$@';
+	protected $regexParam		= '@^\*\s+\@param\s+(([\S]+)\s+)?(\$?([\S]+))\s*(.+)?$@';
+	protected $regexReturn		= '@\*\s+\@return\s+(\w+)\s*(.+)?$@i';
+	protected $regexThrows		= '@\*\s+\@throws\s+(\w+)\s*(.+)?$@i';
+	protected $regexTrigger		= '@\*\s+\@trigger\s+(\w+)\s*(.+)?$@i';
+	protected $regexAuthor		= '@\*\s+\@author\s+(.+)\s*(<(.+)>)?$@iU';
+	protected $regexLicense		= '@\*\s+\@license\s+(\S+)( .+)?$@i';
 	//  not used
-	protected $regexDocVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
+	public $regexVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
 
 	/**
 	 *	Parses a Doc Block and returns Array of collected Information.
-	 *	@access		protected
+	 *	@access		public
 	 *	@param		array		$lines			Lines of Doc Block
 	 *	@return		array
 	 */
-	public function parseDocBlock( $docComment )
+	public function parseBlock( $docComment )
 	{
 		$lines		= explode( "\n", $docComment );
 		$data		= array();
 		$descLines	= array();
-		foreach( $lines as $line )
-		{
-			if( preg_match( $this->regexDocParam, $line, $matches ) )
-			{
-				$data['param'][$matches[4]]	= $this->parseDocParameter( $matches );
+		foreach( $lines as $line ){
+			if( preg_match( $this->regexParam, $line, $matches ) ){
+				$data['param'][$matches[4]]	= $this->parseParameter( $matches );
 			}
-			else if( preg_match( "@\*\s+\@return\s+(\w+)\s*(.+)?$@i", $line, $matches ) )
-			{
-				$data['return']	= $this->parseDocReturn( $matches );
+			else if( preg_match( $this->regexReturn, $line, $matches ) ){
+				$data['return']	= $this->parseReturn( $matches );
 			}
-			else if( preg_match( "@\*\s+\@throws\s+(\w+)\s*(.+)?$@i", $line, $matches ) )
-			{
-				$data['throws'][]	= $this->parseDocThrows( $matches );
+			else if( preg_match( $this->regexThrows, $line, $matches ) ){
+				$data['throws'][]	= $this->parseThrows( $matches );
 			}
-			else if( preg_match( "@\*\s+\@author\s+(.+)\s*(<(.+)>)?$@iU", $line, $matches ) )
-			{
-				$author	= new ADT_PHP_Author( trim( $matches[1] ) );
+			else if( preg_match( $this->regexTrigger, $line, $matches ) ){
+				$data['trigger'][]	= $this->parseTrigger( $matches );
+			}
+			else if( preg_match( $this->regexAuthor, $line, $matches ) ){
+				$author	= new Author_( trim( $matches[1] ) );
 				if( isset( $matches[3] ) )
 					$author->setEmail( trim( $matches[3] ) );
 				$data['author'][]	= $author;
 			}
-			else if( preg_match( "@\*\s+\@license\s+(\S+)( .+)?$@i", $line, $matches ) )
-			{
-				$data['license'][]	= $this->parseDocLicense( $matches );
+			else if( preg_match( $this->regexLicense, $line, $matches ) ){
+				$data['license'][]	= $this->parseLicense( $matches );
 			}
-			else if( preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) )
-			{
-				switch( $matches[1] )
-				{
+			else if( preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) ){
+				switch( $matches[1] ){
 					case 'implements':
 					case 'deprecated':
 					case 'todo':
@@ -89,13 +98,15 @@ class FS_File_PHP_Parser_Doc_Regular
 					case 'see':
 					case 'uses':
 					case 'link':
-						$data[$matches[1]][]	= $matches[2];			
+						$data[$matches[1]][]	= $matches[2];
 						break;
+					case 'since':
+					case 'version':
 					case 'access':
 					case 'category':
 					case 'package':
 					case 'subpackage':
-						$data[$matches[1]]	= $matches[2];			
+						$data[$matches[1]]	= $matches[2];
 						break;
 					default:
 						break;
@@ -113,55 +124,52 @@ class FS_File_PHP_Parser_Doc_Regular
 
 	/**
 	 *	Parses a File/Class License Doc Tag and returns collected Information.
-	 *	@access		protected
+	 *	@access		public
 	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		ADT_PHP_License
+	 *	@return		License_
 	 */
-	protected function parseDocLicense( $matches )
+	public function parseLicense( array $matches ): License_
 	{
 		$name	= NULL;
 		$url	= NULL;
-		if( isset( $matches[2] ) )
-		{
+		if( isset( $matches[2] ) ){
 			$url	= trim( $matches[1] );
 			$name	= trim( $matches[2] );
-			if( preg_match( "@^http://@", $matches[2] ) )
-			{
+			if( preg_match( "@^https?://@", $matches[2] ) ){
 				$url	= trim( $matches[2] );
 				$name	= trim( $matches[1] );
 			}
 		}
-		else
-		{
+		else{
 			$name	= trim( $matches[1] );
-			if( preg_match( "@^http://@", $matches[1] ) )
+			if( preg_match( "@^https?://@", $matches[1] ) )
 				$url	= trim( $matches[1] );
 		}
-		$license	= new ADT_PHP_License( $name, $url );
+		$license	= new License_( $name, $url );
 		return $license;
 	}
 
 	/**
 	 *	Parses a Class Member Doc Tag and returns collected Information.
-	 *	@access		protected
+	 *	@access		public
 	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		ADT_PHP_Member
+	 *	@return		Member_
 	 */
-	protected function parseDocMember( $matches )
+	public function parseMember( array $matches ): Member_
 	{
-		$member	= new ADT_PHP_Member( $matches[2], $matches[1], trim( $matches[4] ) );
+		$member	= new Member_( $matches[2], $matches[1], trim( $matches[4] ) );
 		return $member;
 	}
 
 	/**
 	 *	Parses a Function/Method Parameter Doc Tag and returns collected Information.
-	 *	@access		protected
+	 *	@access		public
 	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		ADT_PHP_Parameter
+	 *	@return		Parameter_
 	 */
-	protected function parseDocParameter( $matches )
+	public function parseParameter( array $matches ): Parameter_
 	{
-		$parameter	= new ADT_PHP_Parameter( $matches[4], $matches[2] );
+		$parameter	= new Parameter_( $matches[4], $matches[2] );
 		if( isset( $matches[5] ) )
 			$parameter->setDescription( $matches[5] );
 		return $parameter;
@@ -169,13 +177,13 @@ class FS_File_PHP_Parser_Doc_Regular
 
 	/**
 	 *	Parses a Function/Method Return Doc Tag and returns collected Information.
-	 *	@access		protected
+	 *	@access		public
 	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		ADT_PHP_Return
+	 *	@return		Return_
 	 */
-	protected function parseDocReturn( $matches )
+	public function parseReturn( array $matches ): Return_
 	{
-		$return	= new ADT_PHP_Return( trim( $matches[1] ) );
+		$return	= new Return_( trim( $matches[1] ) );
 		if( isset( $matches[2] ) )
 			$return->setDescription( trim( $matches[2] ) );
 		return $return;
@@ -183,27 +191,41 @@ class FS_File_PHP_Parser_Doc_Regular
 
 	/**
 	 *	Parses a Function/Method Throws Doc Tag and returns collected Information.
-	 *	@access		protected
+	 *	@access		public
 	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		ADT_PHP_Throws
+	 *	@return		Throws_
 	 */
-	protected function parseDocThrows( $matches )
+	public function parseThrows( array $matches ): Throws_
 	{
-		$throws	= new ADT_PHP_Throws( trim( $matches[1] ) );
+		$throws	= new Throws_( trim( $matches[1] ) );
 		if( isset( $matches[2] ) )
 			$throws->setReason( trim( $matches[2] ) );
 		return $throws;
 	}
 
 	/**
-	 *	Parses a Class Varible Doc Tag and returns collected Information.
-	 *	@access		protected
+	 *	Parses a Function/Method Trigger Doc Tag and returns collected Information.
+	 *	@access		public
 	 *	@param		array		$matches		Matches of RegEx
-	 *	@return		ADT_PHP_Variable
+	 *	@return		Trigger_
 	 */
-	protected function parseDocVariable( $matches )
+	public function parseTrigger( array $matches ): Trigger_
 	{
-		$variable	= new ADT_PHP_Variable( $matches[2], $matches[1], trim( $matches[4] ) );
+		$trigger	= new Trigger_( trim( $matches[1] ) );
+		if( isset( $matches[2] ) )
+			$trigger->setCondition( trim( $matches[2] ) );
+		return $trigger;
+	}
+
+	/**
+	 *	Parses a Class Varible Doc Tag and returns collected Information.
+	 *	@access		public
+	 *	@param		array		$matches		Matches of RegEx
+	 *	@return		Variable_
+	 */
+	public function parseVariable( array $matches ): Variable_
+	{
+		$variable	= new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
 		return $variable;
 	}
 }
