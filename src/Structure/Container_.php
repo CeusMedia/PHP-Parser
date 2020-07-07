@@ -22,7 +22,6 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
 
@@ -35,7 +34,6 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Container_
 {
@@ -54,7 +52,7 @@ class Container_
 	 *	@return		Class_
 	 *	@throws		\Exception			if Class is not known
 	 */
-	public function getClassFromClassName( $className, Interface_ $relatedArtefact )
+	public function getClassFromClassName( string $className, Interface_ $relatedArtefact ): Class_
 	{
 		if( !isset( $this->classNameList[$className] ) )
 			throw new \Exception( 'Unknown class "'.$className.'"' );
@@ -76,31 +74,31 @@ class Container_
 		return array_shift( $firstCategory );
 	}
 
-	public function & getClassFromId( $id )
+	public function & getClassFromId( string $id ): Class_
 	{
 		if( !isset( $this->classIdList[$id] ) )
 			throw new \Exception( 'Class with ID '.$id.' is unknown' );
 		return $this->classIdList[$id];
 	}
 
-	public function & getFile( $name )
+	public function & getFile( string $name ): File_
 	{
 		if( isset( $this->files[$name] ) )
 			return $this->files[$name];
 		throw new \RuntimeException( "File '$name' is unADT_PHP_known" );
 	}
 
-	public function getFileIterator()
+	public function getFileIterator(): \ArrayIterator
 	{
 		return new \ArrayIterator( $this->files );
 	}
 
-	public function & getFiles()
+	public function & getFiles(): array
 	{
 		return $this->files;
 	}
 
-	public function & getInterfaceFromId( $id )
+	public function & getInterfaceFromId( string $id ): Interface_
 	{
 		if( !isset( $this->interfaceIdList[$id] ) )
 			throw new \Exception( 'Interface with ID '.$id.' is unknown' );
@@ -110,13 +108,13 @@ class Container_
 	/**
 	 *	Searches for an Interface by its Name in same Category and Package.
 	 *	Otherwise is searches in different Packages and finally in different Categories.
-	 *	@access		publicADT_PHP_
+	 *	@access		public
 	 *	@param		string				$interfaceName		Name of Interface to find Data Object for
-	 *	@param		interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
+	 *	@param		Interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
 	 *	@return		Interface_
 	 *	@throws		\Exception			if Interface is not known
 	 */
-	public function getInterfaceFromInterfaceName( $interfaceName, Interface_ $relatedArtefact )
+	public function getInterfaceFromInterfaceName( string $interfaceName, Interface_ $relatedArtefact ): Interface_
 	{
 		if( !isset( $this->interfaceNameList[$interfaceName] ) )
 			throw new \Exception( 'Unknown interface "'.$interfaceName.'"' );
@@ -130,14 +128,14 @@ class Container_
 			return $list[$category][$package];
 
 		//  found Interface in same Category but different Package
-		if( isset( $list[$category] ) )ADT_PHP_
+		if( isset( $list[$category] ) )
 			//  this is a Guess: return Data Object of guessed Interface
 			return array_shift( $list[$category] );
 
 		return array_shift( array_shift( $list ) );
 	}
 
-	public function hasFile( $fileName )
+	public function hasFile( string $fileName ): bool
 	{
 		return isset( $this->files[$fileName] );
 	}
@@ -151,12 +149,10 @@ class Container_
 	 *	@return		void
 	 *	@todo		move to Environment
 	 */
-	public function indexClasses( $defaultCategory = 'default', $defaultPackage = 'default' )
+	public function indexClasses( string $defaultCategory = 'default', string $defaultPackage = 'default' )
 	{
-		foreach( $this->files as $fileName => $file )
-		{
-			foreach( $file->getClasses() as $class )
-			{
+		foreach( $this->files as $fileName => $file ){
+			foreach( $file->getClasses() as $class ){
 				$category	= $class->getCategory() ? $class->getCategory() : $defaultCategory;
 				$package	= $class->getPackage() ? $class->getPackage() : $defaultPackage;
 				$name		= $class->getName();
@@ -175,12 +171,10 @@ class Container_
 	 *	@return		void
 	 *	@todo		move to Environment
 	 */
-	public function indexInterfaces( $defaultCategory = 'default', $defaultPackage = 'default' )
+	public function indexInterfaces( string $defaultCategory = 'default', string $defaultPackage = 'default' )
 	{
-		foreach( $this->files as $fileName => $file )
-		{
-			foreach( $file->getInterfaces() as $interface )
-			{
+		foreach( $this->files as $fileName => $file ){
+			foreach( $file->getInterfaces() as $interface ){
 				$category	= $interface->getCategory() ? $interface->getCategory() : $defaultCategory;
 				$package	= $interface->getPackage() ? $interface->getPackage() : $defaultPackage;
 				$name		= $interface->getName();
@@ -190,16 +184,13 @@ class Container_
 		}
 	}
 
-	public function load( $config )
+	public function load( array $config )
 	{
-		if( !empty( $config['creator.file.data.archive'] ) )
-		{
+		if( !empty( $config['creator.file.data.archive'] ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
-			if( file_exists( $uri ) )
-			{
+			if( file_exists( $uri ) ){
 				$serial	= "";
-				if( $fp = gzopen( $uri, "r" ) )
-				{
+				if( $fp = gzopen( $uri, "r" ) ){
 					while( !gzeof( $fp ) )
 						$serial	.= gzgets( $fp, 4096 );
 					$data	= unserialize( $serial );
@@ -208,11 +199,9 @@ class Container_
 				return $data;
 			}
 		}
-		if( !empty( $config['creator.file.data.serial'] ) )
-		{
+		if( !empty( $config['creator.file.data.serial'] ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.serial'];
-			if( file_exists( $uri ) )
-			{
+			if( file_exists( $uri ) ){
 				$serial	= file_get_contents( $uri );
 				$data	= unserialize( $serial );
 				return $data;
@@ -227,26 +216,24 @@ class Container_
 	 *	@param		array		$data		Collected File / Class Data
 	 *	@return		void
 	 */
-	public function save( $config )
+	public function save( array $config )
 	{
 		$serial	= serialize( $this );
 		if( !file_exists( $config['doc.path'] ) )
 			mkDir( $config['doc.path'], 0777, TRUE );
-		if( !empty( $config['creator.file.data.archive'] ) )
-		{
+		if( !empty( $config['creator.file.data.archive'] ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
 			$gz		= gzopen( $uri, 'w9' );
 			gzwrite( $gz, $serial );
 			gzclose( $gz );
 		}
-		else if( !empty( $config['creator.file.data.serial'] ) )
-		{
+		else if( !empty( $config['creator.file.data.serial'] ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.serial'];
 			file_put_contents( $uri, $serial );
 		}
 	}
 
-	public function setFile( $name, File_ $file )
+	public function setFile( string $name, File_ $file )
 	{
 		$this->files[$name]	= $file;
 	}

@@ -22,9 +22,10 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasName;
 
 /**
  *	File/Class/Function/Method Author Data Class.
@@ -33,11 +34,11 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Author_
 {
-	protected $name		= NULL;
+	use HasName;
+
 	protected $email	= NULL;
 
 	/**
@@ -47,37 +48,29 @@ class Author_
 	 *	@param		string		$email		Author email
 	 *	@return		void
 	 */
-	public function __construct( $name, $email = NULL )
+	public function __construct( string $name, string $email = NULL )
 	{
 		$this->setEmail( $email );
 		$this->setName( $name );
 	}
 
-	public function getEmail()
+	public function getEmail(): ?string
 	{
 		return $this->email;
 	}
 
-	public function getName()
-	{
-		return $this->name;
-	}
-
-	public function merge( Author_ $author )
+	public function merge( Author_ $author ): self
 	{
 		if( $this->name != $author->name )
 			throw new \Exception( 'Not mergable' );
 		if( $author->getEmail() )
 			$this->setEmail( $author->getEmail() );
+		return $this;
 	}
 
-	public function setEmail( $email )
+	public function setEmail( ?string $email ): self
 	{
 		$this->email	= $email;
-	}
-
-	public function setName( $name )
-	{
-		$this->name	= $name;
+		return $this;
 	}
 }

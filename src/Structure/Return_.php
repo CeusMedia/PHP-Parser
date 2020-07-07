@@ -22,9 +22,10 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 
 /**
  *	Function/Method Return Data Class.
@@ -33,11 +34,11 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Return_
 {
-	protected $description	= NULL;
+	use HasDescription;
+
 	protected $parent		= NULL;
 	protected $type			= NULL;
 
@@ -48,20 +49,10 @@ class Return_
 	 *	@param		string		$description	Return description
 	 *	@return		void
 	 */
-	public function __construct( $type = NULL, $description = NULL )
+	public function __construct( $type = NULL, ?string $description = NULL )
 	{
 		$this->type			= $type;
 		$this->description	= $description;
-	}
-
-	/**
-	 *	Returns description of return value.
-	 *	@access		public
-	 *	@return		void		Return description
-	 */
-	public function getDescription()
-	{
-		return $this->description;
 	}
 
 	public function getParent()
@@ -81,7 +72,7 @@ class Return_
 		return $this->type;
 	}
 
-	public function merge( Return_ $return )
+	public function merge( Return_ $return ): self
 	{
 		if( $this->name != $return->getName() )
 			throw new \Exception( 'Not mergable' );
@@ -91,22 +82,13 @@ class Return_
 			$this->setType( $return->getType() );
 		if( $return->getParent() )
 			$this->setParent( $return->getParent() );
+		return $this;
 	}
 
-	/**
-	 *	Sets description of return value.
-	 *	@access		public
-	 *	@param		string		$description	Return description
-	 *	@return		void
-	 */
-	public function setDescription( $description )
-	{
-		$this->description	= $description;
-	}
-
-	public function setParent( Function_ $function )
+	public function setParent( Function_ $function ): self
 	{
 		$this->parent	= $function;
+		return $this;
 	}
 
 	/**
@@ -115,8 +97,9 @@ class Return_
 	 *	@param		string		$type			Return type
 	 *	@return		void
 	 */
-	public function setType( $type )
+	public function setType( $type ): self
 	{
 		$this->type	= $type;
+		return $this;
 	}
 }

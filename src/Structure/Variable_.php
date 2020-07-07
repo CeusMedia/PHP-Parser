@@ -22,9 +22,15 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasDescription;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasLinks;
+use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 
 /**
  *	Class Variable Data Class.
@@ -33,25 +39,20 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Variable_
 {
+	use HasAuthors, HasDescription, HasName, HasLinks, HasLineInFile, HasVersion;
+
 	protected $parent			= NULL;
 
-	protected $name				= NULL;
 	protected $type				= NULL;
 
-	protected $description		= NULL;
 	protected $since			= NULL;
 	protected $version			= NULL;
 
-	protected $authors			= array();
-	protected $links			= array();
-	protected $sees				= array();
 	protected $todos			= array();
 	protected $deprecations		= array();
-	protected $line				= 0;
 
 	/**
 	 *	Constructor.
@@ -61,7 +62,7 @@ class Variable_
 	 *	@param		string		$description	Variable description
 	 *	@return		void
 	 */
-	public function __construct( $name, $type = NULL, $description = NULL )
+	public function __construct( string $name, $type = NULL, ?string $description = NULL )
 	{
 		$this->setName( $name );
 		if( !is_null( $type ) )
@@ -71,63 +72,13 @@ class Variable_
 	}
 
 	/**
-	 *	Returns list of author data objects.
-	 *	@access		public
-	 *	@return		array			List of author data objects
-	 */
-	public function getAuthors()
-	{
-		return $this->authors;
-	}
-
-	/**
 	 *	Returns list of deprecation strings.
 	 *	@access		public
 	 *	@return		array			List of deprecation strings
 	 */
-	public function getDeprecations()
+	public function getDeprecations(): array
 	{
 		return $this->deprecations;
-	}
-
-	/**
-	 *	Returns variable description.
-	 *	@access		public
-	 *	@return		void		Variable description
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
-
-	/**
-	 *	Returns line in code.
-	 *	@access		public
-	 *	@return		int				Line number in code
-	 */
-	public function getLine()
-	{
-		return $this->line;
-	}
-
-	/**
-	 *	Returns list of links.
-	 *	@access		public
-	 *	@return		array			List of links
-	 */
-	public function getLinks()
-	{
-		return $this->links;
-	}
-
-	/**
-	 *	Returns type of parameter.
-	 *	@access		public
-	 *	@return		mixed		Type string or
-	 */
-	public function getName()
-	{
-		return $this->name;
 	}
 
 	/**
@@ -144,31 +95,11 @@ class Variable_
 	}
 
 	/**
-	 *	Returns list of see-also-references.
-	 *	@access		public
-	 *	@return		string		List of see-also-references
-	 */
-	public function getSees()
-	{
-		return $this->sees;
-	}
-
-	/**
-	 *	Returns first version of variable.
-	 *	@access		public
-	 *	@return		string		First version of variable
-	 */
-	public function getSince()
-	{
-		return $this->type;
-	}
-
-	/**
 	 *	Returns list of todos.
 	 *	@access		public
 	 *	@return		string		List of todos
 	 */
-	public function getTodos()
+	public function getTodos(): array
 	{
 		return $this->todos;
 	}
@@ -183,17 +114,7 @@ class Variable_
 		return $this->type;
 	}
 
-	/**
-	 *	Returns version of variable.
-	 *	@access		public
-	 *	@return		string		Latest version of variable
-	 */
-	public function getVersion()
-	{
-		return $this->version;
-	}
-
-	public function merge( Variable_ $variable )
+	public function merge( Variable_ $variable ): self
 	{
 #		remark( 'merging variable: '.$variable->getName() );
 		if( $this->name != $variable->getName() )
@@ -217,136 +138,54 @@ class Variable_
 			$this->setTodo( $todo );
 		foreach( $variable->getDeprecations() as $deprecation )
 			$this->setDeprecation( $deprecation );
-	}
-
-	/**
-	 *	Sets am author.
-	 *	@access		public
-	 *	@param		Author_	$author		Author data object
-	 */
-	public function setAuthor( Author_ $author )
-	{
-		$this->authors[$author->getName()]	= $author;
+		return $this;
 	}
 
 	/**
 	 *	Sets variable deprecation.
 	 *	@access		public
 	 *	@param		string			$string		Variable deprecation
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setDeprecation( $string )
+	public function setDeprecation( string $string ): self
 	{
 		$this->deprecations[]	= $string;
-	}
-
-	/**
-	 *	Sets variable description.
-	 *	@access		public
-	 *	@param		string		$string			Variable description
-	 *	@return		void
-	 */
-	public function setDescription( $string )
-	{
-		$this->description	= $string;
-	}
-
-	/**
-	 *	Sets line in code.
-	 *	@access		public
-	 *	@param		int				Line number in code
-	 *	@return		void
-	 */
-	public function setLine( $number )
-	{
-		$this->line	= $number;
-	}
-
-	/**
-	 *	Sets function link.
-	 *	@access		public
-	 *	@param		string			$string		Function link
-	 *	@return		void
-	 */
-	public function setLink( $string )
-	{
-		$this->links[]	= $string;
-	}
-
-	/**
-	 *	Sets variable name.
-	 *	@access		public
-	 *	@param		string		$string			Variable name
-	 *	@return		void
-	 */
-	public function setName( $string )
-	{
-		$this->name	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets parent File Data Object.
 	 *	@access		public
 	 *	@param		File_		$parent		Parent File Data Object
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setParent( ?File $parent )
+	public function setParent( ?File $parent ): self
 	{
 		$this->parent	= $parent;
-	}
-
-	/**
-	 *	Sets see-also-reference of variable.
-	 *	@access		public
-	 *	@param		string		$string			See-also-reference
-	 *	@return		void
-	 */
-	public function setSee( $string )
-	{
-		$this->sees[]	= $string;
-	}
-
-	/**
-	 *	Sets first version of variable.
-	 *	@access		public
-	 *	@param		string		$string			First version of variable
-	 *	@return		void
-	 */
-	public function setSince( $string )
-	{
-		$this->since	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets todo.
 	 *	@access		public
 	 *	@param		string		$string			Todo string
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setTodo( $string )
+	public function setTodo( $string ): self
 	{
 		$this->todos[]	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets parameter type.
 	 *	@access		public
 	 *	@param		mixed		$type			Type string or data object
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setType( $type )
+	public function setType( $type ): self
 	{
 		$this->type	= $type;
-	}
-
-	/**
-	 *	Sets latest version of variable.
-	 *	@access		public
-	 *	@param		string		$string			Latest version of variable
-	 *	@return		void
-	 */
-	public function setVersion( $string )
-	{
-		$this->version	= $string;
+		return $this;
 	}
 }

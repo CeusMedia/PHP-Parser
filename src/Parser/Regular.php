@@ -30,6 +30,7 @@ namespace CeusMedia\PhpParser\Parser;
 use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Class_;
 use CeusMedia\PhpParser\Structure\Interface_;
+use CeusMedia\PhpParser\Structure\Trait_;
 use CeusMedia\PhpParser\Structure\Variable_;
 use CeusMedia\PhpParser\Structure\Member_;
 use CeusMedia\PhpParser\Structure\Function_;
@@ -52,8 +53,8 @@ use CeusMedia\PhpParser\Structure\Throws_;
  */
 class Regular
 {
-	protected $regexClass		= '@^(abstract )?(final )?(interface |class )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
-	protected $regexMethod		= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*\S+)?(\s*{\s*)?;?\s*$@s';
+	protected $regexClass		= '@^(abstract )?(final )?(interface |class |trait )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
+	protected $regexMethod		= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
 	protected $regexParam		= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
 	protected $regexDocParam	= '@^\*\s+\@param\s+(([\S]+)\s+)?(\$?([\S]+))\s*(.+)?$@';
 	protected $regexDocVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
@@ -128,7 +129,7 @@ class Regular
 					$parts	= array_slice( $matches, -1 );
 					while( !trim( array_pop( $parts ) ) )
 						array_pop( $matches );
-					$class	= $this->parseClassOrInterface( $file, $matches );
+					$class	= $this->parseClassOrInterfaceOrTrait( $file, $matches );
 					$openClass	= TRUE;
 				}
 				else if( preg_match( $this->regexMethod, $line, $matches ) )
@@ -144,6 +145,8 @@ class Regular
 				{
 					if( $class instanceof Class_ )
 						$file->addClass( $class );
+					else if( $class instanceof Trait_ )
+						$file->addTrait( $class );
 					else if( $class instanceof Interface_ )
 						$file->addInterface( $class );
 					array_unshift( $lines, $line );
@@ -206,6 +209,8 @@ class Regular
 					$method->setSourceCode( $functionBody[$methodName] );
 			if( $class instanceof Class_ )
 				$file->addClass( $class );
+			if( $class instanceof Trait_ )
+				$file->addTrait( $class );
 			else if( $class instanceof Interface_ )
 				$file->addInterface( $class );
 		}
@@ -222,12 +227,12 @@ class Regular
 	 *	Parameters are given with an associatove list indexed by parameter name.
 	 *
 	 *	@access		protected
-	 *	@param		array		$codeData		Data collected by parsing Code
+	 *	@param		object		$codeData		Data collected by parsing Code
 	 *	@param		array		$docData		Data collected by parsing Documentation
 	 *	@return		void
 	 *	@todo		fix merge problem -> seems to be fixed (what was the problem again?)
 	 */
-	protected function decorateCodeDataWithDocData( array &$codeData, array $docData )
+	protected function decorateCodeDataWithDocData( object $codeData, array $docData )
 	{
 		foreach( $docData as $key => $value )
 		{
@@ -353,7 +358,7 @@ class Regular
 	 *	@param		array				$matches		Matches of RegEx
 	 *	@return		Interface_|Class_
 	 */
-	protected function parseClassOrInterface( File_ $parent, array $matches )
+	protected function parseClassOrInterfaceOrTrait( File_ $parent, array $matches )
 	{
 		switch( strtolower( trim( $matches[3] ) ) )
 		{
@@ -362,6 +367,12 @@ class Regular
 				if( isset( $matches[5] ) )
 					$artefact->setExtendedInterfaceName( $matches[6] );
 				$artefact->setFinal( (bool) $matches[2] );
+				break;
+			case 'trait':
+				$artefact	= new Trait_( $matches[4] );
+//				if( isset( $matches[5] ) )
+//					$artefact->setExtendedInterfaceName( $matches[6] );
+//				$artefact->setFinal( (bool) $matches[2] );
 				break;
 			default:
 				$artefact	= new Class_( $matches[4] );
@@ -616,7 +627,7 @@ class Regular
 		$variable->setStatic( (bool) trim( $matches[3] ) );
 
 		if( $docBlock )
-			if( $docBlock instanceof ADT_PHP_Variable )
+			if( $docBlock instanceof Variable_ )
 				if( $docBlock->getName() == $variable->getName() )
 					$variable->merge( $docBlock );
 		return $variable;
@@ -640,7 +651,7 @@ class Regular
 		$method->setFinal( (bool) $matches[2] );
 		$method->setStatic( (bool) $matches[3] || (bool) $matches[5] );
 
-		$return		= new Return_( "unknown" );
+		$return		= new Return_( $matches[9] ?? 'void' );
 		$return->setParent( $method );
 		$method->setReturn( $return );
 

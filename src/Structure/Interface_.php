@@ -22,9 +22,16 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasDescription;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasLinks;
+use CeusMedia\PhpParser\Structure\Traits\HasLicense;
+use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 
 /**
  *	Interface Data Class.
@@ -33,16 +40,16 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Interface_
 {
+	use HasAuthors, HasDescription, HasName, HasLinks, HasLicense, HasLineInFile, HasVersion;
+
 	protected $parent			= NULL;
 
 	protected $category			= NULL;
 	protected $package			= NULL;
 	protected $subpackage		= NULL;
-	protected $name				= NULL;
 
 	protected $final			= FALSE;
 
@@ -54,21 +61,10 @@ class Interface_
 	protected $receivedBy		= array();
 	protected $returnedBy		= array();
 
-	protected $description		= NULL;
-	protected $since			= NULL;
-	protected $version			= NULL;
-	protected $licenses			= array();
-	protected $copyright		= array();
-
-	protected $authors			= array();
-	protected $links			= array();
-	protected $sees				= array();
 	protected $todos			= array();
 	protected $deprecations		= array();
 
 	protected $methods			= array();
-
-	protected $line				= 0;
 
 	/**
 	 *	Constructor, binding a File_.
@@ -76,81 +72,61 @@ class Interface_
 	 *	@param		File_		$file		File with contains this interface
 	 *	@return		void
 	 */
-	public function __construct( $name = NULL )
+	public function __construct( string $name = NULL )
 	{
 		if( !is_null( $name ) )
 			$this->setName( $name );
 	}
 
-	public function addReceivingClass( Class_ $class )
+	public function addReceivingClass( Class_ $class ): self
 	{
-		return $this->receivedBy[$class->getName()]	= $class;
+		$this->receivedBy[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function addReceivingInterface( Interface_ $interface )
+	public function addReceivingInterface( Interface_ $interface ): self
 	{
-		return $this->receivedBy[$interface->getName()]	= $interface;
+		$this->receivedBy[$interface->getName()]	= $interface;
+		return $this;
 	}
 
-	public function addReturningClass( Class_ $class )
+	public function addReturningClass( Class_ $class ): self
 	{
-		return $this->returnedBy[$class->getName()]	= $class;
+		$this->returnedBy[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function addReturningInterface( Interface_ $interface )
+	public function addReturningInterface( Interface_ $interface ): self
 	{
-		return $this->returnedBy[$interface->getName()]	= $interface;
-	}
-
-	/**
-	 *	Returns list of author data objects.
-	 *	@access		public
-	 *	@return		array		List of author data objects
-	 */
-	public function getAuthors()
-	{
-		return $this->authors;
+		$this->returnedBy[$interface->getName()]	= $interface;
+		return $this;
 	}
 
 	/**
 	 *	Returns category.
 	 *	@return		string		Category name
 	 */
-	public function getCategory()
+	public function getCategory(): ?string
 	{
 		return $this->category;
 	}
 
-	public function getComposingClasses()
+	public function getComposingClasses(): array
 	{
 		return $this->composedBy;
 	}
 
-	/**
-	 *	Returns copyright notes.
-	 *	@return		array
-	 */
-	public function getCopyright()
-	{
-		return $this->copyright;
-	}
-
-	public function getDeprecations()
+	public function getDeprecations(): array
 	{
 		return $this->deprecations;
 	}
 
-	public function getDescription()
-	{
-		return $this->description;
-	}
-
-	public function getExtendedInterface()
+	public function getExtendedInterface(): array
 	{
 		return $this->extends;
 	}
 
-	public function getExtendingInterfaces()
+	public function getExtendingInterfaces(): array
 	{
 		return $this->extendedBy;
 	}
@@ -160,7 +136,7 @@ class Interface_
 	 *	@access		public
 	 *	@return		string
 	 */
-	public function getId()
+	public function getId(): string
 	{
 		$parts	= array();
 		if( $this->category )
@@ -172,29 +148,9 @@ class Interface_
 		return implode( "-", $parts );
 	}
 
-	public function getImplementingClasses()
+	public function getImplementingClasses(): array
 	{
 		return $this->implementedBy;
-	}
-
-	public function getLicenses()
-	{
-		return $this->licenses;
-	}
-
-	/**
-	 *	Returns line in code.
-	 *	@access		public
-	 *	@return		int				Line number in code
-	 */
-	public function getLine()
-	{
-		return $this->line;
-	}
-
-	public function getLinks()
-	{
-		return $this->links;
 	}
 
 	/**
@@ -204,7 +160,7 @@ class Interface_
 	 *	@return		Method_			Method data object
 	 *	@throws		\RuntimeException if method is not existing
 	 */
-	public function & getMethod( $name )
+	public function & getMethod( string $name )
 	{
 		if( isset( $this->methods[$name] ) )
 			return $this->methods[$name];
@@ -216,30 +172,15 @@ class Interface_
 	 *	@access		public
 	 *	@return		array			List of method data objects
 	 */
-	public function getMethods( $withMagics = TRUE )
+	public function getMethods( bool $withMagics = TRUE ): array
 	{
 		if( $withMagics )
 			return $this->methods;
-		else
-		{
-			$methods	= array();
-			foreach( $this->methods as $method )
-				if( substr( $method->getName(), 0, 2 ) !== "__" )
-					$methods[$method->getName()]	= $method;
-			return $methods;
-		}
-	}
-
-	/**
-	 *	Returns name of interface.
-	 *	@access		public
-	 *	@return		string			Name of interface
-	 */
-	public function getName()
-	{
-		if( !$this->name )
-			throw new \RuntimeException( 'No interface name has been set' );
-		return $this->name;
+		$methods	= array();
+		foreach( $this->methods as $method )
+			if( substr( $method->getName(), 0, 2 ) !== "__" )
+				$methods[$method->getName()]	= $method;
+		return $methods;
 	}
 
 	/**
@@ -247,7 +188,7 @@ class Interface_
 	 *	@access		public
 	 *	@return		string			Package name
 	 */
-	public function getPackage()
+	public function getPackage(): ?string
 	{
 		return $this->package;
 	}
@@ -265,24 +206,14 @@ class Interface_
 		return $this->parent;
 	}
 
-	public function getReceivingClasses()
+	public function getReceivingClasses(): array
 	{
 		return $this->receivedBy;
 	}
 
-	public function getReturningClasses()
+	public function getReturningClasses(): array
 	{
 		return $this->returnedBy;
-	}
-
-	public function getSees()
-	{
-		return $this->sees;
-	}
-
-	public function getSince()
-	{
-		return $this->since;
 	}
 
 	public function getSubpackage()
@@ -295,19 +226,14 @@ class Interface_
 	 *	@access		public
 	 *	@return		array			List of todos
 	 */
-	public function getTodos()
+	public function getTodos(): array
 	{
 		return $this->todos;
 	}
 
-	public function getUsingClasses()
+	public function getUsingClasses(): array
 	{
 		return $this->usedBy;
-	}
-
-	public function getVersion()
-	{
-		return $this->version;
 	}
 
 	/**
@@ -315,17 +241,17 @@ class Interface_
 	 *	@access		public
 	 *	@return		bool			Flag: interface defines methods
 	 */
-	public function hasMethods()
+	public function hasMethods(): array
 	{
 		return count( $this->methods ) > 0;
 	}
 
-	public function isFinal()
+	public function isFinal(): bool
 	{
 		return (bool) $this->final;
 	}
 
-	public function merge( Interface_ $artefact )
+	public function merge( Interface_ $artefact ): self
 	{
 		if( $this->name != $artefact->getName() )
 			throw new \Exception( 'Not mergable' );
@@ -356,162 +282,114 @@ class Interface_
 			$this->setLicense( $license );
 
 		//	@todo		many are missing
-	}
-
-	/**
-	 *	Sets author.
-	 *	@access		public
-	 *	@param		Author_			$author		Author data object
-	 *	@return		void
-	 */
-	public function setAuthor( Author_ $author )
-	{
-		$this->authors[]	= $author;
+		return $this;
 	}
 
 	/**
 	 *	Sets category.
 	 *	@param		string			$string		Category name
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setCategory( $string )
+	public function setCategory( string $string ): self
 	{
 		$this->category	= trim( $string );
+		return $this;
 	}
 
-	public function setComposingClass( Class_ $class )
+	public function setComposingClass( Class_ $class ): self
 	{
 		$this->composedBy[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function setComposingClassName( $className )
+	public function setComposingClassName( string $className ): self
 	{
 		$this->composedBy[$className]	= $className;
+		return $this;
 	}
 
-	public function setCopyright( $string )
-	{
-		$this->copyright[]	= $string;
-	}
-
-	public function setDeprecation( $string )
+	public function setDeprecation( string $string ): self
 	{
 		$this->deprecations[]	= $string;
+		return $this;
 	}
 
-	public function setDescription( $string )
-	{
-		$this->description		= $string;
-	}
-
-	public function setExtendedInterface( Interface_ $interface )
+	public function setExtendedInterface( Interface_ $interface ): self
 	{
 		$this->extends	= $interface;
+		return $this;
 	}
 
-	public function setExtendedInterfaceName( $interface ){
+	public function setExtendedInterfaceName( $interface ): self
+	{
 		$this->extends	= $interface;
+		return $this;
 	}
 
-	public function setExtendingInterface( Interface_ $interface )
+	public function setExtendingInterface( Interface_ $interface ): self
 	{
 		$this->extendedBy[$interface->getName()]	= $interface;
+		return $this;
 	}
 
-	public function setExtendingInterfaceName( $interface )
+	public function setExtendingInterfaceName( string $interface ): self
 	{
 		$this->extendedBy[$interface]	= $interface;
+		return $this;
 	}
 
-	public function setFinal( $isFinal = TRUE )
+	public function setFinal( bool $isFinal = TRUE ): self
 	{
 		$this->final	= (bool) $isFinal;
+		return $this;
 	}
 
-	public function setImplementingClass( Class_ $class )
+	public function setImplementingClass( Class_ $class ): self
 	{
 		$this->implementedBy[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function setImplementingClassByName( $class )
+	public function setImplementingClassByName( string $class ): self
 	{
 		$this->implementedBy[$class]	= $class;
-	}
-
-	public function setLicense( License_ $license )
-	{
-		$this->licenses[]	= $license;
-	}
-
-	/**
-	 *	Sets line in code.
-	 *	@access		public
-	 *	@param		int				Line number in code
-	 *	@return		void
-	 */
-	public function setLine( $number )
-	{
-		$this->line	= $number;
-	}
-
-	public function setLink( $string )
-	{
-		$this->links[]	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets a method.
 	 *	@access		public
 	 *	@param		Method_			$method		Method to add to interface
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setMethod( Method_ $method )
+	public function setMethod( Method_ $method ): self
 	{
 		$this->methods[$method->getName()]	= $method;
-	}
-
-	/**
-	 *	Sets name of interface.
-	 *	@access		public
-	 *	@return		string			$string		Name of interface
-	 */
-	public function setName( $string )
-	{
-		if( empty( $string ) )
-			throw new \InvalidArgumentException( 'Interface name cannot be empty' );
-		$this->name	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets package.
 	 *	@param		string			$string		Package name
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setPackage( $string )
+	public function setPackage( string $string ): self
 	{
 		$string			= str_replace( array( "/", "::", ":", "." ), "_", $string );
 		$this->package	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets parent File Data Object.
 	 *	@access		public
 	 *	@param		File_			$parent		Parent File Data Object
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setParent( File_ $parent )
+	public function setParent( File_ $parent ): self
 	{
 		$this->parent	= $parent;
-	}
-
-	public function setSee( $string )
-	{
-		$this->sees[]	= $string;
-	}
-
-	public function setSince( $string )
-	{
-		$this->since	= $string;
+		return $this;
 	}
 
 	/**
@@ -519,9 +397,10 @@ class Interface_
 	 *	@param		string			$string		Subpackage name
 	 *	@return		void
 	 */
-	public function setSubpackage( $string )
+	public function setSubpackage( string $string ): self
 	{
 		$this->subpackage	= $string;
+		return $this;
 	}
 
 	/**
@@ -530,23 +409,21 @@ class Interface_
 	 *	@param		string			$string		Todo notes
 	 *	@return		void
 	 */
-	public function setTodo( $string )
+	public function setTodo( string $string ): self
 	{
 		$this->todos[]	= $string;
+		return $this;
 	}
 
-	public function setUsingClass( Class_ $class )
+	public function setUsingClass( Class_ $class ): self
 	{
 		$this->usedBy[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function setUsingClassName( $className )
+	public function setUsingClassName( string $className ): self
 	{
 		$this->usedBy[$className]	= $className;
-	}
-
-	public function setVersion( $string )
-	{
-		$this->version	= $string;
+		return $this;
 	}
 }

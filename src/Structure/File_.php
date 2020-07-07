@@ -22,9 +22,14 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasDescription;
+use CeusMedia\PhpParser\Structure\Traits\HasLinks;
+use CeusMedia\PhpParser\Structure\Traits\HasLicense;
+use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 
 /**
  *	File Data Class.
@@ -33,26 +38,19 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class File_
 {
+	use HasAuthors, HasDescription, HasLinks, HasLicense, HasVersion;
+
 	protected $basename		= NULL;
 	protected $pathname		= NULL;
 	protected $uri			= NULL;
 
-	protected $description	= NULL;
 	protected $category		= NULL;
 	protected $package		= NULL;
 	protected $subpackage	= NULL;
-	protected $since		= NULL;
-	protected $version		= NULL;
-	protected $licenses		= array();
-	protected $copyright	= array();
 
-	protected $authors		= array();
-	protected $links		= array();
-	protected $sees			= array();
 	protected $todos		= array();
 	protected $deprecations	= array();
 /*	protected $usedClasses	= array();*/
@@ -60,31 +58,36 @@ class File_
 	protected $functions	= array();
 	protected $classes		= array();
 	protected $interfaces	= array();
+	protected $traits		= array();
 
 	protected $sourceCode	= "";
 	public $unicode;
 
-	public function addClass( Class_ $class )
+	public function addClass( Class_ $class ): self
 	{
 		$this->classes[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function addInterface( Interface_ $interface )
+	public function addInterface( Interface_ $interface ): self
 	{
 		$this->interfaces[$interface->getName()]	= $interface;
+		return $this;
+	}
+
+	public function addTrait( Trait_ $trait ): self
+	{
+		$this->traits[$trait->getName()]	= $trait;
+		return $this;
 	}
 
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function addInterfaceName( $interfaceName )
+	public function addInterfaceName( $interfaceName ): self
 	{
 		$this->interfaces[$interfaceName]	= $interfaceName;
-	}
-
-	public function getAuthors()
-	{
-		return $this->authors;
+		return $this;
 	}
 
 	public function getBasename()
@@ -97,46 +100,41 @@ class File_
 		return $this->category;
 	}
 
-	public function & getClass( $name )
+	public function & getClass( string $name ): Class_
 	{
 		if( isset( $this->classes[$name] ) )
 			return $this->classes[$name];
 		throw new \RuntimeException( 'Class "'.$name.'" is unknown' );
 	}
 
-	public function getClasses()
+	public function getClasses(): array
 	{
 		return $this->classes;
 	}
 
-	public function getCopyright()
+	public function getTraits(): array
 	{
-		return $this->copyright;
+		return $this->traits;
 	}
 
-	public function getDeprecations()
+	public function getDeprecations(): array
 	{
 		return $this->deprecations;
 	}
 
-	public function getDescription()
-	{
-		return $this->description;
-	}
-
-	public function & getFunction( $name )
+	public function & getFunction( string $name ): Function_
 	{
 		if( isset( $this->functions[$name] ) )
 			return $this->functions[$name];
 		throw new \RuntimeException( 'Function "'.$name.'" is unknown' );
 	}
 
-	public function getFunctions()
+	public function getFunctions(): array
 	{
 		return $this->functions;
 	}
 
-	public function getId()
+	public function getId(): string
 	{
 		$parts	= array();
 		if( $this->category )
@@ -147,26 +145,16 @@ class File_
 		return implode( "-", $parts );
 	}
 
-	public function & getInterface( $name )
+	public function & getInterface( $name ): Interface_
 	{
 		if( isset( $this->interfaces[$name] ) )
 			return $this->interfaces[$name];
 		throw new \RuntimeException( 'Interface "'.$name.'" is unknown' );
 	}
 
-	public function getInterfaces()
+	public function getInterfaces(): array
 	{
 		return $this->interfaces;
-	}
-
-	public function getLicenses()
-	{
-		return $this->licenses;
-	}
-
-	public function getLinks()
-	{
-		return $this->links;
 	}
 
 	public function getPackage()
@@ -174,19 +162,9 @@ class File_
 		return $this->package;
 	}
 
-	public function getPathname()
+	public function getPathname(): string
 	{
 		return $this->pathname;
-	}
-
-	public function getSees()
-	{
-		return $this->sees;
-	}
-
-	public function getSince()
-	{
-		return $this->since;
 	}
 
 	public function getSourceCode()
@@ -204,128 +182,88 @@ class File_
 	 *	@access		public
 	 *	@return		array			List of todos
 	 */
-	public function getTodos()
+	public function getTodos(): array
 	{
 		return $this->todos;
 	}
 
-	public function getUri()
+	public function getUri(): string
 	{
 		return $this->uri;
 	}
 
-	public function getVersion()
-	{
-		return $this->version;
-	}
-
-	public function hasClasses()
+	public function hasClasses(): bool
 	{
 		return count( $this->classes ) > 0;
 	}
 
-	public function hasFunctions()
+	public function hasFunctions(): bool
 	{
 		return count( $this->functions ) > 0;
 	}
 
-	public function hasInterfaces()
+	public function hasInterfaces(): bool
 	{
 		return count( $this->interfaces ) > 0;
 	}
 
-	public function hasLinks()
-	{
-		return count( $this->links ) > 0;
-	}
-
-	public function setAuthor( Author_ $author )
-	{
-		$this->authors[]	= $author;
-	}
-
-	public function setBasename( $string )
+	public function setBasename( string $string ): self
 	{
 		$this->basename	= $string;
+		return $this;
 	}
 
-	public function setCategory( $string )
+	public function setCategory( string $string ): self
 	{
 		$this->category	= trim( $string );
+		return $this;
 	}
 
-	public function setCopyright( $string )
-	{
-		$this->copyright[]	= $string;
-	}
-
-	public function setDeprecation( $string )
+	public function setDeprecation( string $string ): self
 	{
 		$this->deprecations[]	= $string;
+		return $this;
 	}
 
-	public function setDescription( $description )
-	{
-		$this->description	= $description;
-	}
-
-	public function setFunction( Function_ $function )
+	public function setFunction( Function_ $function ): self
 	{
 		$this->functions[$function->getName()]	= $function;
+		return $this;
 	}
 
-	public function setLicense( License_ $license )
-	{
-		$this->licenses[]	= $license;
-	}
-
-	public function setLink( $string )
-	{
-		$this->links[]	= $string;
-	}
-
-	public function setPackage( $string )
+	public function setPackage( string $string ): self
 	{
 		$this->package	= $string;
+		return $this;
 	}
 
-	public function setPathname( $string )
+	public function setPathname( string $string ): self
 	{
 		$this->pathname		= $string;
+		return $this;
 	}
 
-	public function setSee( $string )
-	{
-		$this->sees[]	= $string;
-	}
-
-	public function setSince( $string )
-	{
-		$this->since	= $string;
-	}
-
-	public function setSourceCode( $string )
+	public function setSourceCode( string $string ): self
 	{
 		$this->sourceCode	= $string;
+		return $this;
 	}
 
-	public function setSubpackage( $string )
+	public function setSubpackage( string $string ): self
 	{
 		$this->subpackage	= $string;
+		return $this;
 	}
 
-	public function setTodo( $string )
+	public function setTodo( string $string ): self
 	{
 		$this->todos[]	= $string;
+		return $this;
 	}
 
-	public function setUri( $uri )
+	public function setUri( string $uri ): self
 	{
 		$this->uri	= $uri;
-	}
-
-	public function setVersion( $string )
-	{
-		$this->version	= $string;
+		return $this;
 	}
 }

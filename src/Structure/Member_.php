@@ -22,7 +22,6 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
 
@@ -30,11 +29,10 @@ namespace CeusMedia\PhpParser\Structure;
  *	Class Member Data Class.
  *	@category		Library
  *	@package		CeusMedia_Common_ADT_PHP
- *	@extends		ADT_PHP_Variable
+ *	@extends		Variable_
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Member_ extends Variable_
 {
@@ -47,7 +45,7 @@ class Member_ extends Variable_
 	 *	@access		public
 	 *	@return		string
 	 */
-	public function getAccess()
+	public function getAccess(): ?string
 	{
 		return $this->access;
 	}
@@ -57,7 +55,7 @@ class Member_ extends Variable_
 	 *	@access		public
 	 *	@return		string
 	 */
-	public function getDefault()
+	public function getDefault(): ?string
 	{
 		return $this->default;
 	}
@@ -77,12 +75,12 @@ class Member_ extends Variable_
 	 *	@access		public
 	 *	@return		bool
 	 */
-	public function isStatic()
+	public function isStatic(): bool
 	{
 		return (bool) $this->static;
 	}
 
-	public function merge( Variable_ $member )
+	public function merge( Variable_ $member ): self
 	{
 		parent::merge( $member );
 #		remark( 'merging member: '.$member->getName() );
@@ -94,6 +92,7 @@ class Member_ extends Variable_
 			$this->setDefault( $member->getDefault() );
 		if( $member->isStatic() )
 			$this->setAbstract( $member->isStatic() );
+		return $this;
 	}
 
 	/**
@@ -102,9 +101,10 @@ class Member_ extends Variable_
 	 *	@param		string			$string			Member access
 	 *	@return		void
 	 */
-	public function setAccess( $string = 'public' )
+	public function setAccess( string $string = 'public' ): self
 	{
 		$this->access	= $string;
+		return $this;
 	}
 
 	/**
@@ -113,9 +113,10 @@ class Member_ extends Variable_
 	 *	@param		string			$string			Member default value
 	 *	@return		void
 	 */
-	public function setDefault( $string )
+	public function setDefault( ?string $string ): self
 	{
 		$this->default	= $string;
+		return $this;
 	}
 
 	/**
@@ -124,11 +125,12 @@ class Member_ extends Variable_
 	 *	@param		Class_			$parent			Parent Class Data Object
 	 *	@return		void
 	 */
-	public function setParent( $parent )
+	public function setParent( $parent ): self
 	{
-		if( !( $parent instanceof Class_ ) )
-			throw new \InvalidArgumentException( 'Parent must be of Structure\\Class' );
+		if( !( $parent instanceof Class_ ) && !( $parent instanceof Trait_ ) )
+			throw new \InvalidArgumentException( 'Parent must be of Class_ or Trait_' );
 		$this->parent	= $parent;
+		return $this;
 	}
 
 	/**
@@ -137,8 +139,9 @@ class Member_ extends Variable_
 	 *	@param		bool			$isStatic		Flag: member is static
 	 *	@return		void
 	 */
-	public function setStatic( $isStatic = TRUE )
+	public function setStatic( bool $isStatic = TRUE ): self
 	{
 		$this->static	= (bool) $isStatic;
+		return $this;
 	}
 }

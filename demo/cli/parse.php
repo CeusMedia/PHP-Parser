@@ -4,7 +4,7 @@ new UI_DevOutput;
 
 use CeusMedia\PhpParser\Parser\Regular as Parser;
 
-$path	= realpath( __DIR__.'/../../src' );
+$path	= realpath( __DIR__.'/../../src' ).'/';
 
 class Tree
 {
@@ -45,14 +45,26 @@ class Tree
 		}
 	}
 }
-$tree	= new Tree();
-$nodes	= $tree->index( $path );
 
-print_m( $nodes );die;
+/*$tree	= new Tree();
+$nodes	= $tree->index( $path );
+print_m( $nodes );die;*/
 
 $nodes	= array();
 $parser	= new Parser();
-$result	= $parser->parseFile( $path.'Structure/Parameter.php', $path );
+$result	= $parser->parseFile( $path.'Structure/Parameter_.php', $path );
 
 remark( 'Methods:' );
 print_m( current( $result->getClasses() )->getMethods() );
+
+remark( 'Method: setType' );
+$method	= current( $result->getClasses() )->getMethod( 'setType' );
+print( '- Parameters:'.PHP_EOL );
+foreach( $method->getParameters() as $paramKey => $paramData ){
+	$paramType	= $paramData->getType();
+	$paramDesc	= $paramData->getDescription();
+	print( '  - ('.$paramType.') '.$paramKey.': '.$paramDesc.PHP_EOL );
+}
+print( '- Return:'.PHP_EOL );
+print( '  - Type:'.$method->getReturn()->getType().PHP_EOL );
+print( '  - Desc:'.$method->getReturn()->getDescription().PHP_EOL );

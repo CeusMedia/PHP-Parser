@@ -22,9 +22,16 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasDescription;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasLinks;
+use CeusMedia\PhpParser\Structure\Traits\HasLicense;
+use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 
 /**
  *	File Function Data Class.
@@ -33,23 +40,16 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Function_
 {
+	use HasAuthors, HasDescription, HasName, HasLinks, HasLicense, HasLineInFile, HasVersion;
+
 	protected $parent		= NULL;
 
-	protected $name			= NULL;
-
-	protected $description	= NULL;
 	protected $since		= NULL;
 	protected $version		= NULL;
-	protected $licenses		= array();
-	protected $copyright	= array();
 
-	protected $authors		= array();
-	protected $links		= array();
-	protected $sees			= array();
 	protected $todos		= array();
 	protected $deprecations	= array();
 	protected $throws		= array();
@@ -59,31 +59,10 @@ class Function_
 	protected $return		= NULL;
 
 	protected $sourceCode	= NULL;
-	protected $line			= 0;
 
-	public function __construct( $name )
+	public function __construct( string $name )
 	{
 		$this->setName( $name );
-	}
-
-	/**
-	 *	Returns list of author data objects.
-	 *	@access		public
-	 *	@return		array			List of author data objects
-	 */
-	public function getAuthors()
-	{
-		return $this->authors;
-	}
-
-	/**
-	 *	Returns copyright notes.
-	 *	@access		public
-	 *	@return		array			Copyright notes
-	 */
-	public function getCopyright()
-	{
-		return $this->copyright;
 	}
 
 	/**
@@ -91,59 +70,9 @@ class Function_
 	 *	@access		public
 	 *	@return		array			List of deprecation strings
 	 */
-	public function getDeprecations()
+	public function getDeprecations(): array
 	{
 		return $this->deprecations;
-	}
-
-	/**
-	 *	Returns function description.
-	 *	@access		public
-	 *	@return		void			Function description
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
-
-	/**
-	 *	Returns list of licenses.
-	 *	@access		public
-	 *	@return		array			List of licenses
-	 */
-	public function getLicenses()
-	{
-		return $this->licenses;
-	}
-
-	/**
-	 *	Returns line in code.
-	 *	@access		public
-	 *	@return		int				Line number in code
-	 */
-	public function getLine()
-	{
-		return $this->line;
-	}
-
-	/**
-	 *	Returns list of links.
-	 *	@access		public
-	 *	@return		array			List of links
-	 */
-	public function getLinks()
-	{
-		return $this->links;
-	}
-
-	/**
-	 *	Returns function name.
-	 *	@access		public
-	 *	@return		void			Function name
-	 */
-	public function getName()
-	{
-		return $this->name;
 	}
 
 	/**
@@ -151,7 +80,7 @@ class Function_
 	 *	@access		public
 	 *	@return		array			List of parameter data objects
 	 */
-	public function getParameters()
+	public function getParameters(): array
 	{
 		return $this->param;
 	}
@@ -180,26 +109,6 @@ class Function_
 	}
 
 	/**
-	 *	Returns list of see-also-references.
-	 *	@access		public
-	 *	@return		array			List of see-also-references
-	 */
-	public function getSees()
-	{
-		return $this->sees;
-	}
-
-	/**
-	 *	Returns first version function occured.
-	 *	@access		public
-	 *	@return		mixed			First version function occured
-	 */
-	public function getSince()
-	{
-		return $this->since;
-	}
-
-	/**
 	 *	Returns method source code.
 	 *	@access		public
 	 *	@return		string			Method source code (multiline string)
@@ -214,7 +123,7 @@ class Function_
 	 *	@access		public
 	 *	@return		array			List of thrown exceptions
 	 */
-	public function getThrows()
+	public function getThrows(): array
 	{
 		return $this->throws;
 	}
@@ -224,7 +133,7 @@ class Function_
 	 *	@access		public
 	 *	@return		array			List of todo strings
 	 */
-	public function getTodos()
+	public function getTodos(): array
 	{
 		return $this->todos;
 	}
@@ -234,22 +143,12 @@ class Function_
 	 *	@access		public
 	 *	@return		array			List of triggers
 	 */
-	public function getTriggers()
+	public function getTriggers(): array
 	{
 		return $this->triggers;
 	}
 
-	/**
-	 *	Returns date of current version.
-	 *	@access		public
-	 *	@return		mixed			Date of current version
-	 */
-	public function getVersion()
-	{
-		return $this->version;
-	}
-
-	public function merge( Function_ $function )
+	public function merge( Function_ $function ): self
 	{
 		if( $this->name != $function->getName() )
 			throw new \Exception( 'Not mergable' );
@@ -282,196 +181,96 @@ class Function_
 			$this->setLicense( $license );
 
 		//	@todo		parameters are missing
-	}
-
-	/**
-	 *	Sets am author.
-	 *	@access		public
-	 *	@param		Author_			$author		Author data object
-	 */
-	public function setAuthor( Author_ $author )
-	{
-		$this->authors[]	= $author;
+		return $this;
 	}
 
 	public function setCategory(){}
 
 	/**
-	 *	Sets copyright notes.
-	 *	@access		public
-	 *	@param		param			$string		Copyright notes
-	 *	@return		void
-	 */
-	public function setCopyright( $string )
-	{
-		$this->copyright[]	= $string;
-	}
-
-	/**
 	 *	Sets function deprecation.
 	 *	@access		public
 	 *	@param		string			$string		Function deprecation
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setDeprecation( $string )
+	public function setDeprecation( string $string ): self
 	{
 		$this->deprecations[]	= $string;
-	}
-
-	/**
-	 *	Sets function description.
-	 *	@access		public
-	 *	@param		string			$string		Function description
-	 *	@return		void
-	 */
-	public function setDescription( $string )
-	{
-		$this->description	= $string;
-	}
-
-	/**
-	 *	Sets function license.
-	 *	@access		public
-	 *	@param		string			$string		Function license
-	 *	@return		void
-	 */
-	public function setLicense( $string )
-	{
-		$this->licenses[]	= $string;
-	}
-
-	/**
-	 *	Sets line in code.
-	 *	@access		public
-	 *	@param		int				Line number in code
-	 *	@return		void
-	 */
-	public function setLine( $number )
-	{
-		$this->line	= $number;
-	}
-
-	/**
-	 *	Sets function link.
-	 *	@access		public
-	 *	@param		string			$string		Function link
-	 *	@return		void
-	 */
-	public function setLink( $string )
-	{
-		$this->links[]	= $string;
+		return $this;
 	}
 
 	public function setPackage(){}
 
 	/**
-	 *	Sets function name.
-	 *	@access		public
-	 *	@param		string			$string			Function name
-	 *	@return		void
-	 */
-	public function setName( $string )
-	{
-		$this->name	= $string;
-	}
-
-	/**
 	 *	Sets function link.
 	 *	@access		public
 	 *	@param		Parameter_		$parameter	Parameter data object
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setParameter( Parameter_ $parameter )
+	public function setParameter( Parameter_ $parameter ): self
 	{
 		$this->param[$parameter->getName()]	= $parameter;
+		return $this;
 	}
 
 	/**
 	 *	Sets functions parent file.
 	 *	@access		public
 	 *	@param		File_			$file		Function's parent file data object
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setParent( $file )
+	public function setParent( $file ): self
 	{
 		if( !( $file instanceof File_ ) )
 			throw new \InvalidArgumentException( 'Parent must be of Structure\\File_' );
 		$this->parent	= $file;
+		return $this;
 	}
 
 	/**
 	 *	Sets functions return data object.
 	 *	@access		public
 	 *	@param		Return_			$return		Function's return data object
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setReturn( Return_ $return )
+	public function setReturn( Return_ $return ): self
 	{
 		$this->return	= $return;
-	}
-
-	/**
-	 *	Sets function see-also-link.
-	 *	@access		public
-	 *	@param		string			$string		Function see-also-link
-	 *	@return		void
-	 */
-	public function setSee( $string )
-	{
-		$this->sees[]	= $string;
-	}
-
-	/**
-	 *	Sets first version function occured.
-	 *	@access		public
-	 *	@param		string			$string		First version function occured
-	 *	@return		void
-	 */
-	public function setSince( $string )
-	{
-		$this->since	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets method source code.
 	 *	@access		public
 	 *	@param		string			Method source code (multiline string)
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setSourceCode( $string )
+	public function setSourceCode( $string ): self
 	{
 		$this->sourceCode	= $string;
+		return $this;
 	}
 
-	public function setThrows( Throws_ $throws )
+	public function setThrows( Throws_ $throws ): self
 	{
 		$this->throws[]	= $throws;
+		return $this;
 	}
 
 	/**
 	 *	Sets function todo.
 	 *	@access		public
 	 *	@param		string			$string		Function todo string
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setTodo( $string )
+	public function setTodo( string $string ): self
 	{
 		$this->todos[]	= $string;
+		return $this;
 	}
 
-	public function setTrigger( Trigger_ $trigger )
+	public function setTrigger( Trigger_ $trigger ): self
 	{
 		$this->triggers[]	= $trigger;
-	}
-
-	/**
-	 *	Sets date of current version.
-	 *	@access		public
-	 *	@param		string			$string		Date of current version
-	 *	@return		void
-	 */
-	public function setVersion( $string )
-	{
-		$this->version	= $string;
+		return $this;
 	}
 }

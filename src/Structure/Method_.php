@@ -22,7 +22,6 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
 
@@ -34,7 +33,6 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Method_ extends Function_
 {
@@ -48,7 +46,7 @@ class Method_ extends Function_
 	 *	@access		public
 	 *	@return		string
 	 */
-	public function getAccess( )
+	public function getAccess(): ?string
 	{
 		return $this->access;
 	}
@@ -65,7 +63,7 @@ class Method_ extends Function_
 	 *	@access		public
 	 *	@return		bool
 	 */
-	public function isAbstract()
+	public function isAbstract(): bool
 	{
 		return (bool) $this->abstract;
 	}
@@ -75,7 +73,7 @@ class Method_ extends Function_
 	 *	@access		public
 	 *	@return		bool
 	 */
-	public function isFinal()
+	public function isFinal(): bool
 	{
 		return (bool) $this->final;
 	}
@@ -85,12 +83,12 @@ class Method_ extends Function_
 	 *	@access		public
 	 *	@return		bool
 	 */
-	public function isStatic()
+	public function isStatic(): bool
 	{
 		return (bool) $this->static;
 	}
 
-	public function merge( Function_ $method )
+	public function merge( Function_ $method ): self
 	{
 		if( $this->name != $method->getName() )
 			throw new \Exception( 'Not mergable' );
@@ -104,6 +102,7 @@ class Method_ extends Function_
 			$this->setFinal( $method->isFinal() );
 		if( $method->isStatic() )
 			$this->setStatic( $method->isStatic() );
+		return $this;
 	}
 
 	/**
@@ -112,9 +111,10 @@ class Method_ extends Function_
 	 *	@param		bool		$isAbstract		Flag: method is abstract
 	 *	@return		void
 	 */
-	public function setAbstract( $isAbstract = TRUE )
+	public function setAbstract( bool $isAbstract = TRUE ): self
 	{
 		$this->abstract	= (bool) $isAbstract;
+		return $this;
 	}
 
 	/**
@@ -123,27 +123,30 @@ class Method_ extends Function_
 	 *	@param		string		$string			Method access
 	 *	@return		void
 	 */
-	public function setAccess( $string = 'public' )
+	public function setAccess( string $string = 'public' ): self
 	{
 		$this->access	= $string;
+		return $this;
 	}
 
 	/**
 	 *	Sets if method is final.
 	 *	@access		public
 	 *	@param		bool		$isFinal		Flag: method is final
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setFinal( $isFinal = TRUE )
+	public function setFinal( bool $isFinal = TRUE ): self
 	{
 		$this->final	= (bool) $isFinal;
+		return $this;
 	}
 
-	public function setParent( $classOrInterface )
+	public function setParent( $classOrInterface ): self
 	{
 		if( !( $classOrInterface instanceof Interface_ ) )
 			throw new \InvalidArgumentException( 'Parent must be of Structure\\Class_' );
 		$this->parent	= $classOrInterface;
+		return $this;
 	}
 
 	/**
@@ -152,8 +155,9 @@ class Method_ extends Function_
 	 *	@param		bool		$isStatic		Flag: method is static
 	 *	@return		void
 	 */
-	public function setStatic( $isStatic = TRUE )
+	public function setStatic( bool $isStatic = TRUE ): self
 	{
 		$this->static	= (bool) $isStatic;
+		return $this;
 	}
 }

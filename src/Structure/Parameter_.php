@@ -26,6 +26,10 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Structure\Traits\HasDescription;
+use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+
 /**
  *	Function/Method Parameter Data Class.
  *	@category		Library
@@ -38,14 +42,13 @@ namespace CeusMedia\PhpParser\Structure;
  */
 class Parameter_
 {
+	use HasDescription, HasName, HasLineInFile;
+
 	protected $parent		= NULL;
-	protected $name			= NULL;
 	protected $cast			= NULL;
 	protected $type			= NULL;
 	protected $reference	= NULL;
-	protected $description	= NULL;
 	protected $default		= NULL;
-	protected $line			= 0;
 
 	/**
 	 *	Constructor.
@@ -55,7 +58,7 @@ class Parameter_
 	 *	@param		string			$description	Parameter description
 	 *	@return		void
 	 */
-	public function __construct( $name, $type = NULL, $description = NULL )
+	public function __construct( string $name, $type = NULL, ?string $description = NULL )
 	{
 		$this->setName( $name );
 		if( !is_null( $type ) )
@@ -69,7 +72,7 @@ class Parameter_
 	 *	@access		public
 	 *	@return		mixed			Type string or data object
 	 */
-	public function getCast()
+	public function getCast(): ?string
 	{
 		return $this->cast;
 	}
@@ -79,39 +82,9 @@ class Parameter_
 	 *	@access		public
 	 *	@return		string			Parameter default
 	 */
-	public function getDefault()
+	public function getDefault(): ?string
 	{
 		return $this->default;
-	}
-
-	/**
-	 *	Returns parameter description.
-	 *	@access		public
-	 *	@return		string			Parameter description
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
-
-	/**
-	 *	Returns line in code.
-	 *	@access		public
-	 *	@return		int				Line number in code
-	 */
-	public function getLine()
-	{
-		return $this->line;
-	}
-
-	/**
-	 *	Returns function name.
-	 *	@access		public
-	 *	@return		string			Function name
-	 */
-	public function getName()
-	{
-		return $this->name;
 	}
 
 	/**
@@ -141,12 +114,12 @@ class Parameter_
 	 *	@access		public
 	 *	@return		bool			Flag: Parameter is set by reference
 	 */
-	public function isReference()
+	public function isReference(): bool
 	{
 		return (bool) $this->reference;
 	}
 
-	public function merge( Parameter_ $parameter )
+	public function merge( Parameter_ $parameter ): self
 	{
 #		remark( "merging parameter: ".$parameter->getName() );
 		if( $this->name != $parameter->getName() )
@@ -165,6 +138,7 @@ class Parameter_
 			$this->setParent( $parameter->getParent() );
 
 		// @todo		$reference	is missing
+		return $this;
 	}
 
 	/**
@@ -173,9 +147,10 @@ class Parameter_
 	 *	@param		mixed			$type			Casted type string or data object
 	 *	@return		void
 	 */
-	public function setCast( $type )
+	public function setCast( $type ): self
 	{
 		$this->cast	= $type;
+		return $this;
 	}
 
 	/**
@@ -184,42 +159,10 @@ class Parameter_
 	 *	@param		string			$string			Parameter default
 	 *	@return		void
 	 */
-	public function setDefault( $string )
+	public function setDefault( string $string ): self
 	{
 		$this->default	= $string;
-	}
-
-	/**
-	 *	Sets variable description.
-	 *	@access		public
-	 *	@param		string			$string			Parameter description
-	 *	@return		void
-	 */
-	public function setDescription( $string )
-	{
-		$this->description	= $string;
-	}
-
-	/**
-	 *	Sets line in code.
-	 *	@access		public
-	 *	@param		int				Line number in code
-	 *	@return		void
-	 */
-	public function setLine( $number )
-	{
-		$this->line	= $number;
-	}
-
-	/**
-	 *	Sets function name.
-	 *	@access		public
-	 *	@param		string			$string			Parameter name
-	 *	@return		void
-	 */
-	public function setName( $string )
-	{
-		$this->name	= $string;
+		return $this;
 	}
 
 	/**
@@ -228,24 +171,27 @@ class Parameter_
 	 *	@param		Function_	$function		Parent container object, instance of ADT_PHP_Function or ADT_PHP_Class,
 	 *	@return		void
 	 */
-	public function setParent( Function_ $function )
+	public function setParent( Function_ $function ): self
 	{
 		$this->parent	= $function;
+		return $this;
 	}
 
-	public function setReference( $bool )
+	public function setReference( bool $bool ): self
 	{
 		$this->reference	= (bool) $bool;
+		return $this;
 	}
 
 	/**
 	 *	Sets parameter type.
 	 *	@access		public
 	 *	@param		mixed			$type			Type string or data object
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setType( $type )
+	public function setType( $type ): self
 	{
 		$this->type	= $type;
+		return $this;
 	}
 }

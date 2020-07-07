@@ -22,7 +22,6 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
 
@@ -33,7 +32,6 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Category_
 {
@@ -50,7 +48,7 @@ class Category_
 	 *	@param		string		$label		Label of Category
 	 *	@return		void
 	 */
-	public function __construct( $label = NULL )
+	public function __construct( ?string $label = NULL )
 	{
 		if( $label )
 			$this->setLabel( $label );
@@ -62,9 +60,10 @@ class Category_
 	 *	@param		Class_		$class			Class Object to relate to this Category
 	 *	@return		void
 	 */
-	public function addClass( Class_ $class )
+	public function addClass( Class_ $class ): self
 	{
 		$this->classes[$class->getName()]	= $class;
+		return $this;
 	}
 
 	/**
@@ -73,15 +72,16 @@ class Category_
 	 *	@param		Interface_	$interface		Interface Object to relate to this Category
 	 *	@return		void
 	 */
-	public function addInterface( Interface_ $interface )
+	public function addInterface( Interface_ $interface ): self
 	{
 		$this->interfaces[$interface->getName()]	= $interface;
+		return $this;
 	}
 
 	/**
 	 *	@deprecated		not used yet
 	 */
-	public function getCategories()
+	public function getCategories(): array
 	{
 		return $this->categories;
 	}
@@ -89,19 +89,19 @@ class Category_
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function & getClassByName( $name )
+	public function & getClassByName( $name ): Class_
 	{
 		if( isset( $this->classes[$name] ) )
 			return $this->classes[$name];
 		throw new \RuntimeException( "Class '$name' is unknown" );
 	}
 
-	public function getClasses()
+	public function getClasses(): array
 	{
 		return $this->classes;
 	}
 
-	public function getId()
+	public function getId(): ?string
 	{
 #		remark( get_class( $this ).": ".$this->getLabel() );
 		$parts	= array();
@@ -125,24 +125,24 @@ class Category_
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function & getInterfaceByName( $name )
+	public function & getInterfaceByName( $name ): Interface_
 	{
 		if( isset( $this->interface[$name] ) )
 			return $this->interface[$name];
 		throw new \RuntimeException( "Interface '$name' is unknown" );
 	}
 
-	public function getInterfaces()
+	public function getInterfaces(): array
 	{
 		return $this->interfaces;
 	}
 
-	public function getLabel()
+	public function getLabel(): string
 	{
 		return $this->label;
 	}
 
-	public function & getPackage( $name )
+	public function & getPackage( $name ): Package_
 	{
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
@@ -171,7 +171,7 @@ class Category_
 	 *	@access		public
 	 *	@return		array
 	 */
-	public function getPackages()
+	public function getPackages(): array
 	{
 		return $this->packages;
 	}
@@ -181,7 +181,7 @@ class Category_
 	 *	@access		public
 	 *	@return		bool
 	 */
-	public function hasClasses()
+	public function hasClasses(): bool
 	{
 		return (bool) count( $this->classes );
 	}
@@ -191,12 +191,12 @@ class Category_
 	 *	@access		public
 	 *	@return		bool
 	 */
-	public function hasInterfaces()
+	public function hasInterfaces(): bool
 	{
 		return (bool) count( $this->interfaces );
 	}
 
-	public function hasPackage( $name )
+	public function hasPackage( string $name ): bool
 	{
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
@@ -225,17 +225,18 @@ class Category_
 	 *	@access		public
 	 *	@return		bool
 	 */
-	public function hasPackages()
+	public function hasPackages(): bool
 	{
 		return count( $this->packages ) > 0;
 	}
 
-	public function setLabel( $string )
+	public function setLabel( string $string ): self
 	{
 		$this->label	= $string;
+		return $this;
 	}
 
-	public function setPackage( $name, Category_ $package )
+	public function setPackage( string $name, Package_ $package ): self
 	{
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
@@ -285,10 +286,12 @@ class Category_
 //  add File to existing Package
 #				$this->packages[$name]->setFile( $file->basename, $file );
 		}
+		return $this;
 	}
 
-	public function setParent( Category\ $parent )
+	public function setParent( Category_ $parent ): self
 	{
 		$this->parent	= $parent;
+		return $this;
 	}
 }

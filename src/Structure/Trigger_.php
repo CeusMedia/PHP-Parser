@@ -45,7 +45,7 @@ class Trigger_
 	 *	@param		string		$description	Return description
 	 *	@return		void
 	 */
-	public function __construct( $key )
+	public function __construct( string $key )
 	{
 		$this->key			= $key;
 	}
@@ -53,9 +53,9 @@ class Trigger_
 	/**
 	 *	Returns description of return value.
 	 *	@access		public
-	 *	@return		void		Return description
+	 *	@return		string		Return description
 	 */
-	public function getCondition()
+	public function getCondition(): ?string
 	{
 		return $this->condition;
 	}
@@ -83,11 +83,12 @@ class Trigger_
 	 *	Sets description of return value.
 	 *	@access		public
 	 *	@param		string		$description	Return description
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setCondition( $condition )
+	public function setCondition( $condition ): self
 	{
 		$this->condition	= $condition;
+		return $this;
 	}
 
 /*	public function setParent( Function_ $function )
@@ -99,10 +100,11 @@ class Trigger_
 	 *	Sets type of return value.
 	 *	@access		public
 	 *	@param		string		$type			Return type
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setKey( $key )
+	public function setKey( $key ): self
 	{
 		$this->key	= $key;
+		return $this;
 	}
 }

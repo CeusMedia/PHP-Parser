@@ -22,9 +22,10 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasName;
 
 /**
  *	File/Class License Data Class.
@@ -33,12 +34,12 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class License_
 {
+	use HasName;
+
 	protected $url		= NULL;
-	protected $name		= NULL;
 
 	/**
 	 *	Constructor.
@@ -47,7 +48,7 @@ class License_
 	 *	@param		string		$url		License URL
 	 *	@return		void
 	 */
-	public function __construct( $name, $url = NULL )
+	public function __construct( string $name, ?string $url = NULL )
 	{
 		$this->setName( $name );
 		if( !is_null( $url ) )
@@ -55,52 +56,33 @@ class License_
 	}
 
 	/**
-	 *	Returns license name.
-	 *	@access		public
-	 *	@return		string
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
-
-	/**
 	 *	Returns license URL.
 	 *	@access		public
 	 *	@return		string
 	 */
-	public function getUrl()
+	public function getUrl(): ?string
 	{
 		return $this->url;
 	}
 
-	public function merge( License_ $license )
+	public function merge( License_ $license ): self
 	{
 		if( $this->name != $license->getName() )
 			throw new \Exception( 'Not mergable' );
 		if( $license->getUrl() )
 			$this->setUrl( $license->getUrl() );
-	}
-
-	/**
-	 *	Sets license name.
-	 *	@access		public
-	 *	@param		string		$name		License name
-	 *	@return		void
-	 */
-	public function setName( $name )
-	{
-		$this->name	= $name;
+		return $this;
 	}
 
 	/**
 	 *	Sets license URL.
 	 *	@access		public
 	 *	@param		string		$url		License URL
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setUrl( $url )
+	public function setUrl( ?string $url ): self
 	{
 		$this->url	= $url;
+		return $this;
 	}
 }

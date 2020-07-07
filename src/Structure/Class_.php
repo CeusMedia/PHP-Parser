@@ -22,9 +22,10 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasMembers;
 
 /**
  *	Class Data Class.
@@ -34,14 +35,13 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Class_ extends Interface_
 {
+	use HasMembers;
+
 	protected $abstract		= FALSE;
 	protected $final		= FALSE;
-
-	protected $members		= array();
 
 	protected $implements	= array();
 	protected $uses			= array();
@@ -61,45 +61,22 @@ class Class_ extends Interface_
 		return $this->implements;
 	}
 
-	/**
-	 *	Returns a member data object by its name.
-	 *	@access		public
-	 *	@param		string			$name		Member name
-	 *	@return		Member_			Member data object
-	 */
-	public function & getMemberByName( $name )
-	{
-		if( isset( $this->members[$name] ) )
-			return $this->members[$name];
-		throw new \RuntimeException( "Member '$name' is unknown" );
-	}
-
-	/**
-	 *	Returns a list of member data objects.
-	 *	@access		public
-	 *	@return		array			List of member data objects
-	 */
-	public function getMembers()
-	{
-		return $this->members;
-	}
-
-	public function getUsedClasses()
+	public function getUsedClasses(): array
 	{
 		return $this->uses;
 	}
 
-	public function isAbstract()
+	public function isAbstract(): bool
 	{
 		return (bool) $this->abstract;
 	}
 
-	public function isFinal()
+	public function isFinal(): bool
 	{
 		return (bool) $this->final;
 	}
 
-	public function isImplementingInterface( Interface_ $interface )
+	public function isImplementingInterface( Interface_ $interface ): bool
 	{
 		foreach( $this->implements as $interfaceName => $interfaceObject )
 			if( $interface == $interfaceObject )
@@ -107,7 +84,7 @@ class Class_ extends Interface_
 		return FALSE;
 	}
 
-	public function isUsingClass( Class_ $class )
+	public function isUsingClass( Class_ $class ): bool
 	{
 		foreach( $this->uses as $className => $class )
 			if( $class == $class )
@@ -115,7 +92,7 @@ class Class_ extends Interface_
 		return FALSE;
 	}
 
-	public function merge( Interface_ $artefact )
+	public function merge( Interface_ $artefact ): self
 	{
 		if( $this->name != $artefact->getName() )
 			throw new \Exception( 'Not mergable' );
@@ -132,82 +109,82 @@ class Class_ extends Interface_
 			$this->setUsedClass( $artefact );
 
 		//	@todo		members and interfaces missing
+		return $this;
 	}
 
-	public function setAbstract( $isAbstract = TRUE )
+	public function setAbstract( bool $isAbstract = TRUE ): self
 	{
 		$this->abstract	= (bool) $isAbstract;
+		return $this;
 	}
 
-	public function setExtendedClass( Class_ $class )
+	public function setExtendedClass( Class_ $class ): self
 	{
 		$this->extends	= $class;
+		return $this;
 	}
 
-	public function setExtendedClassName( $class )
+	public function setExtendedClassName( $class ): self
 	{
 		$this->extends	= $class;
+		return $this;
 	}
 
-	public function setExtendedInterface( Interface_ $interface )
+	public function setExtendedInterface( Interface_ $interface ): self
 	{
 		throw new RuntimeException( 'Class cannot extend an interface' );
 	}
 
-	public function setExtendingClass( Class_ $class )
+	public function setExtendingClass( Class_ $class ): self
 	{
 		$this->extendedBy[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function setExtendingInterface( Interface_ $interface )
+	public function setExtendingInterface( Interface_ $interface ): self
 	{
 		throw new RuntimeException( 'Interface cannot extend class' );
 	}
 
-	public function setFinal( $isFinal = TRUE )
+	public function setFinal( bool $isFinal = TRUE ): self
 	{
 		$this->final	= (bool) $isFinal;
+		return $this;
 	}
 
-	public function setImplementedInterface( Interface_ $interface )
+	public function setImplementedInterface( Interface_ $interface ): self
 	{
 		$this->implements[$interface->name]	= $interface;
+		return $this;
 	}
 
-	public function setImplementedInterfaceName( $interfaceName )
+	public function setImplementedInterfaceName( string $interfaceName ): self
 	{
 		$this->implements[$interfaceName]	= $interfaceName;
+		return $this;
 	}
 
-	public function setImplementingClass( Class_ $class )
+	public function setImplementingClass( Class_ $class ): self
 	{
 		$this->implementedBy[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function setImplementingClassName( $className )
+	public function setImplementingClassName( string $className ): self
 	{
 		$this->implementedBy[$className]	= $className;
+		return $this;
 	}
 
-	/**
-	 *	Sets a member.
-	 *	@access		public
-	 *	@param		string			Member name
-	 *	@param		ADT_PHP_Member	Member data object to set
-	 *	@return		void
-	 */
-	public function setMember( Member_ $member )
+	public function setUsedClass( Class_ $class ): self
 	{
-		$this->members[$member->getName()]	= $member;
+		$this->uses[$class->getName()]	= $class;
+		return $this;
 	}
 
-	public function setUsedClass( Class_ $class )
+	public function setUsedClassName( string $className ): self
 	{
-		return $this->uses[$class->getName()]	= $class;
-	}
-
-	public function setUsedClassName( $className )
-	{
-		return $this->uses[$className]	= $className;
+		$this->uses[$className]	= $className;
+		return $this;
 	}
 }

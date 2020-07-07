@@ -22,9 +22,10 @@
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
+
+use CeusMedia\PhpParser\Structure\Traits\HasName;
 
 /**
  *	Function/Method Throws Data Class.
@@ -33,11 +34,11 @@ namespace CeusMedia\PhpParser\Structure;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@since			0.3
  */
 class Throws_
 {
-	protected $name		= NULL;
+	use HasName;
+
 	protected $reason	= NULL;
 
 	/**
@@ -47,20 +48,10 @@ class Throws_
 	 *	@param		string		$reason		Exception reason
 	 *	@return		void
 	 */
-	public function __construct( $name = NULL, $reason = NULL )
+	public function __construct( string $name = NULL, ?string $reason = NULL )
 	{
-		$this->name		= $name;
-		$this->reason	= $reason;
-	}
-
-	/**
-	 *	Returns exception name.
-	 *	@access		public
-	 *	@return		string
-	 */
-	public function getName()
-	{
-		return $this->name;
+		$this->setName( $name );
+		$this->setReason( $reason );
 	}
 
 	/**
@@ -68,38 +59,29 @@ class Throws_
 	 *	@access		public
 	 *	@return		string
 	 */
-	public function getReason()
+	public function getReason(): ?string
 	{
 		return $this->reason;
 	}
 
-	public function merge( Throws_ $throws )
+	public function merge( Throws_ $throws ): self
 	{
 		if( $this->name != $throws->getName() )
 			throw new \Exception( 'Not mergable' );
 		if( $throws->getReason() )
 			$this->setReason( $throws->getReason() );
-	}
-
-	/**
-	 *	Sets exception name.
-	 *	@access		public
-	 *	@param		string		$name		Exception name
-	 *	@return		void
-	 */
-	public function setName( $name )
-	{
-		$this->name	= $name;
+		return $this;
 	}
 
 	/**
 	 *	Sets exception reason.
 	 *	@access		public
 	 *	@param		string		$reason		Exception reason
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setReason( $reason )
+	public function setReason( ?string $reason ): self
 	{
 		$this->reason	= $reason;
+		return $this;
 	}
 }

@@ -40,7 +40,11 @@ class Tree
 				'fullpath'	=> $child->getPathName(),
 				'path'		=> $steps ? join( '/', $steps ) : '',
 				'label'		=> $child->getName(),
-				'node'		=> array( 'classes' => $file->getClasses() ),
+				'node'		=> array(
+					'classes'		=> $file->getClasses(),
+					'traits'		=> $file->getTraits(),
+					'interfaces'	=> $file->getInterfaces(),
+				),
 			);
 		}
 	}

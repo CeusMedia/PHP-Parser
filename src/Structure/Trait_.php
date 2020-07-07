@@ -1,6 +1,6 @@
 <?php
 /**
- *	...
+ *	Class Data Class.
  *
  *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
  *
@@ -25,42 +25,18 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Structure\Traits\HasMembers;
+
 /**
- *	...
+ *	Class Data Class.
  *	@category		Library
  *	@package		CeusMedia_Common_ADT_PHP
- *	@extends		ADT_PHP_Category
+ *	@extends		ADT_PHP_Interface
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-class Package_ extends Category_
+class Trait_ extends Interface_
 {
-	protected $files	= array();
-
-	/**
-	 *	@deprecated	seems to be unused
-	 */
-	public function & getFileByName( $name )
-	{
-		if( isset( $this->files[$name] ) )
-			return $this->files[$name];
-		throw new \RuntimeException( "File '$name' is unknown" );
-	}
-
-	public function getFiles(): array
-	{
-		return $this->files;
-	}
-
-	public function hasFiles(): bool
-	{
-		return count( $this->files ) > 1;
-	}
-
-	public function setFile( string $name, File_ $file ): self
-	{
-		$this->files[$name]	= $file;
-		return $this;
-	}
+	use HasMembers;
 }
