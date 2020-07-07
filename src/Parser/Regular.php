@@ -23,7 +23,6 @@
  *	@copyright		2008-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			04.08.08
  *	@todo			support multiple return types separated with |
  */
 namespace CeusMedia\PhpParser\Parser;
@@ -45,30 +44,16 @@ use CeusMedia\PhpParser\Structure\Throws_;
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).
  *	@category		Library
  *	@package		CeusMedia_Common_FS_File_PHP_Parser
- *	@uses			FS_File_Reader
- *	@uses			ADT_PHP_File
- *	@uses			ADT_PHP_Interface
- *	@uses			ADT_PHP_Class
- *	@uses			ADT_PHP_Variable
- *	@uses			ADT_PHP_Member
- *	@uses			ADT_PHP_Function
- *	@uses			ADT_PHP_Method
- *	@uses			ADT_PHP_Parameter
- *	@uses			ADT_PHP_Author
- *	@uses			ADT_PHP_License
- *	@uses			ADT_PHP_Return
- *	@uses			ADT_PHP_Throws
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2008-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
- *	@since			04.08.08
  *	@todo			Code Doc
  */
 class Regular
 {
 	protected $regexClass		= '@^(abstract )?(final )?(interface |class )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
-	protected $regexMethod		= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*{\s*)?;?\s*$@s';
+	protected $regexMethod		= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*\S+)?(\s*{\s*)?;?\s*$@s';
 	protected $regexParam		= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
 	protected $regexDocParam	= '@^\*\s+\@param\s+(([\S]+)\s+)?(\$?([\S]+))\s*(.+)?$@';
 	protected $regexDocVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
@@ -82,14 +67,13 @@ class Regular
 	 *	@access		public
 	 *	@param		string		$fileName		File Name of PHP File to parse
 	 *	@param		string		$innerPath		Base Path to File to be removed in Information
-	 *	@return		array
+	 *	@return		File_
 	 */
-	public function parseFile( $fileName, $innerPath )
+	public function parseFile( string $fileName, string $innerPath ): File_
 	{
 		$content		= \FS_File_Reader::load( $fileName );
 		if( !\Alg_Text_Unicoder::isUnicode( $content ) )
 			$content	= \Alg_Text_Unicoder::convertToUnicode( $content );
-
 
 		$lines			= explode( "\n", $content );
 		$fileBlock		= NULL;
@@ -239,11 +223,11 @@ class Regular
 	 *
 	 *	@access		protected
 	 *	@param		array		$codeData		Data collected by parsing Code
-	 *	@param		string		$docData		Data collected by parsing Documentation
+	 *	@param		array		$docData		Data collected by parsing Documentation
 	 *	@return		void
 	 *	@todo		fix merge problem -> seems to be fixed (what was the problem again?)
 	 */
-	protected function decorateCodeDataWithDocData( &$codeData, $docData )
+	protected function decorateCodeDataWithDocData( array &$codeData, array $docData )
 	{
 		foreach( $docData as $key => $value )
 		{
@@ -369,7 +353,7 @@ class Regular
 	 *	@param		array				$matches		Matches of RegEx
 	 *	@return		Interface_|Class_
 	 */
-	protected function parseClassOrInterface( File_ $parent, $matches )
+	protected function parseClassOrInterface( File_ $parent, array $matches )
 	{
 		switch( strtolower( trim( $matches[3] ) ) )
 		{
@@ -412,43 +396,34 @@ class Regular
 	 *	@param		array		$lines			Lines of Doc Block
 	 *	@return		array
 	 */
-	protected function parseDocBlock( $lines )
+	protected function parseDocBlock( array $lines ): array
 	{
 		$data		= array();
 		$descLines	= array();
-		foreach( $lines as $line )
-		{
-			if( preg_match( $this->regexDocParam, $line, $matches ) )
-			{
+		foreach( $lines as $line ){
+			if( preg_match( $this->regexDocParam, $line, $matches ) ){
 				$data['param'][$matches[4]]	= $this->parseDocParameter( $matches );
 			}
-			else if( preg_match( "@\*\s+\@return\s+(\w+)\s*(.+)?$@i", $line, $matches ) )
-			{
+			else if( preg_match( "@\*\s+\@return\s+(\w+)\s*(.+)?$@i", $line, $matches ) ){
 				$data['return']	= $this->parseDocReturn( $matches );
 			}
-			else if( preg_match( "@\*\s+\@throws\s+(\w+)\s*(.+)?$@i", $line, $matches ) )
-			{
+			else if( preg_match( "@\*\s+\@throws\s+(\w+)\s*(.+)?$@i", $line, $matches ) ){
 				$data['throws'][]	= $this->parseDocThrows( $matches );
 			}
-			else if( preg_match( "@\*\s+\@trigger\s+(\w+)\s*(.+)?$@i", $line, $matches ) )
-			{
+			else if( preg_match( "@\*\s+\@trigger\s+(\w+)\s*(.+)?$@i", $line, $matches ) ){
 				$data['trigger'][]	= $this->parseDocTrigger( $matches );
 			}
-			else if( preg_match( "@\*\s+\@author\s+(.+)\s*(<(.+)>)?$@iU", $line, $matches ) )
-			{
+			else if( preg_match( "@\*\s+\@author\s+(.+)\s*(<(.+)>)?$@iU", $line, $matches ) ){
 				$author	= new Author_( trim( $matches[1] ) );
 				if( isset( $matches[3] ) )
 					$author->setEmail( trim( $matches[3] ) );
 				$data['author'][]	= $author;
 			}
-			else if( preg_match( "@\*\s+\@license\s+(\S+)( .+)?$@i", $line, $matches ) )
-			{
+			else if( preg_match( "@\*\s+\@license\s+(\S+)( .+)?$@i", $line, $matches ) ){
 				$data['license'][]	= $this->parseDocLicense( $matches );
 			}
-			else if( preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) )
-			{
-				switch( $matches[1] )
-				{
+			else if( preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) ){
+				switch( $matches[1] ){
 					case 'implements':
 					case 'deprecated':
 					case 'todo':
@@ -470,8 +445,9 @@ class Regular
 						break;
 				}
 			}
-			else if( !$data && preg_match( "/^\*\s*([^@].+)?$/", $line, $matches ) )
+			else if( !$data && preg_match( "/^\*\s*([^@].+)?$/", $line, $matches ) ){
 				$descLines[]	= isset( $matches[1] ) ? trim( $matches[1] ) : "";
+			}
 		}
 		$data['description']	= trim( implode( "\n", $descLines ) );
 
@@ -486,22 +462,19 @@ class Regular
 	 *	@param		array		$matches		Matches of RegEx
 	 *	@return		License_
 	 */
-	protected function parseDocLicense( $matches )
+	protected function parseDocLicense( array $matches ): License_
 	{
 		$name	= NULL;
 		$url	= NULL;
-		if( isset( $matches[2] ) )
-		{
+		if( isset( $matches[2] ) ){
 			$url	= trim( $matches[1] );
 			$name	= trim( $matches[2] );
-			if( preg_match( "@^http://@", $matches[2] ) )
-			{
+			if( preg_match( "@^http://@", $matches[2] ) ){
 				$url	= trim( $matches[2] );
 				$name	= trim( $matches[1] );
 			}
 		}
-		else
-		{
+		else{
 			$name	= trim( $matches[1] );
 			if( preg_match( "@^http://@", $matches[1] ) )
 				$url	= trim( $matches[1] );
@@ -516,7 +489,7 @@ class Regular
 	 *	@param		array		$matches		Matches of RegEx
 	 *	@return		Member_
 	 */
-	protected function parseDocMember( $matches )
+	protected function parseDocMember( array $matches ): Member_
 	{
 		$member	= new Member_( $matches[2], $matches[1], trim( $matches[4] ) );
 		return $member;
@@ -528,7 +501,7 @@ class Regular
 	 *	@param		array		$matches		Matches of RegEx
 	 *	@return		Parameter_
 	 */
-	protected function parseDocParameter( $matches )
+	protected function parseDocParameter( array $matches ): Parameter_
 	{
 		$parameter	= new Parameter_( $matches[4], $matches[2] );
 		if( isset( $matches[5] ) )
@@ -542,7 +515,7 @@ class Regular
 	 *	@param		array		$matches		Matches of RegEx
 	 *	@return		Return_
 	 */
-	protected function parseDocReturn( $matches )
+	protected function parseDocReturn( array $matches ): Return_
 	{
 		$return	= new Return_( trim( $matches[1] ) );
 		if( isset( $matches[2] ) )
@@ -556,7 +529,7 @@ class Regular
 	 *	@param		array		$matches		Matches of RegEx
 	 *	@return		Throws_
 	 */
-	protected function parseDocThrows( $matches )
+	protected function parseDocThrows( array $matches ): Throws_
 	{
 		$throws	= new Throws_( trim( $matches[1] ) );
 		if( isset( $matches[2] ) )
@@ -570,7 +543,7 @@ class Regular
 	 *	@param		array		$matches		Matches of RegEx
 	 *	@return		Trigger_
 	 */
-	protected function parseDocTrigger( $matches )
+	protected function parseDocTrigger( array $matches ): Trigger_
 	{
 		$trigger	= new Trigger_( trim( $matches[1] ) );
 		if( isset( $matches[2] ) )
@@ -584,7 +557,7 @@ class Regular
 	 *	@param		array		$matches		Matches of RegEx
 	 *	@return		Variable_
 	 */
-	protected function parseDocVariable( $matches )
+	protected function parseDocVariable( array $matches ): Variable_
 	{
 		$variable	= new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
 		return $variable;
@@ -597,7 +570,7 @@ class Regular
 	 *	@param		array				$matches		Matches of RegEx
 	 *	@return		Function_
 	 */
-	protected function parseFunction( File_ $parent, $matches )
+	protected function parseFunction( File_ $parent, array $matches ): Function_
 	{
 		$function	= new Function_( $matches[6] );
 		$function->setParent( $parent );
@@ -631,7 +604,7 @@ class Regular
 	 *	@param		array				$docBlock		Variable data object from Doc Parser
 	 *	@return		Member_
 	 */
-	protected function parseMember( $parent, $matches, $docBlock = NULL )
+	protected function parseMember( $parent, array $matches, $docBlock = NULL ): Member_
 	{
 		$variable			= new Member_( $matches[4], NULL, NULL );
 		$variable->setParent( $parent );
@@ -656,7 +629,7 @@ class Regular
 	 *	@param		array				$matches		Matches of RegEx
 	 *	@return		Method_
 	 */
-	protected function parseMethod( Interface_ $parent, $matches )
+	protected function parseMethod( Interface_ $parent, array $matches ): Method_
 	{
 		$method	= new Method_( $matches[6] );
 		$method->setParent( $parent );
@@ -671,19 +644,16 @@ class Regular
 		$return->setParent( $method );
 		$method->setReturn( $return );
 
-		if( trim( $matches[7] ) )
-		{
+		if( trim( $matches[7] ) ){
 			$paramList	= array();
-			foreach( explode( ",", $matches[7] ) as $param )
-			{
+			foreach( explode( ",", $matches[7] ) as $param ){
 				$param	 = trim( $param );
 				if( !preg_match( $this->regexParam, $param, $matches ) )
 					continue;
 				$method->setParameter( $this->parseParameter( $method, $matches ) );
 			}
 		}
-		if( $this->openBlocks )
-		{
+		if( $this->openBlocks ){
 			$methodBlock	= array_pop( $this->openBlocks );
 			$this->decorateCodeDataWithDocData( $method, $methodBlock );
 			$this->openBlocks	= array();
@@ -700,7 +670,7 @@ class Regular
 	 *	@param		array				$matches		Matches of RegEx
 	 *	@return		Parameter_
 	 */
-	protected function parseParameter( Function_ $parent, $matches )
+	protected function parseParameter( Function_ $parent, array $matches ): Parameter_
 	{
 		$parameter	= new Parameter_( $matches[5] );
 		$parameter->setParent( $parent );
