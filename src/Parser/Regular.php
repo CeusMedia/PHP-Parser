@@ -100,7 +100,8 @@ class Regular
 		$class	= NULL;
 		do
 		{
-			$line	= trim( array_shift( $lines ) );
+			$originalLine	= array_shift( $lines );
+			$line			= trim( $originalLine );
 #			remark( ( $openClass ? "I" : "O" )." :: ".$level." :: ".$this->lineNumber." :: ".$line );
 			$this->lineNumber ++;
 			if( preg_match( "@^(<\?(php)?)|((php)?\?>)$@", $line ) )
@@ -202,7 +203,7 @@ class Regular
 				}
 				else if( $level > 1 && $function )
 				{
-					$functionBody[$function][]	= $line;
+					$functionBody[$function][]	= $originalLine;
 				}
 			}
 			if( preg_match( '@{$@', $line ) )
