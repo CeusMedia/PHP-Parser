@@ -19,10 +19,11 @@ Trait HasDescription
 	 *	Sets variable description.
 	 *	@access		public
 	 *	@param		string			$string			Parameter description
-	 *	@return		void
+	 *	@return		self
 	 */
-	public function setDescription( $string )
+	public function setDescription( $string ): self
 	{
 		$this->description	= $string;
+		return $this;
 	}
 }

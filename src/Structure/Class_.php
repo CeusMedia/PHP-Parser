@@ -26,6 +26,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasMembers;
+use RuntimeException;
 
 /**
  *	Class Data Class.
@@ -148,6 +149,8 @@ class Class_ extends Interface_
 
 	public function setFinal( bool $isFinal = TRUE ): self
 	{
+		if( $isFinal && $this->isAbstract() )
+			throw new \Exception( 'Class cannot be abstract AND final' );
 		$this->final	= (bool) $isFinal;
 		return $this;
 	}
