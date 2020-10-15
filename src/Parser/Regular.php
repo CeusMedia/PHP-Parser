@@ -101,7 +101,8 @@ class Regular
 		do
 		{
 			$originalLine	= array_shift( $lines );
-			$line			= trim( $originalLine );
+			$line			= preg_replace( '@((#|//).*)$@', '', $originalLine );		//  remove trailing comment
+			$line			= trim( $line );											//  trim line, since whitespace does not matter for parsing
 #			remark( ( $openClass ? "I" : "O" )." :: ".$level." :: ".$this->lineNumber." :: ".$line );
 			$this->lineNumber ++;
 			if( preg_match( "@^(<\?(php)?)|((php)?\?>)$@", $line ) )
