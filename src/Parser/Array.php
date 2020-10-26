@@ -261,10 +261,10 @@ class FS_File_PHP_Parser_Array
 					case 'uses':
 					case 'throws':
 					case 'link':
-						$data[$matches[1]][]	= $matches[2];			
+						$data[$matches[1]][]	= $matches[2];
 						break;
 					default:
-						$data[$matches[1]]	= $matches[2];			
+						$data[$matches[1]]	= $matches[2];
 						break;
 				}
 			}
@@ -439,7 +439,7 @@ class FS_File_PHP_Parser_Array
 				);
 				if( isset( $matches[6] ) )
 					$param['default']	= $matches[7];
-				$method['param'][$matches[5]] = $param; 
+				$method['param'][$matches[5]] = $param;
 			}
 		}
 		if( $openBlocks )

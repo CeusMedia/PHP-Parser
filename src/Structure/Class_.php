@@ -18,7 +18,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_Common_ADT_PHP
+ *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -31,8 +31,8 @@ use RuntimeException;
 /**
  *	Class Data Class.
  *	@category		Library
- *	@package		CeusMedia_Common_ADT_PHP
- *	@extends		ADT_PHP_Interface
+ *	@package		CeusMedia_PHP-Parser_Structure
+ *	@extends		Interface_
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
