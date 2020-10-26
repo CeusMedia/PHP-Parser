@@ -18,7 +18,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_Common_FS_File_PHP_Parser_Doc
+ *	@package		CeusMedia_PHP-Parser_Parser_Doc
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -39,7 +39,7 @@ use CeusMedia\PhpParser\Structure\Trigger_;
  *	...
  *
  *	@category		Library
- *	@package		CeusMedia_Common_FS_File_PHP_Parser_Doc
+ *	@package		CeusMedia_PHP-Parser_Parser_Doc
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3

@@ -18,7 +18,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_Common_FS_File_PHP_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2008-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -47,7 +47,7 @@ use CeusMedia\PhpParser\Structure\Throws_;
 /**
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).
  *	@category		Library
- *	@package		CeusMedia_Common_FS_File_PHP_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2008-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -293,6 +293,8 @@ class Regular
 		$function	= new Function_( $matches[6] );
 		$function->setParent( $parent );
 		$function->setLine( $this->lineNumber );
+		if( isset( $matches[8] ) )
+			$function->setReturn( new Return_( $matches[9] ) );
 
 		if( trim( $matches[7] ) )
 		{
@@ -393,7 +395,8 @@ class Regular
 		$parameter	= new Parameter_( $matches[5] );
 		$parameter->setParent( $parent );
 		$parameter->setLine( $this->lineNumber );
-		$parameter->setCast( $matches[2] );
+		if( trim( $matches[2] ) )
+			$parameter->setCast( $matches[2] );
 		$parameter->setReference( (bool) $matches[4] );
 
 		if( isset( $matches[6] ) )

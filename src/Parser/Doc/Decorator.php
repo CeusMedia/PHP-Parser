@@ -18,7 +18,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_Common_FS_File_PHP_Parser_Doc
+ *	@package		CeusMedia_PHP-Parser_Parser_Doc
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -26,11 +26,15 @@
  */
 namespace CeusMedia\PhpParser\Parser\Doc;
 
+use CeusMedia\PhpParser\Structure\Function_;
+use CeusMedia\PhpParser\Structure\Interface_;
+use CeusMedia\PhpParser\Structure\Method_;
+
 /**
  *	...
  *
  *	@category		Library
- *	@package		CeusMedia_Common_FS_File_PHP_Parser_Doc
+ *	@package		CeusMedia_PHP-Parser_Parser_Doc
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2010-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -56,7 +60,6 @@ class Decorator
 		foreach( $docData as $key => $value ){
 			if( !$value )
 				continue;
-
 			//  value is an object
 			if( is_object( $value ) ){
 				if( $codeData instanceof Function_ ){
@@ -118,10 +121,18 @@ class Decorator
 					if( is_string( $itemKey ) ){
 						switch( $key ){
 							case 'param':
-								foreach( $codeData->getParameters() as $parameter )
-									if( $parameter->getName() == $itemKey ){
-										$parameter->merge( $itemValue );
+								if( $codeData instanceof Function_ ){
+									foreach( $codeData->getParameters() as $parameter ){
+										if( $parameter->getName() == $itemKey ){
+											$parameter->merge( $itemValue );
+										}
 									}
+								}
+								break;
+							case 'return':
+								if( !$codeData instanceof Function_ ){
+									$codeData->getReturn()->merge( $value );
+								}
 								break;
 						}
 					}
