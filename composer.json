@@ -21,7 +21,9 @@
         "ceus-media/common": "^0.8 | dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5@dev"
+        "phpunit/phpunit": "^9.5@dev",
+        "phpstan/phpstan": "0.12.x-dev",
+        "phpstan/phpstan-strict-rules": "0.12.x-dev"
     },
     "minimum-stability": "dev",
     "autoload": {
