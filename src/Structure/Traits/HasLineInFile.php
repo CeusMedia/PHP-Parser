@@ -35,6 +35,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasLineInFile
 {
+	/** @var	 integer	$line		... */
 	protected $line			= 0;
 
 	/**

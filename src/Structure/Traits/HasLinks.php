@@ -35,8 +35,11 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasLinks
 {
-	protected $links			= array();
-	protected $sees				= array();
+	/** @var	 array		$links		... */
+	protected $links		= array();
+
+	/** @var	 array		$sees		... */
+	protected $sees			= array();
 
 	/**
 	 *	Returns list of links.
@@ -51,7 +54,7 @@ Trait HasLinks
 	/**
 	 *	Returns list of see-also-references.
 	 *	@access		public
-	 *	@return		string		List of see-also-references
+	 *	@return		array		List of see-also-references
 	 */
 	public function getSees(): array
 	{

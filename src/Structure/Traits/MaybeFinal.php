@@ -20,70 +20,43 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2021 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
-
-use CeusMedia\PhpParser\Structure\License_;
 
 /**
  *	...
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2021 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasLicense
+Trait MaybeFinal
 {
-	/** @var	 array		$licenses		... */
-	protected $licenses		= array();
-
-	/** @var	 array		$copyright		... */
-	protected $copyright	= array();
+	/** @var	 bool		$final		... */
+	protected $final		= FALSE;
 
 	/**
-	 *	Returns copyright notes.
+	 *	Returns whether this structure is final.
 	 *	@access		public
-	 *	@return		array			Copyright notes
+	 *	@return		boolean		Is final or not
 	 */
-	public function getCopyright(): array
+	public function isFinal(): bool
 	{
-		return $this->copyright;
+		return $this->final;
 	}
 
 	/**
-	 *	Returns list of licenses.
+	 *	Sets whether this structure is final.
 	 *	@access		public
-	 *	@return		array			List of licenses
-	 */
-	public function getLicenses(): array
-	{
-		return $this->licenses;
-	}
-
-	/**
-	 *	Sets copyright notes.
-	 *	@access		public
-	 *	@param		string			$copyright		Copyright notes
+	 *	@param		bool		$final		Flag: is final
 	 *	@return		self
 	 */
-	public function setCopyright( string $copyright ): self
+	public function setFinal( bool $final ): self
 	{
-		$this->copyright[]	= $copyright;
-		return $this;
-	}
-
-	/**
-	 *	Sets function license.
-	 *	@access		public
-	 *	@param		License_		$license		Function license
-	 *	@return		self
-	 */
-	public function setLicense( License_ $license ): self
-	{
-		$this->licenses[]	= $license;
+		$this->final	= $final;
 		return $this;
 	}
 }

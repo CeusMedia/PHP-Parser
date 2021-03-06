@@ -35,13 +35,16 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasVersion
 {
+	/** @var	 string|NULL	$since		... */
 	protected $since			= NULL;
+
+	/** @var	 string|NULL	$version		... */
 	protected $version			= NULL;
 
 	/**
 	 *	Returns first version function occured.
 	 *	@access		public
-	 *	@return		mixed			First version function occured
+	 *	@return		string|NULL		First version function occured
 	 */
 	public function getSince(): ?string
 	{
@@ -51,7 +54,7 @@ Trait HasVersion
 	/**
 	 *	Returns date of current version.
 	 *	@access		public
-	 *	@return		mixed			Date of current version
+	 *	@return		string|NULL		Date of current version
 	 */
 	public function getVersion(): ?string
 	{

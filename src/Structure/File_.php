@@ -30,6 +30,8 @@ use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
+use CeusMedia\PhpParser\Structure\Traits\HasTodos;
+use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
 
 /**
  *	File Data Class.
@@ -41,27 +43,46 @@ use CeusMedia\PhpParser\Structure\Traits\HasVersion;
  */
 class File_
 {
-	use HasAuthors, HasDescription, HasLinks, HasLicense, HasVersion;
+	use HasAuthors, HasDescription, HasLinks, HasLicense, HasVersion, HasTodos, MaybeDeprecated;
 
+	/** @var	 string|NULL	$unicode		... */
+	public $unicode;
+
+	/** @var	 string|NULL	$basename		... */
 	protected $basename		= NULL;
+
+	/** @var	 string|NULL	$pathname		... */
 	protected $pathname		= NULL;
+
+	/** @var	 string|NULL	$uri			... */
 	protected $uri			= NULL;
 
+	/** @var	 string|NULL	$category		... */
 	protected $category		= NULL;
+
+	/** @var	 string|NULL	$package		... */
 	protected $package		= NULL;
+
+	/** @var	 string|NULL	$subpackage		... */
 	protected $subpackage	= NULL;
 
-	protected $todos		= array();
-	protected $deprecations	= array();
 /*	protected $usedClasses	= array();*/
 
+	/** @var	 array		$functions		... */
 	protected $functions	= array();
+
+	/** @var	 array		$classes		... */
 	protected $classes		= array();
+
+	/** @var	 array		$interfaces		... */
 	protected $interfaces	= array();
+
+	/** @var	 array		$traits			... */
 	protected $traits		= array();
 
-	protected $sourceCode	= "";
-	public $unicode;
+	/** @var	 string		$sourceCode		... */
+	protected $sourceCode	= '';
+
 
 	public function addClass( Class_ $class ): self
 	{
@@ -78,15 +99,6 @@ class File_
 	public function addTrait( Trait_ $trait ): self
 	{
 		$this->traits[$trait->getName()]	= $trait;
-		return $this;
-	}
-
-	/**
-	 *	@deprecated	seems to be unused
-	 */
-	public function addInterfaceName( $interfaceName ): self
-	{
-		$this->interfaces[$interfaceName]	= $interfaceName;
 		return $this;
 	}
 
@@ -115,11 +127,6 @@ class File_
 	public function getTraits(): array
 	{
 		return $this->traits;
-	}
-
-	public function getDeprecations(): array
-	{
-		return $this->deprecations;
 	}
 
 	public function & getFunction( string $name ): Function_
@@ -177,16 +184,6 @@ class File_
 		return $this->subpackage;
 	}
 
-	/**
-	 *	Returns list of todos.
-	 *	@access		public
-	 *	@return		array			List of todos
-	 */
-	public function getTodos(): array
-	{
-		return $this->todos;
-	}
-
 	public function getUri(): string
 	{
 		return $this->uri;
@@ -219,12 +216,6 @@ class File_
 		return $this;
 	}
 
-	public function setDeprecation( string $string ): self
-	{
-		$this->deprecations[]	= $string;
-		return $this;
-	}
-
 	public function setFunction( Function_ $function ): self
 	{
 		$this->functions[$function->getName()]	= $function;
@@ -252,12 +243,6 @@ class File_
 	public function setSubpackage( string $string ): self
 	{
 		$this->subpackage	= $string;
-		return $this;
-	}
-
-	public function setTodo( string $string ): self
-	{
-		$this->todos[]	= $string;
 		return $this;
 	}
 

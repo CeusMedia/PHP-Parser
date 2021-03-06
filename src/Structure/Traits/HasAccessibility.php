@@ -25,8 +25,6 @@
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
 
-use CeusMedia\PhpParser\Structure\License_;
-
 /**
  *	...
  *	@category		Library
@@ -35,55 +33,30 @@ use CeusMedia\PhpParser\Structure\License_;
  *	@copyright		2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasLicense
+Trait HasAccessibility
 {
-	/** @var	 array		$licenses		... */
-	protected $licenses		= array();
-
-	/** @var	 array		$copyright		... */
-	protected $copyright	= array();
+	/** @var	 string|NULL	$access		... */
+	protected $access			= NULL;
 
 	/**
-	 *	Returns copyright notes.
+	 *	Returns accessibility of structure.
 	 *	@access		public
-	 *	@return		array			Copyright notes
+	 *	@return		string|NULL
 	 */
-	public function getCopyright(): array
+	public function getAccess(): ?string
 	{
-		return $this->copyright;
+		return $this->access;
 	}
 
 	/**
-	 *	Returns list of licenses.
+	 *	Sets accessibility of structure.
 	 *	@access		public
-	 *	@return		array			List of licenses
-	 */
-	public function getLicenses(): array
-	{
-		return $this->licenses;
-	}
-
-	/**
-	 *	Sets copyright notes.
-	 *	@access		public
-	 *	@param		string			$copyright		Copyright notes
+	 *	@param		string|NULL		$accessibility		Structure accessibility
 	 *	@return		self
 	 */
-	public function setCopyright( string $copyright ): self
+	public function setAccess( ?string $accessibility = 'public' ): self
 	{
-		$this->copyright[]	= $copyright;
-		return $this;
-	}
-
-	/**
-	 *	Sets function license.
-	 *	@access		public
-	 *	@param		License_		$license		Function license
-	 *	@return		self
-	 */
-	public function setLicense( License_ $license ): self
-	{
-		$this->licenses[]	= $license;
+		$this->access	= $accessibility;
 		return $this;
 	}
 }

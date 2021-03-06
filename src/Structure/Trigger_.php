@@ -36,38 +36,42 @@ namespace CeusMedia\PhpParser\Structure;
 class Trigger_
 {
 	protected $condition	= NULL;
-	protected $key			= NULL;
+	protected $key;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
-	 *	@param		string		$type			Return type
-	 *	@param		string		$description	Return description
+	 *	@param		string		$key			Trigger key
+	 *	@param		string		$condition		Trigger condition
 	 *	@return		void
 	 */
-	public function __construct( string $key )
+	public function __construct( string $key, ?string $condition = NULL )
 	{
 		$this->key			= $key;
+		$this->condition	= $condition;
 	}
 
 	/**
-	 *	Returns description of return value.
+	 *	Returns condition of trigger.
 	 *	@access		public
-	 *	@return		string		Return description
+	 *	@return		string		Trigger condition
 	 */
 	public function getCondition(): ?string
 	{
 		return $this->condition;
 	}
 
-/*	public function getParent()
+	/**
+	 *	Returns key of trigger.
+	 *	@access		public
+	 *	@return		string		Trigger key
+	 */
+	public function getKey(): string
 	{
-		if( !is_object( $this->parent ) )
-			throw new RuntimeException( 'Return has no related function. Parser Error' );
-		return $this->parent;
+		return $this->key;
 	}
 
-	public function merge( Return_ $return )
+/*	public function merge( Return_ $return )
 	{
 		if( $this->name != $return->getName() )
 			throw new Exception( 'Not mergable' );
@@ -80,9 +84,9 @@ class Trigger_
 	}
 */
 	/**
-	 *	Sets description of return value.
+	 *	Sets condition of trigger.
 	 *	@access		public
-	 *	@param		string		$description	Return description
+	 *	@param		string		$condition		Trigger condition
 	 *	@return		self
 	 */
 	public function setCondition( $condition ): self
@@ -91,15 +95,10 @@ class Trigger_
 		return $this;
 	}
 
-/*	public function setParent( Function_ $function )
-	{
-		$this->parent	= $function;
-	}
-*/
 	/**
-	 *	Sets type of return value.
+	 *	Sets key of trigger.
 	 *	@access		public
-	 *	@param		string		$type			Return type
+	 *	@param		string		$key			Trigger key
 	 *	@return		self
 	 */
 	public function setKey( $key ): self

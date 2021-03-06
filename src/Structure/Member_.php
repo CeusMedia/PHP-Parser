@@ -25,20 +25,26 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
+
 /**
  *	Class Member Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
- *	@extends		Variable_
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Member_ extends Variable_
 {
-	protected $access		= NULL;
-	protected $static		= FALSE;
-	protected $default		= NULL;
+	use HasAccessibility;
+	use HasParent;
+	use MaybeStatic;
+
+	/** @var	 string|NULL	$default		... */
+	protected $default			= NULL;
 
 	public function __toArray(): array
 	{
@@ -51,16 +57,6 @@ class Member_ extends Variable_
 	}
 
 	/**
-	 *	Returns member access.
-	 *	@access		public
-	 *	@return		string
-	 */
-	public function getAccess(): ?string
-	{
-		return $this->access;
-	}
-
-	/**
 	 *	Returns member default value.
 	 *	@access		public
 	 *	@return		string
@@ -70,28 +66,10 @@ class Member_ extends Variable_
 		return $this->default;
 	}
 
-	/**
-	 *	Returns parent Class or Interface Data Object.
-	 *	@access		public
-	 *	@return		Interface_	Parent Class or Interface Data Object
-	 */
-	public function getParent()
-	{
-		return $this->parent;
-	}
-
-	/**
-	 *	Indicates whether member is static.
-	 *	@access		public
-	 *	@return		bool
-	 */
-	public function isStatic(): bool
-	{
-		return (bool) $this->static;
-	}
-
 	public function merge( Variable_ $member ): self
 	{
+		if( !$member instanceof Member_ )
+			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		parent::merge( $member );
 #		remark( 'merging member: '.$member->getName() );
 		if( $this->name != $member->getName() )
@@ -101,19 +79,7 @@ class Member_ extends Variable_
 		if( $member->getDefault() )
 			$this->setDefault( $member->getDefault() );
 		if( $member->isStatic() )
-			$this->setAbstract( $member->isStatic() );
-		return $this;
-	}
-
-	/**
-	 *	Sets member access.
-	 *	@access		public
-	 *	@param		string			$string			Member access
-	 *	@return		void
-	 */
-	public function setAccess( string $string = 'public' ): self
-	{
-		$this->access	= $string;
+			$this->setStatic( $member->isStatic() );
 		return $this;
 	}
 
@@ -121,37 +87,11 @@ class Member_ extends Variable_
 	 *	Sets member default value.
 	 *	@access		public
 	 *	@param		string			$string			Member default value
-	 *	@return		void
+	 *	@return		self
 	 */
 	public function setDefault( ?string $string ): self
 	{
 		$this->default	= $string;
-		return $this;
-	}
-
-	/**
-	 *	Sets parent Class or Interface Data Object.
-	 *	@access		public
-	 *	@param		Class_			$parent			Parent Class Data Object
-	 *	@return		void
-	 */
-	public function setParent( $parent ): self
-	{
-		if( !( $parent instanceof Class_ ) && !( $parent instanceof Trait_ ) )
-			throw new \InvalidArgumentException( 'Parent must be of Class_ or Trait_' );
-		$this->parent	= $parent;
-		return $this;
-	}
-
-	/**
-	 *	Sets if member is static.
-	 *	@access		public
-	 *	@param		bool			$isStatic		Flag: member is static
-	 *	@return		void
-	 */
-	public function setStatic( bool $isStatic = TRUE ): self
-	{
-		$this->static	= (bool) $isStatic;
 		return $this;
 	}
 }

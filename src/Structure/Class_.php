@@ -26,13 +26,13 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasMembers;
+use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
 use RuntimeException;
 
 /**
  *	Class Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
- *	@extends		Interface_
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -40,9 +40,9 @@ use RuntimeException;
 class Class_ extends Interface_
 {
 	use HasMembers;
+	use MaybeFinal;
 
 	protected $abstract		= FALSE;
-	protected $final		= FALSE;
 
 	protected $implements	= array();
 	protected $uses			= array();
@@ -72,11 +72,6 @@ class Class_ extends Interface_
 		return (bool) $this->abstract;
 	}
 
-	public function isFinal(): bool
-	{
-		return (bool) $this->final;
-	}
-
 	public function isImplementingInterface( Interface_ $interface ): bool
 	{
 		foreach( $this->implements as $interfaceName => $interfaceObject )
@@ -95,19 +90,17 @@ class Class_ extends Interface_
 
 	public function merge( Interface_ $artefact ): self
 	{
+		if( !$artefact instanceof Class_ )
+			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $artefact->getName() )
 			throw new \Exception( 'Not mergable' );
 		if( $artefact->isAbstract() )
 			$this->setAbstract( $artefact->isAbstract() );
-		if( $artefact->getDefault() )
-			$this->setDefault( $artefact->getDefault() );
-		if( $artefact->isStatic() )
-			$this->setAbstract( $artefact->isStatic() );
+		if( $artefact->isFinal() )
+			$this->setFinal( $artefact->isFinal() );
 
-		foreach( $variable->getUsedClasses() as $artefact )
-			$this->setUsedClass( $artefact );
-		foreach( $variable->getUsedClasses() as $artefact )
-			$this->setUsedClass( $artefact );
+		foreach( $artefact->getUsedClasses() as $class )
+			$this->setUsedClass( $class );
 
 		//	@todo		members and interfaces missing
 		return $this;
@@ -145,14 +138,6 @@ class Class_ extends Interface_
 	public function setExtendingInterface( Interface_ $interface ): self
 	{
 		throw new RuntimeException( 'Interface cannot extend class' );
-	}
-
-	public function setFinal( bool $isFinal = TRUE ): self
-	{
-		if( $isFinal && $this->isAbstract() )
-			throw new \Exception( 'Class cannot be abstract AND final' );
-		$this->final	= (bool) $isFinal;
-		return $this;
 	}
 
 	public function setImplementedInterface( Interface_ $interface ): self

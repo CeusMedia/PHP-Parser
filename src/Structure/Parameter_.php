@@ -28,7 +28,9 @@ namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasType;
 
 /**
  *	Function/Method Parameter Data Class.
@@ -42,12 +44,15 @@ use CeusMedia\PhpParser\Structure\Traits\HasName;
  */
 class Parameter_
 {
-	use HasDescription, HasName, HasLineInFile;
+	use HasDescription, HasName, HasLineInFile, HasType, HasParent;
 
-	protected $parent		= NULL;
+	/** @var	 string|NULL	$cast			... */
 	protected $cast			= NULL;
-	protected $type			= NULL;
-	protected $reference	= NULL;
+
+	/** @var	 bool		$reference		... */
+	protected $reference	= FALSE;
+
+	/** @var	 string|NULL	$default		... */
 	protected $default		= NULL;
 
 	/**
@@ -70,7 +75,7 @@ class Parameter_
 	/**
 	 *	Returns casted type of parameter.
 	 *	@access		public
-	 *	@return		mixed			Type string or data object
+	 *	@return		string|NULL		Type string or data object
 	 */
 	public function getCast(): ?string
 	{
@@ -80,33 +85,11 @@ class Parameter_
 	/**
 	 *	Returns parameter default.
 	 *	@access		public
-	 *	@return		string			Parameter default
+	 *	@return		string|NULL		Parameter default
 	 */
 	public function getDefault(): ?string
 	{
 		return $this->default;
-	}
-
-	/**
-	 *	Return parent container, an instance of ADT_PHP_Function or ADT_PHP_Class.
-	 *	@access		public
-	 *	@return		Function_	Parent container object, instance of ADT_PHP_Function or ADT_PHP_Class,
-	 */
-	public function getParent()
-	{
-		if( !is_object( $this->parent ) )
-			throw new \RuntimeException( 'Parameter has no related function. Parser Error' );
-		return $this->parent;
-	}
-
-	/**
-	 *	Returns type of parameter.
-	 *	@access		public
-	 *	@return		mixed			Type string or data object
-	 */
-	public function getType()
-	{
-		return $this->type;
 	}
 
 	/**
@@ -116,7 +99,7 @@ class Parameter_
 	 */
 	public function isReference(): bool
 	{
-		return (bool) $this->reference;
+		return $this->reference;
 	}
 
 	public function merge( Parameter_ $parameter ): self
@@ -124,17 +107,17 @@ class Parameter_
 #		remark( "merging parameter: ".$parameter->getName() );
 		if( $this->name != $parameter->getName() )
 			throw new \Exception( 'Not mergable' );
-		if( $parameter->getCast() )
+		if( NULL !== $parameter->getCast() )
 			$this->setCast( $parameter->getCast() );
-		if( $parameter->getDefault() )
+		if( NULL !== $parameter->getDefault() )
 			$this->setDefault( $parameter->getDefault() );
-		if( $parameter->getDescription() )
+		if( NULL !== $parameter->getDescription() )
 			$this->setDescription( $parameter->getDescription() );
-		if( $parameter->getType() )
+		if( NULL !== $parameter->getType() )
 			$this->setType( $parameter->getType() );
 #		if( $parameter->getParent() )
 #			$this->setParent( $parameter->getParent() );
-		if( $parameter->isReference() )
+		if( NULL !== $parameter->isReference() )
 			$this->setParent( $parameter->getParent() );
 
 		// @todo		$reference	is missing
@@ -145,7 +128,7 @@ class Parameter_
 	 *	Sets parameter casted type.
 	 *	@access		public
 	 *	@param		mixed			$type			Casted type string or data object
-	 *	@return		void
+	 *	@return		self
 	 */
 	public function setCast( $type ): self
 	{
@@ -156,42 +139,18 @@ class Parameter_
 	/**
 	 *	Sets parameter default.
 	 *	@access		public
-	 *	@param		string			$string			Parameter default
-	 *	@return		void
+	 *	@param		string|NULL			$string			Parameter default
+	 *	@return		self
 	 */
-	public function setDefault( string $string ): self
+	public function setDefault( ?string $string ): self
 	{
 		$this->default	= $string;
 		return $this;
 	}
 
-	/**
-	 *	Sets parent container, an instance of ADT_PHP_Function or ADT_PHP_Class.
-	 *	@access		public
-	 *	@param		Function_	$function		Parent container object, instance of ADT_PHP_Function or ADT_PHP_Class,
-	 *	@return		void
-	 */
-	public function setParent( Function_ $function ): self
-	{
-		$this->parent	= $function;
-		return $this;
-	}
-
 	public function setReference( bool $bool ): self
 	{
-		$this->reference	= (bool) $bool;
-		return $this;
-	}
-
-	/**
-	 *	Sets parameter type.
-	 *	@access		public
-	 *	@param		mixed			$type			Type string or data object
-	 *	@return		self
-	 */
-	public function setType( $type ): self
-	{
-		$this->type	= $type;
+		$this->reference	= $bool;
 		return $this;
 	}
 }

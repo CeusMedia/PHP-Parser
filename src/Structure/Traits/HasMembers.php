@@ -37,7 +37,9 @@ use CeusMedia\PhpParser\Structure\Member_;
  */
 Trait HasMembers
 {
+	/** @var	 array		$members		... */
 	protected $members		= array();
+
 	/**
 	 *	Returns a member data object by its name.
 	 *	@access		public

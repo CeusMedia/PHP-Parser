@@ -27,10 +27,14 @@ namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
-use CeusMedia\PhpParser\Structure\Traits\HasName;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasTodos;
+use CeusMedia\PhpParser\Structure\Traits\HasType;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
+use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
 
 /**
  *	Class Variable Data Class.
@@ -42,17 +46,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasVersion;
  */
 class Variable_
 {
-	use HasAuthors, HasDescription, HasName, HasLinks, HasLineInFile, HasVersion;
-
-	protected $parent			= NULL;
-
-	protected $type				= NULL;
-
-	protected $since			= NULL;
-	protected $version			= NULL;
-
-	protected $todos			= array();
-	protected $deprecations		= array();
+	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLineInFile, HasTodos, HasType, HasVersion, MaybeDeprecated;
 
 	/**
 	 *	Constructor.
@@ -71,61 +65,18 @@ class Variable_
 			$this->setDescription( $description );
 	}
 
-	/**
-	 *	Returns list of deprecation strings.
-	 *	@access		public
-	 *	@return		array			List of deprecation strings
-	 */
-	public function getDeprecations(): array
-	{
-		return $this->deprecations;
-	}
-
-	/**
-	 *	Returns parent File Data Object.
-	 *	@access		public
-	 *	@return		File_			Parent File Data Object
-	 *	@throws		\Exception		if not parent is set
-	 */
-	public function getParent()
-	{
-		if( !is_object( $this->parent ) )
-			throw new \Exception( 'Parser Error: variable has no related file' );
-		return $this->parent;
-	}
-
-	/**
-	 *	Returns list of todos.
-	 *	@access		public
-	 *	@return		string		List of todos
-	 */
-	public function getTodos(): array
-	{
-		return $this->todos;
-	}
-
-	/**
-	 *	Returns type of parameter.
-	 *	@access		public
-	 *	@return		mixed		Type string or
-	 */
-	public function getType()
-	{
-		return $this->type;
-	}
-
 	public function merge( Variable_ $variable ): self
 	{
 #		remark( 'merging variable: '.$variable->getName() );
 		if( $this->name != $variable->getName() )
 			throw new \Exception( 'Not mergable' );
-		if( $variable->getType() )
+		if( NULL !== $variable->getType() )
 			$this->setType( $variable->getType() );
-		if( $variable->getDescription() )
+		if( NULL !== $variable->getDescription() )
 			$this->setDescription( $variable->getDescription() );
-		if( $variable->getSince() )
+		if( NULL !== $variable->getSince() )
 			$this->setSince( $variable->getSince() );
-		if( $variable->getVersion() )
+		if( NULL !== $variable->getVersion() )
 			$this->setVersion( $variable->getVersion() );
 
 		foreach( $variable->getAuthors() as $author )
@@ -138,54 +89,6 @@ class Variable_
 			$this->setTodo( $todo );
 		foreach( $variable->getDeprecations() as $deprecation )
 			$this->setDeprecation( $deprecation );
-		return $this;
-	}
-
-	/**
-	 *	Sets variable deprecation.
-	 *	@access		public
-	 *	@param		string			$string		Variable deprecation
-	 *	@return		self
-	 */
-	public function setDeprecation( string $string ): self
-	{
-		$this->deprecations[]	= $string;
-		return $this;
-	}
-
-	/**
-	 *	Sets parent File Data Object.
-	 *	@access		public
-	 *	@param		File_		$parent		Parent File Data Object
-	 *	@return		self
-	 */
-	public function setParent( ?File $parent ): self
-	{
-		$this->parent	= $parent;
-		return $this;
-	}
-
-	/**
-	 *	Sets todo.
-	 *	@access		public
-	 *	@param		string		$string			Todo string
-	 *	@return		self
-	 */
-	public function setTodo( $string ): self
-	{
-		$this->todos[]	= $string;
-		return $this;
-	}
-
-	/**
-	 *	Sets parameter type.
-	 *	@access		public
-	 *	@param		mixed		$type			Type string or data object
-	 *	@return		self
-	 */
-	public function setType( $type ): self
-	{
-		$this->type	= $type;
 		return $this;
 	}
 }

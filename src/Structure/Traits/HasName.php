@@ -35,14 +35,15 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasName
 {
+	/** @var	 string|NULL	$name		... */
 	protected $name		= NULL;
 
 	/**
 	 *	Returns set name.
 	 *	@access		public
-	 *	@return		string
+	 *	@return		string|NULL
 	 */
-	public function getName(): string
+	public function getName(): ?string
 	{
 		return $this->name;
 	}

@@ -27,11 +27,14 @@ namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
-use CeusMedia\PhpParser\Structure\Traits\HasName;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
+use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
 
 /**
  *	File Function Data Class.
@@ -43,36 +46,26 @@ use CeusMedia\PhpParser\Structure\Traits\HasVersion;
  */
 class Function_
 {
-	use HasAuthors, HasDescription, HasName, HasLinks, HasLicense, HasLineInFile, HasVersion;
+	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
-	protected $parent		= NULL;
-
-	protected $since		= NULL;
-	protected $version		= NULL;
-
-	protected $todos		= array();
-	protected $deprecations	= array();
+	/** @var	 array		$throws				... */
 	protected $throws		= array();
+
+	/** @var	 array		$triggers			... */
 	protected $triggers		= array();
 
+	/** @var	 array		$param				... */
 	protected $param		= array();
+
+	/** @var	 Return_|NULL	$return			... */
 	protected $return		= NULL;
 
-	protected $sourceCode	= NULL;
+	/** @var	 array		$sourceCode		... */
+	protected $sourceCode	= [];
 
 	public function __construct( string $name )
 	{
 		$this->setName( $name );
-	}
-
-	/**
-	 *	Returns list of deprecation strings.
-	 *	@access		public
-	 *	@return		array			List of deprecation strings
-	 */
-	public function getDeprecations(): array
-	{
-		return $this->deprecations;
 	}
 
 	/**
@@ -83,19 +76,6 @@ class Function_
 	public function getParameters(): array
 	{
 		return $this->param;
-	}
-
-	/**
-	 *	Returns parent File Data Object.
-	 *	@access		public
-	 *	@return		File_			Parent File Data Object
-	 *	@throws		Exception		if not parent is set
-	 */
-	public function getParent()
-	{
-		if( !is_object( $this->parent ) )
-			throw new Exception( 'Parser Error: Function has no related file' );
-		return $this->parent;
 	}
 
 	/**
@@ -111,7 +91,7 @@ class Function_
 	/**
 	 *	Returns method source code.
 	 *	@access		public
-	 *	@return		string			Method source code (multiline string)
+	 *	@return		array			Method source code (multiline string)
 	 */
 	public function getSourceCode()
 	{
@@ -126,16 +106,6 @@ class Function_
 	public function getThrows(): array
 	{
 		return $this->throws;
-	}
-
-	/**
-	 *	Returns list of todo strings.
-	 *	@access		public
-	 *	@return		array			List of todo strings
-	 */
-	public function getTodos(): array
-	{
-		return $this->todos;
 	}
 
 	/**
@@ -186,18 +156,6 @@ class Function_
 
 	public function setCategory(){}
 
-	/**
-	 *	Sets function deprecation.
-	 *	@access		public
-	 *	@param		string			$string		Function deprecation
-	 *	@return		self
-	 */
-	public function setDeprecation( string $string ): self
-	{
-		$this->deprecations[]	= $string;
-		return $this;
-	}
-
 	public function setPackage(){}
 
 	/**
@@ -209,20 +167,6 @@ class Function_
 	public function setParameter( Parameter_ $parameter ): self
 	{
 		$this->param[$parameter->getName()]	= $parameter;
-		return $this;
-	}
-
-	/**
-	 *	Sets functions parent file.
-	 *	@access		public
-	 *	@param		File_			$file		Function's parent file data object
-	 *	@return		self
-	 */
-	public function setParent( $file ): self
-	{
-		if( !( $file instanceof File_ ) )
-			throw new \InvalidArgumentException( 'Parent must be of Structure\\File_' );
-		$this->parent	= $file;
 		return $this;
 	}
 
@@ -241,30 +185,18 @@ class Function_
 	/**
 	 *	Sets method source code.
 	 *	@access		public
-	 *	@param		string			Method source code (multiline string)
+	 *	@param		array			$soureCode	Method source code (multiline string)
 	 *	@return		self
 	 */
-	public function setSourceCode( $string ): self
+	public function setSourceCode( array $soureCode ): self
 	{
-		$this->sourceCode	= $string;
+		$this->sourceCode	= $soureCode;
 		return $this;
 	}
 
 	public function setThrows( Throws_ $throws ): self
 	{
 		$this->throws[]	= $throws;
-		return $this;
-	}
-
-	/**
-	 *	Sets function todo.
-	 *	@access		public
-	 *	@param		string			$string		Function todo string
-	 *	@return		self
-	 */
-	public function setTodo( string $string ): self
-	{
-		$this->todos[]	= $string;
 		return $this;
 	}
 

@@ -37,12 +37,13 @@ use CeusMedia\PhpParser\Structure\Author_;
  */
 Trait HasAuthors
 {
-	protected $authors		= array();
+	/** @var	 Author_[]		$authors		... */
+	protected $authors			= array();
 
 	/**
 	 *	Returns list of author data objects.
 	 *	@access		public
-	 *	@return		array		List of author data objects
+	 *	@return		Author_[]		List of author data objects
 	 */
 	public function getAuthors(): array
 	{

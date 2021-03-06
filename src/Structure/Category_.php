@@ -25,6 +25,8 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+
 /**
  *	...
  *	@category		Library
@@ -35,12 +37,13 @@ namespace CeusMedia\PhpParser\Structure;
  */
 class Category_
 {
+	use HasParent;
+
 	protected $categories	= array();
 	protected $classes		= array();
 	protected $interfaces	= array();
 	protected $packages		= array();
 	protected $label		= '';
-	protected $parent;
 
 	/**
 	 *	Constructure, sets Label of Category if given.
@@ -58,7 +61,7 @@ class Category_
 	 *	Relates a Class Object to this Category.
 	 *	@access		public
 	 *	@param		Class_		$class			Class Object to relate to this Category
-	 *	@return		void
+	 *	@return		self
 	 */
 	public function addClass( Class_ $class ): self
 	{
@@ -70,7 +73,7 @@ class Category_
 	 *	Relates a Interface Object to this Category.
 	 *	@access		public
 	 *	@param		Interface_	$interface		Interface Object to relate to this Category
-	 *	@return		void
+	 *	@return		self
 	 */
 	public function addInterface( Interface_ $interface ): self
 	{
@@ -127,8 +130,8 @@ class Category_
 	 */
 	public function & getInterfaceByName( $name ): Interface_
 	{
-		if( isset( $this->interface[$name] ) )
-			return $this->interface[$name];
+		if( isset( $this->interfaces[$name] ) )
+			return $this->interfaces[$name];
 		throw new \RuntimeException( "Interface '$name' is unknown" );
 	}
 
@@ -144,12 +147,12 @@ class Category_
 
 	public function & getPackage( $name ): Package_
 	{
+		//  no package name given
+		if( 0 === strlen( trim( $name ) ) )
+			//  break: invalid package name
+			throw new \InvalidArgumentException( 'Package name cannot be empty' );
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
-		//  no Package parts found
-		if( !$parts )
-			//  break: invalid Package name
-			throw new \InvalidArgumentException( 'Package name cannot be empty' );
 		//  Mainpackage name
 		$main	= $parts[0];
 		//  Mainpackage is not existing
@@ -198,12 +201,12 @@ class Category_
 
 	public function hasPackage( string $name ): bool
 	{
+		//  no package name given
+		if( 0 === strlen( trim( $name ) ) )
+			//  break: invalid package name
+			throw new \InvalidArgumentException( 'Package name cannot be empty' );
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
-		//  no Package parts found
-		if( !$parts )
-			//  break: invalid Package name
-			throw new \InvalidArgumentException( 'Package name cannot be empty' );
 		//  Mainpackage name
 		$main	= $parts[0];
 		//  Mainpackage is not existing
@@ -238,12 +241,13 @@ class Category_
 
 	public function setPackage( string $name, Package_ $package ): self
 	{
+		//  no package name given
+		if( 0 === strlen( trim( $name ) ) )
+			//  break: invalid package name
+			throw new \InvalidArgumentException( 'Package name cannot be empty' );
+
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
-		//  no Package parts found
-		if( !$parts )
-			//  break: invalid Package name
-			throw new \InvalidArgumentException( 'Package name cannot be empty' );
 		//  Mainpackage name
 		$main	= $parts[0];
 		//  has Subpackage
@@ -286,12 +290,6 @@ class Category_
 //  add File to existing Package
 #				$this->packages[$name]->setFile( $file->basename, $file );
 		}
-		return $this;
-	}
-
-	public function setParent( Category_ $parent ): self
-	{
-		$this->parent	= $parent;
 		return $this;
 	}
 }

@@ -20,70 +20,43 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2021 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
-
-use CeusMedia\PhpParser\Structure\License_;
 
 /**
  *	...
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2021 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasLicense
+Trait HasTodos
 {
-	/** @var	 array		$licenses		... */
-	protected $licenses		= array();
-
-	/** @var	 array		$copyright		... */
-	protected $copyright	= array();
+	/** @var	 array		$todos		... */
+	protected $todos		= array();
 
 	/**
-	 *	Returns copyright notes.
+	 *	Returns list of todos.
 	 *	@access		public
-	 *	@return		array			Copyright notes
+	 *	@return		array		List of todos
 	 */
-	public function getCopyright(): array
+	public function getTodos(): array
 	{
-		return $this->copyright;
+		return $this->todos;
 	}
 
 	/**
-	 *	Returns list of licenses.
+	 *	Sets todo.
 	 *	@access		public
-	 *	@return		array			List of licenses
-	 */
-	public function getLicenses(): array
-	{
-		return $this->licenses;
-	}
-
-	/**
-	 *	Sets copyright notes.
-	 *	@access		public
-	 *	@param		string			$copyright		Copyright notes
+	 *	@param		string		$string			Todo string
 	 *	@return		self
 	 */
-	public function setCopyright( string $copyright ): self
+	public function setTodo( $string ): self
 	{
-		$this->copyright[]	= $copyright;
-		return $this;
-	}
-
-	/**
-	 *	Sets function license.
-	 *	@access		public
-	 *	@param		License_		$license		Function license
-	 *	@return		self
-	 */
-	public function setLicense( License_ $license ): self
-	{
-		$this->licenses[]	= $license;
+		$this->todos[]	= $string;
 		return $this;
 	}
 }

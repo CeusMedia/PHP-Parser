@@ -26,6 +26,7 @@
  */
 namespace CeusMedia\PhpParser\Parser\Doc;
 
+use CeusMedia\PhpParser\Structure\Class_;
 use CeusMedia\PhpParser\Structure\Function_;
 use CeusMedia\PhpParser\Structure\Interface_;
 use CeusMedia\PhpParser\Structure\Method_;
@@ -86,19 +87,19 @@ class Decorator
 					//  extend description
 					case 'description':	$codeData->setDescription( $value ); break;
 					//  extend todos
-					case 'todo':		$codeData->setTodo( $itemValue ); break;
+					case 'todo':		$codeData->setTodo( $value ); break;
 				}
 				if( $codeData instanceof Interface_ ){
 					switch( $key ){
-						case 'access':
+/*						case 'access':
 							//  only if no access type given by signature
 							if( !$codeData->getAccess() )
 								//  extend access type
 								$codeData->setAccess( $value );
-							break;
+							break;*/
 						//  extend extends
 						case 'extends':
-							$codeData->setExtendedClassName( $value );
+							$codeData->setExtendedInterfaceName( $value );
 							break;
 					}
 				}
@@ -147,10 +148,16 @@ class Decorator
 							case 'deprecated':	$codeData->setDeprecation( $itemValue ); break;
 							case 'todo':		$codeData->setTodo( $itemValue ); break;
 						}
-						if( $codeData instanceof Interface_ ){
+						if( $codeData instanceof Class_ ){
 							switch( $key ){
 								case 'implements':	$codeData->setImplementedInterfaceName( $itemValue ); break;
 								case 'uses':		$codeData->setUsedClassName( $itemValue ); break;
+							}
+						}
+						else if( $codeData instanceof Interface_ ){
+							switch( $key ){
+//								case 'implements':	$codeData->setImplementedInterfaceName( $itemValue ); break;
+//								case 'uses':		$codeData->setUsedClassName( $itemValue ); break;
 							}
 						}
 						else if( $codeData instanceof Function_ ){

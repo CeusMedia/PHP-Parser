@@ -26,6 +26,8 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\HasType;
 
 /**
  *	Function/Method Return Data Class.
@@ -37,10 +39,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasDescription;
  */
 class Return_
 {
-	use HasDescription;
-
-	protected $parent		= NULL;
-	protected $type			= NULL;
+	use HasDescription, HasType, HasParent;
 
 	/**
 	 *	Constructor.
@@ -51,55 +50,18 @@ class Return_
 	 */
 	public function __construct( $type = NULL, ?string $description = NULL )
 	{
-		$this->type			= $type;
-		$this->description	= $description;
-	}
-
-	public function getParent()
-	{
-		if( !is_object( $this->parent ) )
-			throw new \RuntimeException( 'Return has no related function. Parser Error' );
-		return $this->parent;
-	}
-
-	/**
-	 *	Returns type of return value.
-	 *	@access		public
-	 *	@return		void		Return type
-	 */
-	public function getType()
-	{
-		return $this->type;
+		$this->setType( $type );
+		$this->setDescription( $description );
 	}
 
 	public function merge( Return_ $return ): self
 	{
-		if( $this->name != $return->getName() )
-			throw new \Exception( 'Not mergable' );
-		if( $return->getDescription() )
+		if( NULL !== $return->getDescription() )
 			$this->setDescription( $return->getDescription() );
-		if( $return->getType() )
+		if( NULL !== $return->getType() )
 			$this->setType( $return->getType() );
-		if( $return->getParent() )
+		if( NULL !== $return->getParent() )
 			$this->setParent( $return->getParent() );
-		return $this;
-	}
-
-	public function setParent( Function_ $function ): self
-	{
-		$this->parent	= $function;
-		return $this;
-	}
-
-	/**
-	 *	Sets type of return value.
-	 *	@access		public
-	 *	@param		string		$type			Return type
-	 *	@return		void
-	 */
-	public function setType( $type ): self
-	{
-		$this->type	= $type;
 		return $this;
 	}
 

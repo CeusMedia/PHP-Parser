@@ -25,38 +25,28 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
+use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
+
 /**
  *	Class Method Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
- *	@extends		Function_
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2015-2020 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Method_ extends Function_
 {
+	use HasAccessibility;
+	use HasParent;
+	use MaybeFinal;
+	use MaybeStatic;
+
+	/** @var	 bool		$abstract		... */
 	protected $abstract		= FALSE;
-	protected $access		= NULL;
-	protected $final		= FALSE;
-	protected $static		= FALSE;
-
-	/**
-	 *	Returns method access.
-	 *	@access		public
-	 *	@return		string
-	 */
-	public function getAccess(): ?string
-	{
-		return $this->access;
-	}
-
-	public function getParent()
-	{
-		if( !is_object( $this->parent ) )
-			throw new \RuntimeException( 'Method has no related class. Parser Error' );
-		return parent::getParent();
-	}
 
 	/**
 	 *	Indicates whether method is abstract.
@@ -69,27 +59,14 @@ class Method_ extends Function_
 	}
 
 	/**
-	 *	Indicates whether method is final.
 	 *	@access		public
-	 *	@return		bool
+	 *	@param		Function_		$method		...
+	 *	@return		self
 	 */
-	public function isFinal(): bool
-	{
-		return (bool) $this->final;
-	}
-
-	/**
-	 *	Indicates whether method is static.
-	 *	@access		public
-	 *	@return		bool
-	 */
-	public function isStatic(): bool
-	{
-		return (bool) $this->static;
-	}
-
 	public function merge( Function_ $method ): self
 	{
+		if( !$method instanceof Method_ )
+			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $method->getName() )
 			throw new \Exception( 'Not mergable' );
 		if( $method->getAccess() )
@@ -109,55 +86,11 @@ class Method_ extends Function_
 	 *	Sets if method is abstract.
 	 *	@access		public
 	 *	@param		bool		$isAbstract		Flag: method is abstract
-	 *	@return		void
+	 *	@return		self
 	 */
 	public function setAbstract( bool $isAbstract = TRUE ): self
 	{
 		$this->abstract	= (bool) $isAbstract;
-		return $this;
-	}
-
-	/**
-	 *	Sets method access.
-	 *	@access		public
-	 *	@param		string		$string			Method access
-	 *	@return		void
-	 */
-	public function setAccess( string $string = 'public' ): self
-	{
-		$this->access	= $string;
-		return $this;
-	}
-
-	/**
-	 *	Sets if method is final.
-	 *	@access		public
-	 *	@param		bool		$isFinal		Flag: method is final
-	 *	@return		self
-	 */
-	public function setFinal( bool $isFinal = TRUE ): self
-	{
-		$this->final	= (bool) $isFinal;
-		return $this;
-	}
-
-	public function setParent( $classOrInterface ): self
-	{
-		if( !( $classOrInterface instanceof Interface_ ) )
-			throw new \InvalidArgumentException( 'Parent must be of Structure\\Class_' );
-		$this->parent	= $classOrInterface;
-		return $this;
-	}
-
-	/**
-	 *	Sets if method is static.
-	 *	@access		public
-	 *	@param		bool		$isStatic		Flag: method is static
-	 *	@return		void
-	 */
-	public function setStatic( bool $isStatic = TRUE ): self
-	{
-		$this->static	= (bool) $isStatic;
 		return $this;
 	}
 }

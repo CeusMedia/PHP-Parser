@@ -59,9 +59,9 @@ class Reflection
 	 *	@access		public
 	 *	@param		string		$fileName		File Name of PHP File to parse
 	 *	@param		string		$innerPath		Base Path to File to be removed in Information
-	 *	@return		array
+	 *	@return		File_
 	 */
-	public function parseFile( $fileName, $innerPath )
+	public function parseFile( string $fileName, string $innerPath ): File_
 	{
 		$content		= \FS_File_Reader::load( $fileName );
 		if( !\Alg_Text_Unicoder::isUnicode( $content ) )
@@ -96,7 +96,7 @@ class Reflection
 				remark( 'Parsing Classes ('.$countClasses.'):'.PHP_EOL );
 			$listClasses	= $this->readFromClassList( $listClasses );
 			$this->application->updateStatus( 'Done.', $countClasses, $countClasses );
-		}*/
+		}
 		foreach( $listClasses as $class )
 			if( $class instanceof Class_ )
 				$file->addClass( $class );
@@ -107,14 +107,14 @@ class Reflection
 		if( $countInterfaces )
 		{
 			if( $this->verbose )
-				remark( 'Parsing Interfaces ('.$countInterfaces.'):'.PHP_EOL );
+				print( 'Parsing Interfaces ('.$countInterfaces.'):'.PHP_EOL );
 			$listInterfaces	= $this->readFromClassList( $listInterfaces );
 			$this->application->updateStatus( 'Done.', $countInterfaces, $countInterfaces );
 		}
 		foreach( $listInterfaces as $interface )
 			if( $interface instanceof Interface_ )
 				$file->addInterface( $interface );
-
+*/
 /*		$functionBody	= array();
 		$lines			= explode( "\n", $content );
 		$fileBlock		= NULL;
@@ -132,7 +132,7 @@ class Reflection
 		return $file;
 	}
 
-	public function readClass( ReflectionClass $class )
+	public function readClass( \ReflectionClass $class )
 	{
 
 		if( $class->isInterface() )
@@ -145,6 +145,7 @@ class Reflection
 		else
 		{
 			$object	= new Class_( $class->name );
+			$object->setFinal( $class->isFinal() );
 			if( $class->getParentClass() )
 				$object->setExtendedClassName( $class->getParentClass()->name );
 			foreach( $class->getInterfaceNames() as $interfaceName )
@@ -155,21 +156,20 @@ class Reflection
 				$object->setMember( $this->readProperty( $property ) );
 		}
 		$object->setDescription( $class->getDocComment() );
-		$object->setFinal( $class->isFinal() );
 		$object->setLine( $class->getStartLine().'-'.$class->getEndLine() );
 
 		foreach( $class->getMethods() as $method )
 			$object->setMethod( $this->readMethod( $method ) );
 
 
-		$parser		= new CeusMedia\PhpParser\Parser\Doc\Regular;
-		$docData	= $parser->parseDocBlock( $class->getDocComment() );
-		$decorator	= new CeusMedia\PhpParser\Parser\Doc\Decorator();
+		$parser		= new \CeusMedia\PhpParser\Parser\Doc\Regular;
+		$docData	= $parser->parseBlock( $class->getDocComment() );
+		$decorator	= new \CeusMedia\PhpParser\Parser\Doc\Decorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
 	}
 
-	public function readMethod( ReflectionMethod $method )
+	public function readMethod( \ReflectionMethod $method )
 	{
 		$object	= new Method_( $method->name );
 		$object->setDescription( $method->getDocComment() );
@@ -179,14 +179,14 @@ class Reflection
 			$object->setParameter( $parameter );
 		}
 		$object->setLine( $method->getStartLine().'-'.$method->getEndLine() );
-		$parser		= new Parser_DocComment;
-		$docData	= $parser->parseDocBlock( $method->getDocComment() );
-		$decorator	= new Parser_DocCommentDecorator();
+		$parser		= new \CeusMedia\PhpParser\Parser\Doc\Regular;
+		$docData	= $parser->parseBlock( $method->getDocComment() );
+		$decorator	= new \CeusMedia\PhpParser\Parser\Doc\Decorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
 	}
 
-	public function readParameter( ReflectionParameter $parameter )
+	public function readParameter( \ReflectionParameter $parameter )
 	{
 		$object	= new Parameter_( $parameter->name );
 		$object->setReference( $parameter->isPassedByReference() );
@@ -197,7 +197,7 @@ class Reflection
 		return $object;
 	}
 
-	public function readProperty( ReflectionProperty $property )
+	public function readProperty( \ReflectionProperty $property )
 	{
 		$object	= new Member_( $property->name );
 		return $object;

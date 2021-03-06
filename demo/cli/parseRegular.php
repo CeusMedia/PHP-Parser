@@ -6,6 +6,38 @@ use CeusMedia\PhpParser\Parser\Regular as Parser;
 
 $path	= realpath( __DIR__.'/../../src' ).'/';
 
+$structure	= 'Structure/Parameter_';
+
+$structure	= 'Structure/Method_';
+$method		= 'merge';
+
+$nodes		= array();
+$parser		= new Parser();
+$parameter	= $parser->parseFile( $path.$structure.'.php', $path );
+
+remark( 'Parsing: '.$structure );
+
+remark( 'Methods:' );
+print_m( current( $parameter->getClasses() )->getMethods() );
+
+remark( 'Method: '.$method );
+$method	= current( $parameter->getClasses() )->getMethod( $method );
+remark( '- Parameters:' );
+foreach( $method->getParameters() as $paramKey => $paramData ){
+	$paramType	= $paramData->getType();
+	$paramDesc	= $paramData->getDescription();
+	remark( '  - ('.$paramType.') '.$paramKey.': '.$paramDesc );
+}
+remark( '- Return:' );
+remark( '  - Type:'.$method->getReturn()->getType() );
+remark( '  - Desc:'.$method->getReturn()->getDescription() );
+remark();
+
+
+/*$tree	= new Tree();
+$nodes	= $tree->index( $path );
+print_m( $nodes );die;*/
+
 class Tree
 {
 	public function index( $path ){
@@ -45,26 +77,3 @@ class Tree
 		}
 	}
 }
-
-/*$tree	= new Tree();
-$nodes	= $tree->index( $path );
-print_m( $nodes );die;*/
-
-$nodes	= array();
-$parser	= new Parser();
-$result	= $parser->parseFile( $path.'Structure/Parameter_.php', $path );
-
-remark( 'Methods:' );
-print_m( current( $result->getClasses() )->getMethods() );
-
-remark( 'Method: setType' );
-$method	= current( $result->getClasses() )->getMethod( 'setType' );
-print( '- Parameters:'.PHP_EOL );
-foreach( $method->getParameters() as $paramKey => $paramData ){
-	$paramType	= $paramData->getType();
-	$paramDesc	= $paramData->getDescription();
-	print( '  - ('.$paramType.') '.$paramKey.': '.$paramDesc.PHP_EOL );
-}
-print( '- Return:'.PHP_EOL );
-print( '  - Type:'.$method->getReturn()->getType().PHP_EOL );
-print( '  - Desc:'.$method->getReturn()->getDescription().PHP_EOL );

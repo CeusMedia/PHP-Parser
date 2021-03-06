@@ -39,6 +39,7 @@ class Throws_
 {
 	use HasName;
 
+	/** @var	 string|NULL	$reason		... */
 	protected $reason	= NULL;
 
 	/**
@@ -57,7 +58,7 @@ class Throws_
 	/**
 	 *	Returns exception reason.
 	 *	@access		public
-	 *	@return		string
+	 *	@return		string|NULL
 	 */
 	public function getReason(): ?string
 	{
@@ -68,7 +69,7 @@ class Throws_
 	{
 		if( $this->name != $throws->getName() )
 			throw new \Exception( 'Not mergable' );
-		if( $throws->getReason() )
+		if( NULL !== $throws->getReason() )
 			$this->setReason( $throws->getReason() );
 		return $this;
 	}
@@ -76,7 +77,7 @@ class Throws_
 	/**
 	 *	Sets exception reason.
 	 *	@access		public
-	 *	@param		string		$reason		Exception reason
+	 *	@param		string|NULL		$reason		Exception reason
 	 *	@return		self
 	 */
 

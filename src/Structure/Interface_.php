@@ -27,11 +27,14 @@ namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
-use CeusMedia\PhpParser\Structure\Traits\HasName;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
+use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
 
 /**
  *	Interface Data Class.
@@ -43,33 +46,45 @@ use CeusMedia\PhpParser\Structure\Traits\HasVersion;
  */
 class Interface_
 {
-	use HasAuthors, HasDescription, HasName, HasLinks, HasLicense, HasLineInFile, HasVersion;
+	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
-	protected $parent			= NULL;
-
+	/** @var	 string|NULL	$category		... */
 	protected $category			= NULL;
+
+	/** @var	 string|NULL	$package		... */
 	protected $package			= NULL;
+
+	/** @var	 string|NULL	$subpackage		... */
 	protected $subpackage		= NULL;
 
-	protected $final			= FALSE;
+	/** @var	 Interface_|string|NULL		$extends		... */
+	protected $extends			= NULL;
 
-	protected $extends			= array();
+	/** @var	 array			$implementedBy		... */
 	protected $implementedBy	= array();
+
+	/** @var	 array			$extendedBy		... */
 	protected $extendedBy		= array();
+
+	/** @var	 array			$usedBy		... */
 	protected $usedBy			= array();
+
+	/** @var	 array			$composedBy		... */
 	protected $composedBy		= array();
+
+	/** @var	 array			$receivedBy		... */
 	protected $receivedBy		= array();
+
+	/** @var	 array			$returnedBy		... */
 	protected $returnedBy		= array();
 
-	protected $todos			= array();
-	protected $deprecations		= array();
-
+	/** @var	 array			$methods		... */
 	protected $methods			= array();
 
 	/**
 	 *	Constructor, binding a File_.
 	 *	@access		public
-	 *	@param		File_		$file		File with contains this interface
+	 *	@param		string		$name		File with contains this interface
 	 *	@return		void
 	 */
 	public function __construct( string $name = NULL )
@@ -116,12 +131,7 @@ class Interface_
 		return $this->composedBy;
 	}
 
-	public function getDeprecations(): array
-	{
-		return $this->deprecations;
-	}
-
-	public function getExtendedInterface(): array
+	public function getExtendedInterface()
 	{
 		return $this->extends;
 	}
@@ -193,19 +203,6 @@ class Interface_
 		return $this->package;
 	}
 
-	/**
-	 *	Returns parent File Data Object.
-	 *	@access		public
-	 *	@return		File_			Parent File Data Object
-	 *	@throws		\Exception		if not parent is set
-	 */
-	public function getParent()
-	{
-		if( !is_object( $this->parent ) )
-			throw new \Exception( 'Parser Error: Interface has no related file' );
-		return $this->parent;
-	}
-
 	public function getReceivingClasses(): array
 	{
 		return $this->receivedBy;
@@ -221,16 +218,6 @@ class Interface_
 		return $this->subpackage;
 	}
 
-	/**
-	 *	Returns list of todos.
-	 *	@access		public
-	 *	@return		array			List of todos
-	 */
-	public function getTodos(): array
-	{
-		return $this->todos;
-	}
-
 	public function getUsingClasses(): array
 	{
 		return $this->usedBy;
@@ -241,14 +228,9 @@ class Interface_
 	 *	@access		public
 	 *	@return		bool			Flag: interface defines methods
 	 */
-	public function hasMethods(): array
+	public function hasMethods(): bool
 	{
 		return count( $this->methods ) > 0;
-	}
-
-	public function isFinal(): bool
-	{
-		return (bool) $this->final;
 	}
 
 	public function merge( Interface_ $artefact ): self
@@ -263,22 +245,18 @@ class Interface_
 			$this->setVersion( $artefact->getVersion() );
 		if( $artefact->getCopyright() )
 			$this->setCopyright( $artefact->getCopyright() );
-		if( $artefact->getReturn() )
-			$this->setReturn( $artefact->getReturn() );
 
-		foreach( $function->getAuthors() as $author )
+		foreach( $artefact->getAuthors() as $author )
 			$this->setAuthor( $author );
-		foreach( $function->getLinks() as $link )
+		foreach( $artefact->getLinks() as $link )
 			$this->setLink( $link );
-		foreach( $function->getSees() as $see )
+		foreach( $artefact->getSees() as $see )
 			$this->setSee( $see );
-		foreach( $function->getTodos() as $todo )
+		foreach( $artefact->getTodos() as $todo )
 			$this->setTodo( $todo );
-		foreach( $function->getDeprecations() as $deprecation )
+		foreach( $artefact->getDeprecations() as $deprecation )
 			$this->setDeprecation( $deprecation );
-		foreach( $function->getThrows() as $throws )
-			$this->setThrows( $throws );
-		foreach( $function->getLicenses() as $license )
+		foreach( $artefact->getLicenses() as $license )
 			$this->setLicense( $license );
 
 		//	@todo		many are missing
@@ -308,12 +286,6 @@ class Interface_
 		return $this;
 	}
 
-	public function setDeprecation( string $string ): self
-	{
-		$this->deprecations[]	= $string;
-		return $this;
-	}
-
 	public function setExtendedInterface( Interface_ $interface ): self
 	{
 		$this->extends	= $interface;
@@ -335,12 +307,6 @@ class Interface_
 	public function setExtendingInterfaceName( string $interface ): self
 	{
 		$this->extendedBy[$interface]	= $interface;
-		return $this;
-	}
-
-	public function setFinal( bool $isFinal = TRUE ): self
-	{
-		$this->final	= (bool) $isFinal;
 		return $this;
 	}
 
@@ -381,37 +347,13 @@ class Interface_
 	}
 
 	/**
-	 *	Sets parent File Data Object.
-	 *	@access		public
-	 *	@param		File_			$parent		Parent File Data Object
-	 *	@return		self
-	 */
-	public function setParent( File_ $parent ): self
-	{
-		$this->parent	= $parent;
-		return $this;
-	}
-
-	/**
 	 *	Sets subpackage.
 	 *	@param		string			$string		Subpackage name
-	 *	@return		void
+	 *	@return		self
 	 */
 	public function setSubpackage( string $string ): self
 	{
 		$this->subpackage	= $string;
-		return $this;
-	}
-
-	/**
-	 *	Sets todo notes.
-	 *	@access		public
-	 *	@param		string			$string		Todo notes
-	 *	@return		void
-	 */
-	public function setTodo( string $string ): self
-	{
-		$this->todos[]	= $string;
 		return $this;
 	}
 

@@ -73,6 +73,9 @@ class Regular
 		$this->docDecorator	= new DocDecorator();
 	}
 
+	const LEVEL_START			= 0;
+	const LEVEL_CLASS_OPEN		= 1;
+
 	/**
 	 *	Parses a PHP File and returns nested Array of collected Information.
 	 *	@access		public
@@ -96,7 +99,7 @@ class Regular
 		$file->setPathname( substr( str_replace( "\\", "/", $fileName ), strlen( $innerPath ) ) );
 		$file->setUri( str_replace( "\\", "/", $fileName ) );
 
-		$level	= 0;
+		$level	= self::LEVEL_START;
 		$class	= NULL;
 		do
 		{
@@ -164,7 +167,7 @@ class Regular
 					array_unshift( $lines, $line );
 					$this->lineNumber --;
 					$openClass	= FALSE;
-					$level		= 1;
+					$level		= self::LEVEL_CLASS_OPEN;
 					continue;
 				}
 				if( preg_match( $this->regexMethod, $line, $matches ) )
@@ -173,11 +176,11 @@ class Regular
 					$function	= $matches[6];
 					$class->setMethod( $method );
 				}
-				else if( $level <= 1 )
+				else if( $level <= self::LEVEL_CLASS_OPEN )
 				{
 					if( preg_match( $this->docParser->regexVariable, $line, $matches ) )
 					{
-						if( $openClass && $class )
+						if( $class )
 							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->docParser->parseMember( $matches );
 						else
 							$this->varBlocks[$matches[2]]	= $this->docParser->parseVariable( $matches );
@@ -186,30 +189,31 @@ class Regular
 					{
 //						print_m( $this->openBlocks );die;
 						$name		= $matches[4];
-						if( $openClass && $class )
+						if( $class )
 						{
 							$key		= $class->getName()."::".$name;
 							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
 							$variable	= $this->parseMember( $class, $matches, $varBlock );
-							$class->setMember( $variable );
+							if( $class instanceof Class_ || $class instanceof Trait_ )
+								$class->setMember( $variable );
 						}
 						else
 						{
-							remark( "Parser Error: found var after class -> not handled yet" );
+							print( 'Parser Error: found var after class -> not handled yet' );
 /*							$key		= $name;
 							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
 							$variable	= $this->parseMember( $matches, $varBlock );*/
 						}
 					}
 				}
-				else if( $level > 1 && $function )
+				else if( $level > self::LEVEL_CLASS_OPEN && $function )
 				{
 					$functionBody[$function][]	= $originalLine;
 				}
 			}
 			if( preg_match( '@{$@', $line ) )
 				$level++;
-			if( $level < 1 && !preg_match( $this->regexClass, $line, $matches ) )
+			if( $level < self::LEVEL_CLASS_OPEN && !preg_match( $this->regexClass, $line, $matches ) )
 				$openClass	= FALSE;
 		}
 		while( $lines );
@@ -237,7 +241,7 @@ class Regular
 	 *	@access		protected
 	 *	@param		File_				$parent			File Object of current Class
 	 *	@param		array				$matches		Matches of RegEx
-	 *	@return		Interface_|Class_
+	 *	@return		Interface_|Class_|Trait_
 	 */
 	protected function parseClassOrInterfaceOrTrait( File_ $parent, array $matches )
 	{
@@ -247,7 +251,6 @@ class Regular
 				$artefact	= new Interface_( $matches[4] );
 				if( isset( $matches[5] ) )
 					$artefact->setExtendedInterfaceName( $matches[6] );
-				$artefact->setFinal( (bool) $matches[2] );
 				break;
 			case 'trait':
 				$artefact	= new Trait_( $matches[4] );
@@ -269,7 +272,7 @@ class Regular
 		}
 		$artefact->setParent( $parent );
 		$artefact->setLine( $this->lineNumber );
-		$artefact->type		= $matches[3];
+//		$artefact->setType( $matches[3] );
 		if( $this->openBlocks )
 		{
 			$this->docDecorator->decorateCodeDataWithDocData( $artefact, array_pop( $this->openBlocks ) );

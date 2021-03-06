@@ -116,9 +116,9 @@ class Container_
 	 */
 	public function getInterfaceFromInterfaceName( string $interfaceName, Interface_ $relatedArtefact ): Interface_
 	{
-		if( !isset( $this->interfaceNameList[$interfaceName] ) )
+		if( !isset( $this->interfacesNameList[$interfaceName] ) )
 			throw new \Exception( 'Unknown interface "'.$interfaceName.'"' );
-		$list		= $this->interfaceNameList[$interfaceName];
+		$list		= $this->interfacesNameList[$interfaceName];
 		$category	= $relatedArtefact->getCategory();
 		$package	= $relatedArtefact->getPackage();
 
@@ -178,7 +178,7 @@ class Container_
 				$category	= $interface->getCategory() ? $interface->getCategory() : $defaultCategory;
 				$package	= $interface->getPackage() ? $interface->getPackage() : $defaultPackage;
 				$name		= $interface->getName();
-				$this->interfaceNameList[$name][$category][$package]	= $interface;
+				$this->interfacesNameList[$name][$category][$package]	= $interface;
 				$this->interfaceIdList[$interface->getId()]	= $interface;
 			}
 		}
@@ -195,8 +195,8 @@ class Container_
 						$serial	.= gzgets( $fp, 4096 );
 					$data	= unserialize( $serial );
 					gzclose( $fp );
+					return $data;
 				}
-				return $data;
 			}
 		}
 		if( !empty( $config['creator.file.data.serial'] ) ){
@@ -213,8 +213,9 @@ class Container_
 	/**
 	 *	Stores collected File/Class Data as Serial File or Archive File.
 	 *	@access		protected
-	 *	@param		array		$data		Collected File / Class Data
+	 *	@param		array		$config		Collected File / Class Data
 	 *	@return		void
+	 *	@todo		refactor, extract config
 	 */
 	public function save( array $config )
 	{

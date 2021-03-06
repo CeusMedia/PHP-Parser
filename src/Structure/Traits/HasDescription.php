@@ -35,14 +35,15 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasDescription
 {
+	/** @var	 string|NULL	$description		... */
 	protected $description	= NULL;
 
 	/**
 	 *	Returns parameter description.
 	 *	@access		public
-	 *	@return		string			Parameter description
+	 *	@return		string|NULL		Parameter description
 	 */
-	public function getDescription()
+	public function getDescription(): ?string
 	{
 		return $this->description;
 	}
@@ -50,10 +51,10 @@ Trait HasDescription
 	/**
 	 *	Sets variable description.
 	 *	@access		public
-	 *	@param		string			$string			Parameter description
+	 *	@param		string|NULL		$string			Parameter description
 	 *	@return		self
 	 */
-	public function setDescription( $string ): self
+	public function setDescription( ?string $string ): self
 	{
 		$this->description	= $string;
 		return $this;

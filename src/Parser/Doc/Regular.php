@@ -59,7 +59,7 @@ class Regular
 	/**
 	 *	Parses a Doc Block and returns Array of collected Information.
 	 *	@access		public
-	 *	@param		array		$lines			Lines of Doc Block
+	 *	@param		string		$docComment			Lines of Doc Block
 	 *	@return		array
 	 */
 	public function parseBlock( $docComment )

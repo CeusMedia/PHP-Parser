@@ -20,70 +20,43 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2021 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
-
-use CeusMedia\PhpParser\Structure\License_;
 
 /**
  *	...
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2021 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasLicense
+Trait HasType
 {
-	/** @var	 array		$licenses		... */
-	protected $licenses		= array();
-
-	/** @var	 array		$copyright		... */
-	protected $copyright	= array();
+	/** @var	 mixed		$type		... */
+	protected $type			= NULL;
 
 	/**
-	 *	Returns copyright notes.
+	 *	Returns type of structure.
 	 *	@access		public
-	 *	@return		array			Copyright notes
+	 *	@return		mixed		Type string or structure object
 	 */
-	public function getCopyright(): array
+	public function getType()
 	{
-		return $this->copyright;
+		return $this->type;
 	}
 
 	/**
-	 *	Returns list of licenses.
+	 *	Sets type of structure.
 	 *	@access		public
-	 *	@return		array			List of licenses
-	 */
-	public function getLicenses(): array
-	{
-		return $this->licenses;
-	}
-
-	/**
-	 *	Sets copyright notes.
-	 *	@access		public
-	 *	@param		string			$copyright		Copyright notes
+	 *	@param		mixed		$type			Type string or structure object
 	 *	@return		self
 	 */
-	public function setCopyright( string $copyright ): self
+	public function setType( $type ): self
 	{
-		$this->copyright[]	= $copyright;
-		return $this;
-	}
-
-	/**
-	 *	Sets function license.
-	 *	@access		public
-	 *	@param		License_		$license		Function license
-	 *	@return		self
-	 */
-	public function setLicense( License_ $license ): self
-	{
-		$this->licenses[]	= $license;
+		$this->type	= $type;
 		return $this;
 	}
 }

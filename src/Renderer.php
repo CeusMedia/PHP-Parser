@@ -59,7 +59,7 @@ class Renderer
 		$classSignatur	= 'class '.$class->getName();
 		if( $class->isAbstract() )
 			$classSignatur	= 'abstract '.$classSignatur;
-		else if( $class->isFinal )
+		else if( $class->isFinal() )
 			$classSignatur	= 'final '.$classSignatur;
 		$this->buffer[]	= $classSignatur;
 //		print_r( $class );
@@ -86,7 +86,7 @@ class Renderer
 
 		$lines[]	= ' */';
 		return $lines;
-		return join( PHP_EOL, $lines );
+//		return join( PHP_EOL, $lines );
 	}
 
 	protected function renderDocBlockLine( ?string $property, ?string $value = NULL, ?string $description = NULL ): string
