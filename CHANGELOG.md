@@ -1,4 +1,9 @@
-## 0.2 (2021-03-21)
+## 0.2.1 (2021-03-21)
+
+- Add renderer strategy and update demos.
+- Add change log and updated readme.
+
+## 0.2 (2021-03-06)
 
 - Add PHPUnit.
 - Improve code after applying unit tests.
@@ -6,8 +11,6 @@
 - Update composer file.
 - Add PHPStan.
 - Improve code to reach PHPStan level 3.
-- Add renderer strategy and update demos.
-- Add change log and updated readme.
 
 ## 0.1 (2020-10-15)
 
