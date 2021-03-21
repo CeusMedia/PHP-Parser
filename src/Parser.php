@@ -44,7 +44,7 @@ class Parser
 	const STRATEGY_REGULAR		= 0;
 	const STRATEGY_REFLECTION	= 1;
 
-	protected $strategy		= 'Regular';
+	protected $strategy			= 0;
 
 	public function __construct()
 	{

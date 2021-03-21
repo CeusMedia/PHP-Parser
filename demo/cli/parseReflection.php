@@ -1,5 +1,7 @@
 <?php
-require_once '../../vendor/autoload.php';
+( @include_once __DIR__.'/../../vendor/autoload.php' ) or
+	die( 'Please use composer to install required packages.'.PHP_EOL );
+
 new UI_DevOutput;
 
 use CeusMedia\PhpParser\Parser;
