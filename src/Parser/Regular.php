@@ -226,7 +226,7 @@ class Regular
 					$method->setSourceCode( $functionBody[$methodName] );
 			if( $class instanceof Class_ )
 				$file->addClass( $class );
-			if( $class instanceof Trait_ )
+			else if( $class instanceof Trait_ )
 				$file->addTrait( $class );
 			else if( $class instanceof Interface_ )
 				$file->addInterface( $class );
