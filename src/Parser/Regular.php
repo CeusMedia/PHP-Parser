@@ -85,9 +85,9 @@ class Regular
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
-		$content		= \FS_File_Reader::load( $fileName );
-		if( !\Alg_Text_Unicoder::isUnicode( $content ) )
-			$content	= \Alg_Text_Unicoder::convertToUnicode( $content );
+		$content		= \CeusMedia\Common\FS\File\Reader::load( $fileName );
+		if( !\CeusMedia\Common\Alg\Text\Unicoder::isUnicode( $content ) )
+			$content	= \CeusMedia\Common\Alg\Text\Unicoder::convertToUnicode( $content );
 
 		$lines			= explode( "\n", $content );
 		$fileBlock		= NULL;
@@ -192,7 +192,7 @@ class Regular
 						if( $class )
 						{
 							$key		= $class->getName()."::".$name;
-							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
+							$varBlock	= $this->varBlocks[$key] ?? NULL;
 							$variable	= $this->parseMember( $class, $matches, $varBlock );
 							if( $class instanceof Class_ || $class instanceof Trait_ )
 								$class->setMember( $variable );
@@ -300,19 +300,16 @@ class Regular
 		if( isset( $matches[8] ) )
 			$function->setReturn( new Return_( $matches[9] ) );
 
-		if( trim( $matches[7] ) )
-		{
+		if( trim( $matches[7] ) ){
 			$paramList	= array();
-			foreach( explode( ",", $matches[7] ) as $param )
-			{
+			foreach( explode( ",", $matches[7] ) as $param ){
 				$param	 = trim( $param );
 				if( !preg_match( $this->regexParam, $param, $matches ) )
 					continue;
 				$function->setParameter( $this->parseParameter( $function, $matches ) );
 			}
 		}
-		if( $this->openBlocks )
-		{
+		if( $this->openBlocks ){
 			$methodBlock	= array_pop( $this->openBlocks );
 			$this->docDecorator->decorateCodeDataWithDocData( $function, $methodBlock );
 			$this->openBlocks	= array();

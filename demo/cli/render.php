@@ -2,8 +2,6 @@
 ( @include_once __DIR__.'/../../vendor/autoload.php' ) or
 	die( 'Please use composer to install required packages.'.PHP_EOL );
 
-new UI_DevOutput;
-
 use CeusMedia\PhpParser\Renderer;
 use CeusMedia\PhpParser\Structure\Class_;
 use CeusMedia\PhpParser\Structure\Interface_;
@@ -12,6 +10,8 @@ use CeusMedia\PhpParser\Structure\Member_;
 use CeusMedia\PhpParser\Structure\Method_;
 use CeusMedia\PhpParser\Structure\Return_;
 use CeusMedia\PhpParser\Structure\Parameter_;
+
+new CeusMedia\Common\UI\DevOutput;
 
 try{
 	$class	= (new Class_( 'Test' ))
@@ -38,7 +38,7 @@ try{
 	$code		= $renderer->renderClass( $class );
 }
 catch( Exception $e ){
-	$exceptionView	= CLI_Exception_View::getInstance( $e )
+	$exceptionView	= CeusMedia\Common\CLI\Exception\View::getInstance( $e )
 		->render();
 	print( $exceptionView );
 	exit( 1 );

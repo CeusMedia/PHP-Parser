@@ -18,12 +18,13 @@
         "jabber": "cwuerker@ceusmedia.de"
     },
     "require": {
-        "ceus-media/common": "^1.0 | 1.0@dev | ^0.9 | ^0.9@dev | ^0.8 | dev-master"
+        "php": "^7.4 | ^8.1",
+        "ceus-media/common": "^1.0 | 1.0@dev | ^0.9 | ^0.9@dev | dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5@dev",
-        "phpstan/phpstan": "*",
-        "phpstan/phpstan-strict-rules": "*"
+        "phpunit/phpunit": "^9.5 | ^10",
+        "phpstan/phpstan": "^1",
+        "phpstan/phpstan-strict-rules": "^1"
     },
     "minimum-stability": "dev",
     "autoload": {

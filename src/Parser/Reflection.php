@@ -52,7 +52,7 @@ use CeusMedia\PhpParser\Structure\Throws_;
  */
 class Reflection
 {
-	protected $verbose	= TRUE;
+	protected bool $verbose	= TRUE;
 
 	/**
 	 *	Parses a PHP File and returns nested Array of collected Information.
@@ -63,9 +63,9 @@ class Reflection
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
-		$content		= \FS_File_Reader::load( $fileName );
-		if( !\Alg_Text_Unicoder::isUnicode( $content ) )
-			$content		= \Alg_Text_Unicoder::convertToUnicode( $content );
+		$content		= \CeusMedia\Common\FS\File\Reader::load( $fileName );
+		if( !\CeusMedia\Common\Alg\Text\Unicoder::isUnicode( $content ) )
+			$content		= \CeusMedia\Common\Alg\Text\Unicoder::convertToUnicode( $content );
 
 		//  list builtin Classes
 		$listClasses	= get_declared_classes();
@@ -169,7 +169,7 @@ class Reflection
 		return $object;
 	}
 
-	public function readMethod( \ReflectionMethod $method )
+	public function readMethod( \ReflectionMethod $method ): Method_
 	{
 		$object	= new Method_( $method->name );
 		$object->setDescription( $method->getDocComment() );
@@ -186,7 +186,7 @@ class Reflection
 		return $object;
 	}
 
-	public function readParameter( \ReflectionParameter $parameter )
+	public function readParameter( \ReflectionParameter $parameter ): Parameter_
 	{
 		$object	= new Parameter_( $parameter->name );
 		$object->setReference( $parameter->isPassedByReference() );
@@ -197,9 +197,8 @@ class Reflection
 		return $object;
 	}
 
-	public function readProperty( \ReflectionProperty $property )
+	public function readProperty( \ReflectionProperty $property ): Member_
 	{
-		$object	= new Member_( $property->name );
-		return $object;
+		return new Member_( $property->name );
 	}
 }
