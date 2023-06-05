@@ -147,7 +147,7 @@ class Regular
 			$method->getAccess() ? $method->getAccess().' ' : '',
 			$method->isStatic() ? 'static ' : '',
 			'function '.$method->getName().'(',
-			$parameters ? ' '.$parameters.' ' : '',
+//			$parameters ? ' '.$parameters.' ' : '',
 			')',
 			$method->getReturn() ? ': '.$method->getReturn()->getType() : '',
 		] );

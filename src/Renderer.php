@@ -41,9 +41,9 @@ use CeusMedia\PhpParser\Structure\Class_;
  */
 class Renderer
 {
-	const STRATEGY_REGULAR		= 0;
+	public const STRATEGY_REGULAR	= 0;
 
-	protected $strategy			= 0;
+	protected int $strategy			= 0;
 
 	public function __construct()
 	{
@@ -61,6 +61,7 @@ class Renderer
 
 	public function renderFile( File_ $file ): string
 	{
+		return '';
 	}
 
 	public function setStrategy( int $strategy ): self
