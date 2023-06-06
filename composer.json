@@ -24,7 +24,8 @@
     "require-dev": {
         "phpunit/phpunit": "^9.5 | ^10",
         "phpstan/phpstan": "^1",
-        "phpstan/phpstan-strict-rules": "^1"
+        "phpstan/phpstan-strict-rules": "^1",
+        "php-parallel-lint/php-parallel-lint": "^1.3 | dev-master"
     },
     "minimum-stability": "dev",
     "autoload": {
@@ -41,7 +42,7 @@
         ],
         "dev:phpstan": [
             "@dev:install-quiet",
-            "vendor/bin/phpstan analyze --configuration=util/phpstan.neon --memory-limit=1G --xdebug --verbose"
+            "vendor/bin/phpstan analyze --configuration=util/phpstan.neon --memory-limit=1G --verbose"
         ],
         "dev:phpstan-clear": [
             "@dev:install-quiet",
