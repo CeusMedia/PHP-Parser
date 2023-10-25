@@ -45,8 +45,8 @@ class Method_ extends Function_
 	use MaybeFinal;
 	use MaybeStatic;
 
-	/** @var	 bool		$abstract		... */
-	protected $abstract		= FALSE;
+	/** @var	bool		$abstract		... */
+	protected bool $abstract		= FALSE;
 
 	/**
 	 *	Indicates whether method is abstract.
@@ -62,13 +62,14 @@ class Method_ extends Function_
 	 *	@access		public
 	 *	@param		Function_		$method		...
 	 *	@return		self
+	 *	@noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
 	public function merge( Function_ $method ): self
 	{
 		if( !$method instanceof Method_ )
 			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $method->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new \Exception( 'Not merge-able' );
 		if( $method->getAccess() )
 			$this->setAccess( $method->getAccess() );
 		if( $method->getParent() )
@@ -90,7 +91,7 @@ class Method_ extends Function_
 	 */
 	public function setAbstract( bool $isAbstract = TRUE ): self
 	{
-		$this->abstract	= (bool) $isAbstract;
+		$this->abstract	= $isAbstract;
 		return $this;
 	}
 }

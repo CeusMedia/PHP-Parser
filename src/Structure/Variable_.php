@@ -53,10 +53,10 @@ class Variable_
 	 *	@access		public
 	 *	@param		string		$name			Variable name
 	 *	@param		mixed		$type			Variable type string or data object
-	 *	@param		string		$description	Variable description
+	 *	@param		?string		$description	Variable description
 	 *	@return		void
 	 */
-	public function __construct( string $name, $type = NULL, ?string $description = NULL )
+	public function __construct( string $name, mixed $type = NULL, ?string $description = NULL )
 	{
 		$this->setName( $name );
 		if( !is_null( $type ) )
@@ -69,7 +69,7 @@ class Variable_
 	{
 #		remark( 'merging variable: '.$variable->getName() );
 		if( $this->name != $variable->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new \Exception( 'Not merge-able' );
 		if( NULL !== $variable->getType() )
 			$this->setType( $variable->getType() );
 		if( NULL !== $variable->getDescription() )

@@ -35,26 +35,26 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasLineInFile
 {
-	/** @var	 integer	$line		... */
-	protected $line			= 0;
+	/** @var	int|string		$line		Line (or range like 1-3) in code */
+	protected int|string $line			= '';
 
 	/**
-	 *	Returns line in code.
+	 *	Returns line (or range like 1-3) in code.
 	 *	@access		public
-	 *	@return		integer			Line number in code
+	 *	@return		int|string			Line number (or range like 1-3) in code
 	 */
-	public function getLine(): int
+	public function getLine(): int|string
 	{
 		return $this->line;
 	}
 
 	/**
-	 *	Sets line in code.
+	 *	Sets line (or range like 1-3) in code.
 	 *	@access		public
-	 *	@param		integer			$number			Line number in code
+	 *	@param		int|string			$number			Line number in code
 	 *	@return		self
 	 */
-	public function setLine( int $number ): self
+	public function setLine( int|string $number ): self
 	{
 		$this->line	= $number;
 		return $this;

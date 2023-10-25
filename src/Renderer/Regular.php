@@ -26,6 +26,7 @@
 namespace CeusMedia\PhpParser\Renderer;
 
 use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\Method_;
 
 /**
  *	...
@@ -37,13 +38,13 @@ use CeusMedia\PhpParser\Structure\Class_;
  */
 class Regular
 {
-	protected $buffer	= [];
+	protected array $buffer	= [];
 
 	public function __construct()
 	{
 	}
 
-	public function renderClass( Class_ $class )
+	public function renderClass( Class_ $class ): string
 	{
 		$classContent	= [];
 
@@ -74,7 +75,11 @@ class Regular
 		return implode( PHP_EOL, $this->buffer ).PHP_EOL;
 	}
 
-	protected function renderClassDocBlock( $class ): array
+	/**
+	 *	@param		Class_		$class
+	 *	@return		array<string>
+	 */
+	protected function renderClassDocBlock( Class_ $class ): array
 	{
 		$lines	= [];
 		$lines[]	= '/'.'**';
@@ -94,6 +99,12 @@ class Regular
 //		return join( PHP_EOL, $lines );
 	}
 
+	/**
+	 *	@param		string|NULL		$property
+	 *	@param		string|NULL		$value
+	 *	@param		string|NULL		$description
+	 *	@return		string
+	 */
 	protected function renderDocBlockLine( ?string $property, ?string $value = NULL, ?string $description = NULL ): string
 	{
 		$parts	= [" *\t"];
@@ -106,7 +117,12 @@ class Regular
 		return join( $parts );
 	}
 
-	protected function indentLines( array $lines, $level = 1 ): array
+	/**
+	 *	@param		array<string>	$lines		Original lines
+	 *	@param		int				$level		Indent level
+	 *	@return		array<string>				Indented lines
+	 */
+	protected function indentLines( array $lines, int $level = 1 ): array
 	{
 		$indent	= str_repeat( "\t", $level );
 		foreach( $lines as $nr => $line )
@@ -114,7 +130,11 @@ class Regular
 		return $lines;
 	}
 
-	public function renderClassMethod( $method )
+	/**
+	 *	@param		Method_		$method
+	 *	@return		array<string>
+	 */
+	public function renderClassMethod( Method_ $method ): array
 	{
 		$lines	= ['/'.'**'];
 		if( $method->getDescription() ){
@@ -138,8 +158,11 @@ class Regular
 				$line	.= '		'.$throws->getReason();
 			$lines[]	= $line;
 		}
-		if( $method->getReturn() )
-			$lines[]	= ' *	@return		'.$method->getReturn()->getType();
+		if( $method->getReturn() ){
+			$return		= $method->getReturn();
+			$desc		= $return->getDescription() ? '		'.$return->getDescription() : '';
+			$lines[]	= ' *	@return		'.$return->getType().$desc;
+		}
 		$lines[] = ' */';
 
 		$lines[] = join( [

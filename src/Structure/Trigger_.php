@@ -35,14 +35,14 @@ namespace CeusMedia\PhpParser\Structure;
  */
 class Trigger_
 {
-	protected $condition	= NULL;
-	protected $key;
+	protected ?string $condition	= NULL;
+	protected string $key;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
 	 *	@param		string		$key			Trigger key
-	 *	@param		string		$condition		Trigger condition
+	 *	@param		?string		$condition		Trigger condition
 	 *	@return		void
 	 */
 	public function __construct( string $key, ?string $condition = NULL )
@@ -54,7 +54,7 @@ class Trigger_
 	/**
 	 *	Returns condition of trigger.
 	 *	@access		public
-	 *	@return		string		Trigger condition
+	 *	@return		?string		Trigger condition
 	 */
 	public function getCondition(): ?string
 	{
@@ -74,7 +74,7 @@ class Trigger_
 /*	public function merge( Return_ $return )
 	{
 		if( $this->name != $return->getName() )
-			throw new Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $return->getDescription() )
 			$this->setDescription( $return->getDescription() );
 		if( $return->getType() )
@@ -89,7 +89,7 @@ class Trigger_
 	 *	@param		string		$condition		Trigger condition
 	 *	@return		self
 	 */
-	public function setCondition( $condition ): self
+	public function setCondition( string $condition ): self
 	{
 		$this->condition	= $condition;
 		return $this;
@@ -101,7 +101,7 @@ class Trigger_
 	 *	@param		string		$key			Trigger key
 	 *	@return		self
 	 */
-	public function setKey( $key ): self
+	public function setKey( string $key ): self
 	{
 		$this->key	= $key;
 		return $this;

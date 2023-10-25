@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
+
 /**
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).
  *
@@ -27,6 +28,8 @@
  */
 namespace CeusMedia\PhpParser\Parser;
 
+use CeusMedia\Common\Alg\Text\Unicoder;
+use CeusMedia\Common\FS\File\Reader as FileReader;
 use CeusMedia\PhpParser\Parser\Doc\Regular as DocParser;
 use CeusMedia\PhpParser\Parser\Doc\Decorator as DocDecorator;
 use CeusMedia\PhpParser\Structure\File_;
@@ -56,16 +59,16 @@ use CeusMedia\PhpParser\Structure\Throws_;
  */
 class Regular
 {
-	protected $regexClass		= '@^(abstract )?(final )?(interface |class |trait )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
-	protected $regexMethod		= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
-	protected $regexParam		= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
-	protected $regexVariable	= '@^(static\s+)?(protected|private|public|var)\s+(static\s+)?\$(\w+)(\s+=\s+([^(]+))?.*$@';
-	protected $varBlocks		= array();
-	protected $openBlocks		= array();
-	protected $lineNumber		= 0;
+	protected string $regexClass	= '@^(abstract )?(final )?(interface |class |trait )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
+	protected string $regexMethod	= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
+	protected string $regexParam	= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
+	protected string $regexVariable	= '@^(static\s+)?(protected|private|public|var)\s+(static\s+)?\$(\w+)(\s+=\s+([^(]+))?.*$@';
+	protected array $varBlocks		= array();
+	protected array $openBlocks		= array();
+	protected int $lineNumber		= 0;
 
-	protected $docParser;
-	protected $docDecorator;
+	protected DocParser $docParser;
+	protected DocDecorator $docDecorator;
 
 	public function __construct()
 	{
@@ -85,9 +88,9 @@ class Regular
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
-		$content		= \CeusMedia\Common\FS\File\Reader::load( $fileName );
-		if( !\CeusMedia\Common\Alg\Text\Unicoder::isUnicode( $content ) )
-			$content	= \CeusMedia\Common\Alg\Text\Unicoder::convertToUnicode( $content );
+		$content		= FileReader::load( $fileName );
+		if( !Unicoder::isUnicode( $content ) )
+			$content	= Unicoder::convertToUnicode( $content );
 
 		$lines			= explode( "\n", $content );
 		$fileBlock		= NULL;
@@ -101,8 +104,7 @@ class Regular
 
 		$level	= self::LEVEL_START;
 		$class	= NULL;
-		do
-		{
+		do{
 			$originalLine	= array_shift( $lines );
 			$line			= preg_replace( '@((#|//).*)$@', '', $originalLine );		//  remove trailing comment
 			$line			= trim( $line );											//  trim line, since whitespace does not matter for parsing
@@ -111,25 +113,21 @@ class Regular
 			if( preg_match( "@^(<\?(php)?)|((php)?\?>)$@", $line ) )
 				continue;
 
-			if( preg_match( '@}$@', $line ) )
+			if( str_ends_with( $line, '}' ) )
 				$level--;
 
-			if( $line == "/**" && $level < 2 )
-			{
+			if( $line == "/**" && $level < 2 ){
 				$list	= array();
-				while( !preg_match( "@\*?\*/\s*$@", $line ) )
-				{
+				while( !preg_match( "@\*?\*/\s*$@", $line ) ){
 					$list[]	= $line;
 					$line	= trim( array_shift( $lines ) );
 					$this->lineNumber ++;
 				}
 				array_unshift( $lines, $line );
 				$this->lineNumber --;
-				if( $list )
-				{
+				if( $list ){
 					$this->openBlocks[]	= $this->docParser->parseBlock( join( PHP_EOL, $list ) );
-					if( !$fileBlock && !$class )
-					{
+					if( !$fileBlock && !$class ){
 						$fileBlock	= array_shift( $this->openBlocks );
 						array_unshift( $this->openBlocks, $fileBlock );
 						$this->docDecorator->decorateCodeDataWithDocData( $file, $fileBlock );
@@ -137,27 +135,22 @@ class Regular
 				}
 				continue;
 			}
-			if( !$openClass )
-			{
-				if( preg_match( $this->regexClass, $line, $matches ) )
-				{
+			if( !$openClass ){
+				if( preg_match( $this->regexClass, $line, $matches ) ){
 					$parts	= array_slice( $matches, -1 );
 					while( !trim( array_pop( $parts ) ) )
 						array_pop( $matches );
 					$class	= $this->parseClassOrInterfaceOrTrait( $file, $matches );
 					$openClass	= TRUE;
 				}
-				else if( preg_match( $this->regexMethod, $line, $matches ) )
-				{
+				else if( preg_match( $this->regexMethod, $line, $matches ) ){
 					$openClass	= FALSE;
 					$function	= $this->parseFunction( $file, $matches );
 					$file->setFunction( $function );
 				}
 			}
-			else
-			{
-				if( preg_match( $this->regexClass, $line, $matches ) )
-				{
+			else{
+				if( preg_match( $this->regexClass, $line, $matches ) ){
 					if( $class instanceof Class_ )
 						$file->addClass( $class );
 					else if( $class instanceof Trait_ )
@@ -170,35 +163,29 @@ class Regular
 					$level		= self::LEVEL_CLASS_OPEN;
 					continue;
 				}
-				if( preg_match( $this->regexMethod, $line, $matches ) )
-				{
+				if( preg_match( $this->regexMethod, $line, $matches ) ){
 					$method		= $this->parseMethod( $class, $matches );
 					$function	= $matches[6];
 					$class->setMethod( $method );
 				}
-				else if( $level <= self::LEVEL_CLASS_OPEN )
-				{
-					if( preg_match( $this->docParser->regexVariable, $line, $matches ) )
-					{
+				else if( $level <= self::LEVEL_CLASS_OPEN ){
+					if( preg_match( $this->docParser->regexVariable, $line, $matches ) ){
 						if( $class )
 							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->docParser->parseMember( $matches );
 						else
 							$this->varBlocks[$matches[2]]	= $this->docParser->parseVariable( $matches );
 					}
-					else if( preg_match( $this->regexVariable, $line, $matches ) )
-					{
+					else if( preg_match( $this->regexVariable, $line, $matches ) ){
 //						print_m( $this->openBlocks );die;
 						$name		= $matches[4];
-						if( $class )
-						{
+						if( $class ){
 							$key		= $class->getName()."::".$name;
 							$varBlock	= $this->varBlocks[$key] ?? NULL;
 							$variable	= $this->parseMember( $class, $matches, $varBlock );
 							if( $class instanceof Class_ || $class instanceof Trait_ )
 								$class->setMember( $variable );
 						}
-						else
-						{
+						else{
 							print( 'Parser Error: found var after class -> not handled yet' );
 /*							$key		= $name;
 							$varBlock	= isset( $this->varBlocks[$key] ) ? $this->varBlocks[$key] : NULL;
@@ -206,12 +193,11 @@ class Regular
 						}
 					}
 				}
-				else if( $level > self::LEVEL_CLASS_OPEN && $function )
-				{
+				else if( $level > self::LEVEL_CLASS_OPEN && $function ){
 					$functionBody[$function][]	= $originalLine;
 				}
 			}
-			if( preg_match( '@{$@', $line ) )
+			if( str_ends_with( $line, '{' ) )
 				$level++;
 			if( $level < self::LEVEL_CLASS_OPEN && !preg_match( $this->regexClass, $line, $matches ) )
 				$openClass	= FALSE;
@@ -219,8 +205,7 @@ class Regular
 		while( $lines );
 
 		$file->setSourceCode( $content );
-		if( $class )
-		{
+		if( $class ){
 			foreach( $class->getMethods() as $methodName => $method )
 				if( isset( $functionBody[$methodName] ) )
 					$method->setSourceCode( $functionBody[$methodName] );
@@ -243,10 +228,9 @@ class Regular
 	 *	@param		array				$matches		Matches of RegEx
 	 *	@return		Interface_|Class_|Trait_
 	 */
-	protected function parseClassOrInterfaceOrTrait( File_ $parent, array $matches )
+	protected function parseClassOrInterfaceOrTrait( File_ $parent, array $matches ): Class_|Interface_|Trait_
 	{
-		switch( strtolower( trim( $matches[3] ) ) )
-		{
+		switch( strtolower( trim( $matches[3] ) ) ){
 			case 'interface':
 				$artefact	= new Interface_( $matches[4] );
 				if( isset( $matches[5] ) )
@@ -273,8 +257,7 @@ class Regular
 		$artefact->setParent( $parent );
 		$artefact->setLine( $this->lineNumber );
 //		$artefact->setType( $matches[3] );
-		if( $this->openBlocks )
-		{
+		if( $this->openBlocks ){
 			$this->docDecorator->decorateCodeDataWithDocData( $artefact, array_pop( $this->openBlocks ) );
 			$this->openBlocks	= array();
 		}
@@ -320,12 +303,12 @@ class Regular
 	/**
 	 *	Parses a Class Member Signature and returns collected Information.
 	 *	@access		protected
-	 *	@param		Class_				$parent			Parent Class Data Object
-	 *	@param		array				$matches		Matches of RegEx
-	 *	@param		array				$docBlock		Variable data object from Doc Parser
+	 *	@param		Class_|Interface_|Trait_	$parent			Parent Class Data Object
+	 *	@param		array						$matches		Matches of RegEx
+	 *	@param		mixed|NULL					$docBlock		Variable data object from Doc Parser
 	 *	@return		Member_
 	 */
-	protected function parseMember( $parent, array $matches, $docBlock = NULL ): Member_
+	protected function parseMember( Class_|Interface_|Trait_ $parent, array $matches, mixed $docBlock = NULL ): Member_
 	{
 		$variable			= new Member_( $matches[4], NULL, NULL );
 		$variable->setParent( $parent );
@@ -336,7 +319,7 @@ class Regular
 			$variable->setAccess( $matches[2] == "var" ? NULL : $matches[2] );
 		$variable->setStatic( (bool) trim( $matches[3] ) );
 
-		if( $docBlock )
+		if( NULL !== $docBlock )
 			if( $docBlock instanceof Variable_ )
 				if( $docBlock->getName() == $variable->getName() )
 					$variable->merge( $docBlock );

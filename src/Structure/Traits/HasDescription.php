@@ -35,8 +35,8 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasDescription
 {
-	/** @var	 string|NULL	$description		... */
-	protected $description	= NULL;
+	/** @var	string|NULL		$description		... */
+	protected ?string $description	= NULL;
 
 	/**
 	 *	Returns parameter description.

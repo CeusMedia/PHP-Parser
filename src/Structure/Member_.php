@@ -43,8 +43,8 @@ class Member_ extends Variable_
 	use HasParent;
 	use MaybeStatic;
 
-	/** @var	 string|NULL	$default		... */
-	protected $default			= NULL;
+	/** @var	string|NULL		$default		... */
+	protected ?string $default			= NULL;
 
 	public function __toArray(): array
 	{
@@ -59,13 +59,18 @@ class Member_ extends Variable_
 	/**
 	 *	Returns member default value.
 	 *	@access		public
-	 *	@return		string
+	 *	@return		?string
 	 */
 	public function getDefault(): ?string
 	{
 		return $this->default;
 	}
 
+	/**
+	 *	@param		Variable_		$member
+	 *	@return		self
+	 *	@noinspection PhpParameterNameChangedDuringInheritanceInspection
+	 */
 	public function merge( Variable_ $member ): self
 	{
 		if( !$member instanceof Member_ )
@@ -73,7 +78,7 @@ class Member_ extends Variable_
 		parent::merge( $member );
 #		remark( 'merging member: '.$member->getName() );
 		if( $this->name != $member->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new \Exception( 'Not merge-able' );
 		if( $member->getAccess() )
 			$this->setAccess( $member->getAccess() );
 		if( $member->getDefault() )
@@ -86,7 +91,7 @@ class Member_ extends Variable_
 	/**
 	 *	Sets member default value.
 	 *	@access		public
-	 *	@param		string			$string			Member default value
+	 *	@param		?string			$string			Member default value
 	 *	@return		self
 	 */
 	public function setDefault( ?string $string ): self

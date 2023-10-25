@@ -44,11 +44,11 @@ class Return_
 	/**
 	 *	Constructor.
 	 *	@access		public
-	 *	@param		string		$type			Return type
-	 *	@param		string		$description	Return description
+	 *	@param		mixed		$type			Return type
+	 *	@param		?string		$description	Return description
 	 *	@return		void
 	 */
-	public function __construct( $type = NULL, ?string $description = NULL )
+	public function __construct( mixed $type = NULL, ?string $description = NULL )
 	{
 		$this->setType( $type );
 		$this->setDescription( $description );

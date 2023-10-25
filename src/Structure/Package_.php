@@ -35,12 +35,12 @@ namespace CeusMedia\PhpParser\Structure;
  */
 class Package_ extends Category_
 {
-	protected $files	= array();
+	protected array $files	= array();
 
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function & getFileByName( $name )
+	public function & getFileByName( string $name ): File_
 	{
 		if( isset( $this->files[$name] ) )
 			return $this->files[$name];

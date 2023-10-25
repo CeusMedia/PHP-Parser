@@ -39,13 +39,13 @@ class License_
 {
 	use HasName;
 
-	protected $url		= NULL;
+	protected ?string $url		= NULL;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
 	 *	@param		string		$name		License name
-	 *	@param		string		$url		License URL
+	 *	@param		?string		$url		License URL
 	 *	@return		void
 	 */
 	public function __construct( string $name, ?string $url = NULL )
@@ -58,7 +58,7 @@ class License_
 	/**
 	 *	Returns license URL.
 	 *	@access		public
-	 *	@return		string
+	 *	@return		?string
 	 */
 	public function getUrl(): ?string
 	{
@@ -68,7 +68,7 @@ class License_
 	public function merge( License_ $license ): self
 	{
 		if( $this->name != $license->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new \Exception( 'Not merge-able' );
 		if( $license->getUrl() )
 			$this->setUrl( $license->getUrl() );
 		return $this;
@@ -77,7 +77,7 @@ class License_
 	/**
 	 *	Sets license URL.
 	 *	@access		public
-	 *	@param		string		$url		License URL
+	 *	@param		?string		$url		License URL
 	 *	@return		self
 	 */
 	public function setUrl( ?string $url ): self

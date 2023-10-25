@@ -35,15 +35,15 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasType
 {
-	/** @var	 mixed		$type		... */
-	protected $type			= NULL;
+	/** @var	mixed		$type		... */
+	protected mixed $type			= NULL;
 
 	/**
 	 *	Returns type of structure.
 	 *	@access		public
 	 *	@return		mixed		Type string or structure object
 	 */
-	public function getType()
+	public function getType(): mixed
 	{
 		return $this->type;
 	}
@@ -54,7 +54,7 @@ Trait HasType
 	 *	@param		mixed		$type			Type string or structure object
 	 *	@return		self
 	 */
-	public function setType( $type ): self
+	public function setType( mixed $type ): self
 	{
 		$this->type	= $type;
 		return $this;

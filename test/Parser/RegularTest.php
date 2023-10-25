@@ -215,14 +215,14 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataCopyright()
 	{
-		$creation	= is_array( $this->data->getCopyright() );
+		$creation	= is_array( $this->data->getCopyrights() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
 			"2007 Test Writer 1",
 			"2008 Test Writer 2",
 		);
-		$creation	= $this->data->getCopyright();
+		$creation	= $this->data->getCopyrights();
 		$this->assertEquals( $assertion, $creation );
 	}
 
@@ -591,14 +591,14 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataCopyright()
 	{
-		$creation	= is_array( $this->class->getCopyright() );
+		$creation	= is_array( $this->class->getCopyrights() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
 			"2007 Test Writer 1",
 			"2008 Test Writer 2",
 		);
-		$creation	= $this->class->getCopyright();
+		$creation	= $this->class->getCopyrights();
 		$this->assertEquals( $assertion, $creation );
 	}
 

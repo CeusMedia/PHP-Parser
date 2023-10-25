@@ -26,6 +26,7 @@
 namespace CeusMedia\PhpParser\Structure\Traits;
 
 use CeusMedia\PhpParser\Structure\Member_;
+use DomainException;
 
 /**
  *	...
@@ -37,8 +38,8 @@ use CeusMedia\PhpParser\Structure\Member_;
  */
 Trait HasMembers
 {
-	/** @var	 array		$members		... */
-	protected $members		= array();
+	/** @var	array		$members		... */
+	protected array $members		= array();
 
 	/**
 	 *	Returns a member data object by its name.
@@ -50,13 +51,13 @@ Trait HasMembers
 	{
 		if( isset( $this->members[$name] ) )
 			return $this->members[$name];
-		throw new \RuntimeException( "Member '$name' is unknown" );
+		throw new DomainException( "Member '$name' is unknown" );
 	}
 
 	/**
 	 *	Returns a list of member data objects.
 	 *	@access		public
-	 *	@return		array			List of member data objects
+	 *	@return		array<Member_>		List of member data objects
 	 */
 	public function getMembers(): array
 	{

@@ -35,8 +35,8 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasName
 {
-	/** @var	 string|NULL	$name		... */
-	protected $name		= NULL;
+	/** @var	string|NULL		$name		... */
+	protected ?string $name		= NULL;
 
 	/**
 	 *	Returns set name.

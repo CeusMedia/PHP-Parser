@@ -37,18 +37,18 @@ use CeusMedia\PhpParser\Structure\License_;
  */
 Trait HasLicense
 {
-	/** @var	 array		$licenses		... */
-	protected $licenses		= array();
+	/** @var	array		$licenses		... */
+	protected array $licenses		= array();
 
-	/** @var	 array		$copyright		... */
-	protected $copyright	= array();
+	/** @var	array		$copyright		... */
+	protected array $copyright	= array();
 
 	/**
 	 *	Returns copyright notes.
 	 *	@access		public
 	 *	@return		array			Copyright notes
 	 */
-	public function getCopyright(): array
+	public function getCopyrights(): array
 	{
 		return $this->copyright;
 	}

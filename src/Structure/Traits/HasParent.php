@@ -35,7 +35,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasParent
 {
-	/** @var	 mixed		$parent		... */
+	/** @var	mixed		$parent		... */
 	protected $parent		= NULL;
 
 	/**
@@ -43,7 +43,7 @@ Trait HasParent
 	 *	@access		public
 	 *	@return		mixed		Parent structure object
 	 */
-	public function getParent()
+	public function getParent(): mixed
 	{
 		return $this->parent;
 	}
@@ -54,7 +54,7 @@ Trait HasParent
 	 *	@param		mixed			$parent		Parent structure object
 	 *	@return		self
 	 */
-	public function setParent( $parent )
+	public function setParent( mixed $parent ): self
 	{
 		$this->parent	= $parent;
 		return $this;

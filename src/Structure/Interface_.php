@@ -35,6 +35,8 @@ use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
+use Exception;
+use RuntimeException;
 
 /**
  *	Interface Data Class.
@@ -48,38 +50,38 @@ class Interface_
 {
 	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
-	/** @var	 string|NULL	$category		... */
-	protected $category			= NULL;
+	/** @var	string|NULL		$category		... */
+	protected ?string $category			= NULL;
 
-	/** @var	 string|NULL	$package		... */
-	protected $package			= NULL;
+	/** @var	string|NULL		$package		... */
+	protected ?string $package			= NULL;
 
-	/** @var	 string|NULL	$subpackage		... */
-	protected $subpackage		= NULL;
+	/** @var	string|NULL		$subpackage		... */
+	protected ?string $subpackage		= NULL;
 
-	/** @var	 Interface_|string|NULL		$extends		... */
+	/** @var	Interface_|string|NULL		$extends		... */
 	protected $extends			= NULL;
 
-	/** @var	 array			$implementedBy		... */
-	protected $implementedBy	= array();
+	/** @var	array			$implementedBy		... */
+	protected array $implementedBy	= array();
 
-	/** @var	 array			$extendedBy		... */
-	protected $extendedBy		= array();
+	/** @var	array			$extendedBy		... */
+	protected array $extendedBy		= array();
 
-	/** @var	 array			$usedBy		... */
-	protected $usedBy			= array();
+	/** @var	array			$usedBy		... */
+	protected array $usedBy			= array();
 
-	/** @var	 array			$composedBy		... */
-	protected $composedBy		= array();
+	/** @var	array			$composedBy		... */
+	protected array $composedBy		= array();
 
-	/** @var	 array			$receivedBy		... */
-	protected $receivedBy		= array();
+	/** @var	array			$receivedBy		... */
+	protected array $receivedBy		= array();
 
-	/** @var	 array			$returnedBy		... */
-	protected $returnedBy		= array();
+	/** @var	array			$returnedBy		... */
+	protected array $returnedBy		= array();
 
-	/** @var	 array			$methods		... */
-	protected $methods			= array();
+	/** @var	array			$methods		... */
+	protected array $methods			= array();
 
 	/**
 	 *	Constructor, binding a File_.
@@ -119,7 +121,7 @@ class Interface_
 
 	/**
 	 *	Returns category.
-	 *	@return		string		Category name
+	 *	@return		string|NULL		Category name
 	 */
 	public function getCategory(): ?string
 	{
@@ -131,7 +133,10 @@ class Interface_
 		return $this->composedBy;
 	}
 
-	public function getExtendedInterface()
+	/**
+	 * @return string|Interface_|NULL
+	 */
+	public function getExtendedInterface(): string|Interface_|null
 	{
 		return $this->extends;
 	}
@@ -164,23 +169,23 @@ class Interface_
 	}
 
 	/**
-	 *	Returns a interface method by its name.
+	 *	Returns an interface method by its name.
 	 *	@access		public
 	 *	@param		string			$name		Method name
 	 *	@return		Method_			Method data object
-	 *	@throws		\RuntimeException if method is not existing
+	 *	@throws		RuntimeException if method is not existing
 	 */
-	public function & getMethod( string $name )
+	public function & getMethod( string $name ): Method_
 	{
 		if( isset( $this->methods[$name] ) )
 			return $this->methods[$name];
-		throw new \RuntimeException( "Method '$name' is unknown" );
+		throw new RuntimeException( "Method '$name' is unknown" );
 	}
 
 	/**
 	 *	Returns a list of method data objects.
 	 *	@access		public
-	 *	@return		array			List of method data objects
+	 *	@return		array<Method_>		List of method data objects
 	 */
 	public function getMethods( bool $withMagics = TRUE ): array
 	{
@@ -188,7 +193,7 @@ class Interface_
 			return $this->methods;
 		$methods	= array();
 		foreach( $this->methods as $method )
-			if( substr( $method->getName(), 0, 2 ) !== "__" )
+			if( !str_starts_with( $method->getName(), '__' ) )
 				$methods[$method->getName()]	= $method;
 		return $methods;
 	}
@@ -196,7 +201,7 @@ class Interface_
 	/**
 	 *	Returns full package name.
 	 *	@access		public
-	 *	@return		string			Package name
+	 *	@return		string|NULL			Package name
 	 */
 	public function getPackage(): ?string
 	{
@@ -213,7 +218,7 @@ class Interface_
 		return $this->returnedBy;
 	}
 
-	public function getSubpackage()
+	public function getSubpackage(): ?string
 	{
 		return $this->subpackage;
 	}
@@ -236,16 +241,15 @@ class Interface_
 	public function merge( Interface_ $artefact ): self
 	{
 		if( $this->name != $artefact->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $artefact->getDescription() )
 			$this->setDescription( $artefact->getDescription() );
 		if( $artefact->getSince() )
 			$this->setSince( $artefact->getSince() );
 		if( $artefact->getVersion() )
 			$this->setVersion( $artefact->getVersion() );
-		if( $artefact->getCopyright() )
-			$this->setCopyright( $artefact->getCopyright() );
-
+		foreach( $artefact->getCopyrights() as $copyright )
+			$this->setCopyright( $copyright );
 		foreach( $artefact->getAuthors() as $author )
 			$this->setAuthor( $author );
 		foreach( $artefact->getLinks() as $link )
@@ -292,7 +296,7 @@ class Interface_
 		return $this;
 	}
 
-	public function setExtendedInterfaceName( $interface ): self
+	public function setExtendedInterfaceName( string|Interface_|null $interface ): self
 	{
 		$this->extends	= $interface;
 		return $this;

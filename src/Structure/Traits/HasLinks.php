@@ -35,11 +35,11 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasLinks
 {
-	/** @var	 array		$links		... */
-	protected $links		= array();
+	/** @var	array		$links		... */
+	protected array $links		= array();
 
-	/** @var	 array		$sees		... */
-	protected $sees			= array();
+	/** @var	array		$sees		... */
+	protected array $sees		= array();
 
 	/**
 	 *	Returns list of links.

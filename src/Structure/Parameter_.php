@@ -46,24 +46,24 @@ class Parameter_
 {
 	use HasDescription, HasName, HasLineInFile, HasType, HasParent;
 
-	/** @var	 string|NULL	$cast			... */
-	protected $cast			= NULL;
+	/** @var	mixed			$cast			... */
+	protected mixed $cast			= NULL;
 
-	/** @var	 bool		$reference		... */
-	protected $reference	= FALSE;
+	/** @var	bool			$reference		... */
+	protected bool $reference		= FALSE;
 
-	/** @var	 string|NULL	$default		... */
-	protected $default		= NULL;
+	/** @var	string|NULL		$default		... */
+	protected ?string $default		= NULL;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
 	 *	@param		string			$name			Parameter name
-	 *	@param		string			$type			Parameter type
-	 *	@param		string			$description	Parameter description
+	 *	@param		mixed			$type			Parameter type
+	 *	@param		?string			$description	Parameter description
 	 *	@return		void
 	 */
-	public function __construct( string $name, $type = NULL, ?string $description = NULL )
+	public function __construct( string $name, mixed $type = NULL, ?string $description = NULL )
 	{
 		$this->setName( $name );
 		if( !is_null( $type ) )
@@ -73,11 +73,11 @@ class Parameter_
 	}
 
 	/**
-	 *	Returns casted type of parameter.
+	 *	Returns cast type of parameter.
 	 *	@access		public
-	 *	@return		string|NULL		Type string or data object
+	 *	@return		mixed		Type string or data object
 	 */
-	public function getCast(): ?string
+	public function getCast(): mixed
 	{
 		return $this->cast;
 	}
@@ -106,7 +106,7 @@ class Parameter_
 	{
 #		remark( "merging parameter: ".$parameter->getName() );
 		if( $this->name != $parameter->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new \Exception( 'Not merge-able' );
 		if( NULL !== $parameter->getCast() )
 			$this->setCast( $parameter->getCast() );
 		if( NULL !== $parameter->getDefault() )
@@ -125,12 +125,12 @@ class Parameter_
 	}
 
 	/**
-	 *	Sets parameter casted type.
+	 *	Sets parameter cast type.
 	 *	@access		public
-	 *	@param		mixed			$type			Casted type string or data object
+	 *	@param		mixed			$type			Cast type string or data object
 	 *	@return		self
 	 */
-	public function setCast( $type ): self
+	public function setCast( mixed $type ): self
 	{
 		$this->cast	= $type;
 		return $this;
