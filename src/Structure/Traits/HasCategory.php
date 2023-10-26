@@ -2,7 +2,7 @@
 /**
  *	...
  *
- *	Copyright (c) 2020-2023 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2023 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -30,33 +30,31 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2023 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasAccessibility
+Trait HasCategory
 {
-	/** @var	string|NULL	$access		... */
-	protected ?string $access			= NULL;
+	/** @var	string|NULL		$category		... */
+	protected ?string $category			= NULL;
 
 	/**
-	 *	Returns accessibility of structure.
-	 *	@access		public
-	 *	@return		string|NULL
+	 *	Returns category.
+	 *	@return		string|NULL		Category name
 	 */
-	public function getAccess(): ?string
+	public function getCategory(): ?string
 	{
-		return $this->access;
+		return $this->category;
 	}
 
 	/**
-	 *	Sets accessibility of structure.
-	 *	@access		public
-	 *	@param		string|NULL		$accessibility		Structure accessibility
+	 *	Sets category.
+	 *	@param		string			$string		Category name
 	 *	@return		self
 	 */
-	public function setAccess( ?string $accessibility = 'public' ): self
+	public function setCategory( string $string ): self
 	{
-		$this->access	= $accessibility;
+		$this->category	= trim( $string );
 		return $this;
 	}
 }

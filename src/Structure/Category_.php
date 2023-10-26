@@ -2,7 +2,7 @@
 /**
  *	...
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
@@ -34,7 +34,7 @@ use RuntimeException;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Category_
@@ -48,7 +48,7 @@ class Category_
 	protected ?string $label		= '';
 
 	/**
-	 *	Constructure, sets Label of Category if given.
+	 *	Constructor, sets Label of Category if given.
 	 *	@access		public
 	 *	@param		string|NULL		$label		Label of Category
 	 *	@return		void
@@ -94,7 +94,7 @@ class Category_
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function & getClassByName( $name ): Class_
+	public function & getClassByName( string $name ): Class_
 	{
 		if( isset( $this->classes[$name] ) )
 			return $this->classes[$name];
@@ -128,7 +128,7 @@ class Category_
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function & getInterfaceByName( $name ): Interface_
+	public function & getInterfaceByName( string $name ): Interface_
 	{
 		if( isset( $this->interfaces[$name] ) )
 			return $this->interfaces[$name];
@@ -145,7 +145,7 @@ class Category_
 		return $this->label;
 	}
 
-	public function & getPackage( $name ): Package_
+	public function & getPackage( string $name ): Package_
 	{
 		//  no package name given
 		if( 0 === strlen( trim( $name ) ) )

@@ -2,7 +2,7 @@
 /**
  *	Interface Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,47 +20,40 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasCategory;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasMethods;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasPackage;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
 use Exception;
-use RuntimeException;
 
 /**
  *	Interface Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Interface_
 {
-	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
+	use HasAuthors, HasCategory, HasDescription, HasMethods, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasPackage, HasVersion, HasTodos, MaybeDeprecated;
 
-	/** @var	string|NULL		$category		... */
-	protected ?string $category			= NULL;
-
-	/** @var	string|NULL		$package		... */
-	protected ?string $package			= NULL;
-
-	/** @var	string|NULL		$subpackage		... */
-	protected ?string $subpackage		= NULL;
-
-	/** @var	Interface_|string|NULL		$extends		... */
-	protected $extends			= NULL;
+	/** @var	Interface_|Class_|string|NULL		$extends		... */
+	protected Interface_|Class_|string|NULL $extends			= NULL;
 
 	/** @var	array			$implementedBy		... */
 	protected array $implementedBy	= array();
@@ -80,19 +73,15 @@ class Interface_
 	/** @var	array			$returnedBy		... */
 	protected array $returnedBy		= array();
 
-	/** @var	array			$methods		... */
-	protected array $methods			= array();
-
 	/**
 	 *	Constructor, binding a File_.
 	 *	@access		public
 	 *	@param		string		$name		File with contains this interface
 	 *	@return		void
 	 */
-	public function __construct( string $name = NULL )
+	public function __construct( string $name )
 	{
-		if( !is_null( $name ) )
-			$this->setName( $name );
+		$this->setName( $name );
 	}
 
 	public function addReceivingClass( Class_ $class ): self
@@ -117,15 +106,6 @@ class Interface_
 	{
 		$this->returnedBy[$interface->getName()]	= $interface;
 		return $this;
-	}
-
-	/**
-	 *	Returns category.
-	 *	@return		string|NULL		Category name
-	 */
-	public function getCategory(): ?string
-	{
-		return $this->category;
 	}
 
 	public function getComposingClasses(): array
@@ -168,46 +148,6 @@ class Interface_
 		return $this->implementedBy;
 	}
 
-	/**
-	 *	Returns an interface method by its name.
-	 *	@access		public
-	 *	@param		string			$name		Method name
-	 *	@return		Method_			Method data object
-	 *	@throws		RuntimeException if method is not existing
-	 */
-	public function & getMethod( string $name ): Method_
-	{
-		if( isset( $this->methods[$name] ) )
-			return $this->methods[$name];
-		throw new RuntimeException( "Method '$name' is unknown" );
-	}
-
-	/**
-	 *	Returns a list of method data objects.
-	 *	@access		public
-	 *	@return		array<Method_>		List of method data objects
-	 */
-	public function getMethods( bool $withMagics = TRUE ): array
-	{
-		if( $withMagics )
-			return $this->methods;
-		$methods	= array();
-		foreach( $this->methods as $method )
-			if( !str_starts_with( $method->getName(), '__' ) )
-				$methods[$method->getName()]	= $method;
-		return $methods;
-	}
-
-	/**
-	 *	Returns full package name.
-	 *	@access		public
-	 *	@return		string|NULL			Package name
-	 */
-	public function getPackage(): ?string
-	{
-		return $this->package;
-	}
-
 	public function getReceivingClasses(): array
 	{
 		return $this->receivedBy;
@@ -218,24 +158,9 @@ class Interface_
 		return $this->returnedBy;
 	}
 
-	public function getSubpackage(): ?string
-	{
-		return $this->subpackage;
-	}
-
 	public function getUsingClasses(): array
 	{
 		return $this->usedBy;
-	}
-
-	/**
-	 *	Indicates whether this interface defines methods.
-	 *	@access		public
-	 *	@return		bool			Flag: interface defines methods
-	 */
-	public function hasMethods(): bool
-	{
-		return count( $this->methods ) > 0;
 	}
 
 	public function merge( Interface_ $artefact ): self
@@ -264,17 +189,6 @@ class Interface_
 			$this->setLicense( $license );
 
 		//	@todo		many are missing
-		return $this;
-	}
-
-	/**
-	 *	Sets category.
-	 *	@param		string			$string		Category name
-	 *	@return		self
-	 */
-	public function setCategory( string $string ): self
-	{
-		$this->category	= trim( $string );
 		return $this;
 	}
 
@@ -323,41 +237,6 @@ class Interface_
 	public function setImplementingClassByName( string $class ): self
 	{
 		$this->implementedBy[$class]	= $class;
-		return $this;
-	}
-
-	/**
-	 *	Sets a method.
-	 *	@access		public
-	 *	@param		Method_			$method		Method to add to interface
-	 *	@return		self
-	 */
-	public function setMethod( Method_ $method ): self
-	{
-		$this->methods[$method->getName()]	= $method;
-		return $this;
-	}
-
-	/**
-	 *	Sets package.
-	 *	@param		string			$string		Package name
-	 *	@return		self
-	 */
-	public function setPackage( string $string ): self
-	{
-		$string			= str_replace( array( "/", "::", ":", "." ), "_", $string );
-		$this->package	= $string;
-		return $this;
-	}
-
-	/**
-	 *	Sets subpackage.
-	 *	@param		string			$string		Subpackage name
-	 *	@return		self
-	 */
-	public function setSubpackage( string $string ): self
-	{
-		$this->subpackage	= $string;
 		return $this;
 	}
 

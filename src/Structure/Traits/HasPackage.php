@@ -2,7 +2,7 @@
 /**
  *	...
  *
- *	Copyright (c) 2020-2023 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2023 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -30,33 +30,52 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2023 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasAccessibility
+Trait HasPackage
 {
-	/** @var	string|NULL	$access		... */
-	protected ?string $access			= NULL;
+	/** @var	string|NULL		$package		... */
+	protected ?string $package			= NULL;
+
+	/** @var	string|NULL		$subpackage		... */
+	protected ?string $subpackage		= NULL;
 
 	/**
-	 *	Returns accessibility of structure.
+	 *	Returns full package name.
 	 *	@access		public
-	 *	@return		string|NULL
+	 *	@return		string|NULL			Package name
 	 */
-	public function getAccess(): ?string
+	public function getPackage(): ?string
 	{
-		return $this->access;
+		return $this->package;
+	}
+
+	public function getSubpackage(): ?string
+	{
+		return $this->subpackage;
 	}
 
 	/**
-	 *	Sets accessibility of structure.
-	 *	@access		public
-	 *	@param		string|NULL		$accessibility		Structure accessibility
+	 *	Sets package.
+	 *	@param		string			$string		Package name
 	 *	@return		self
 	 */
-	public function setAccess( ?string $accessibility = 'public' ): self
+	public function setPackage( string $string ): self
 	{
-		$this->access	= $accessibility;
+		$string			= str_replace( array( "/", "::", ":", "." ), "_", $string );
+		$this->package	= $string;
+		return $this;
+	}
+
+	/**
+	 *	Sets subpackage.
+	 *	@param		string			$string		Subpackage name
+	 *	@return		self
+	 */
+	public function setSubpackage( string $string ): self
+	{
+		$this->subpackage	= $string;
 		return $this;
 	}
 }
