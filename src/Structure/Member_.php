@@ -79,9 +79,9 @@ class Member_ extends Variable_
 #		remark( 'merging member: '.$member->getName() );
 		if( $this->name != $member->getName() )
 			throw new \Exception( 'Not merge-able' );
-		if( $member->getAccess() )
+		if( NULL !== $member->getAccess() )
 			$this->setAccess( $member->getAccess() );
-		if( $member->getDefault() )
+		if( NULL !== $member->getDefault() )
 			$this->setDefault( $member->getDefault() );
 		if( $member->isStatic() )
 			$this->setStatic( $member->isStatic() );

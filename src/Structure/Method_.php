@@ -55,7 +55,7 @@ class Method_ extends Function_
 	 */
 	public function isAbstract(): bool
 	{
-		return (bool) $this->abstract;
+		return $this->abstract;
 	}
 
 	/**
@@ -70,9 +70,9 @@ class Method_ extends Function_
 			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $method->getName() )
 			throw new \Exception( 'Not merge-able' );
-		if( $method->getAccess() )
+		if( NULL !== $method->getAccess() )
 			$this->setAccess( $method->getAccess() );
-		if( $method->getParent() )
+		if( NULL !== $method->getParent() )
 			$this->setParent( $method->getParent() );
 		if( $method->isAbstract() )
 			$this->setAbstract( $method->isAbstract() );

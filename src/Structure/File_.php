@@ -69,16 +69,16 @@ class File_
 
 /*	protected $usedClasses	= array();*/
 
-	/** @var	array		$functions		... */
+	/** @var	array<Function_>		$functions		... */
 	protected array $functions		= array();
 
-	/** @var	array		$classes		... */
+	/** @var	array<Class_>		$classes		... */
 	protected array $classes		= array();
 
-	/** @var	array		$interfaces		... */
+	/** @var	array<Interface_>		$interfaces		... */
 	protected array $interfaces		= array();
 
-	/** @var	array		$traits			... */
+	/** @var	array<Trait_>		$traits			... */
 	protected array $traits			= array();
 
 	/** @var	string		$sourceCode		... */
@@ -148,9 +148,9 @@ class File_
 	public function getId(): string
 	{
 		$parts	= array();
-		if( $this->category )
+		if( NULL !== $this->category )
 			$parts[]	= $this->category;
-		if( $this->package )
+		if( NULL !== $this->package )
 			$parts[]	= $this->package;
 		$parts[]	= $this->basename;
 		return implode( "-", $parts );
@@ -173,7 +173,7 @@ class File_
 		return $this->package;
 	}
 
-	public function getPathname(): string
+	public function getPathname(): ?string
 	{
 		return $this->pathname;
 	}
@@ -188,7 +188,7 @@ class File_
 		return $this->subpackage;
 	}
 
-	public function getUri(): string
+	public function getUri(): ?string
 	{
 		return $this->uri;
 	}

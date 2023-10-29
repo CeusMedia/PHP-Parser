@@ -117,7 +117,7 @@ class Parameter_
 			$this->setType( $parameter->getType() );
 #		if( $parameter->getParent() )
 #			$this->setParent( $parameter->getParent() );
-		if( NULL !== $parameter->isReference() )
+		if( $parameter->isReference() )
 			$this->setParent( $parameter->getParent() );
 
 		// @todo		$reference	is missing

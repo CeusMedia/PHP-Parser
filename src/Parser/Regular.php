@@ -107,10 +107,10 @@ class Regular
 		do{
 			$originalLine	= array_shift( $lines );
 			$line			= preg_replace( '@((#|//).*)$@', '', $originalLine );		//  remove trailing comment
-			$line			= trim( $line );											//  trim line, since whitespace does not matter for parsing
+			$line			= trim( $line ?? '' );											//  trim line, since whitespace does not matter for parsing
 #			remark( ( $openClass ? "I" : "O" )." :: ".$level." :: ".$this->lineNumber." :: ".$line );
 			$this->lineNumber ++;
-			if( preg_match( "@^(<\?(php)?)|((php)?\?>)$@", $line ) )
+			if( 1 === preg_match( "@^(<\?(php)?)|((php)?\?>)$@", $line ) )
 				continue;
 
 			if( str_ends_with( $line, '}' ) )
@@ -118,16 +118,17 @@ class Regular
 
 			if( $line == "/**" && $level < 2 ){
 				$list	= array();
-				while( !preg_match( "@\*?\*/\s*$@", $line ) ){
+				while( 1 !== preg_match( "@\*?\*/\s*$@", $line ) ){
 					$list[]	= $line;
-					$line	= trim( array_shift( $lines ) );
+					$next	= array_shift( $lines ) ?? '';
+					$line	= trim( $next );
 					$this->lineNumber ++;
 				}
 				array_unshift( $lines, $line );
 				$this->lineNumber --;
-				if( $list ){
+				if( [] !== $list ){
 					$this->openBlocks[]	= $this->docParser->parseBlock( join( PHP_EOL, $list ) );
-					if( !$fileBlock && !$class ){
+					if( NULL === $fileBlock && NULL === $class ){
 						$fileBlock	= array_shift( $this->openBlocks );
 						array_unshift( $this->openBlocks, $fileBlock );
 						$this->docDecorator->decorateCodeDataWithDocData( $file, $fileBlock );
@@ -136,21 +137,20 @@ class Regular
 				continue;
 			}
 			if( !$openClass ){
-				if( preg_match( $this->regexClass, $line, $matches ) ){
+				if( 1 === preg_match( $this->regexClass, $line, $matches ) ){
 					$parts	= array_slice( $matches, -1 );
-					while( !trim( array_pop( $parts ) ) )
+					while( '' === trim( array_pop( $parts ) ?? '' ) )
 						array_pop( $matches );
 					$class	= $this->parseClassOrInterfaceOrTrait( $file, $matches );
 					$openClass	= TRUE;
 				}
-				else if( preg_match( $this->regexMethod, $line, $matches ) ){
-					$openClass	= FALSE;
+				else if( 1 === preg_match( $this->regexMethod, $line, $matches ) ){
 					$function	= $this->parseFunction( $file, $matches );
 					$file->setFunction( $function );
 				}
 			}
 			else{
-				if( preg_match( $this->regexClass, $line, $matches ) ){
+				if( 1 === preg_match( $this->regexClass, $line, $matches ) ){
 					if( $class instanceof Class_ )
 						$file->addClass( $class );
 					else if( $class instanceof Trait_ )
@@ -163,22 +163,24 @@ class Regular
 					$level		= self::LEVEL_CLASS_OPEN;
 					continue;
 				}
-				if( preg_match( $this->regexMethod, $line, $matches ) ){
-					$method		= $this->parseMethod( $class, $matches );
-					$function	= $matches[6];
-					$class->setMethod( $method );
+				if( 1 === preg_match( $this->regexMethod, $line, $matches ) ){
+					if( $class instanceof Interface_ ){
+						$method		= $this->parseMethod( $class, $matches );
+						$function	= $matches[6];
+						$class->setMethod( $method );
+					}
 				}
 				else if( $level <= self::LEVEL_CLASS_OPEN ){
-					if( preg_match( $this->docParser->regexVariable, $line, $matches ) ){
+					if( 1 === preg_match( $this->docParser->regexVariable, $line, $matches ) ){
 						if( $class )
 							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->docParser->parseMember( $matches );
 						else
 							$this->varBlocks[$matches[2]]	= $this->docParser->parseVariable( $matches );
 					}
-					else if( preg_match( $this->regexVariable, $line, $matches ) ){
+					else if( 1 === preg_match( $this->regexVariable, $line, $matches ) ){
 //						print_m( $this->openBlocks );die;
 						$name		= $matches[4];
-						if( $class ){
+						if( NULL !== $class ){
 							$key		= $class->getName()."::".$name;
 							$varBlock	= $this->varBlocks[$key] ?? NULL;
 							$variable	= $this->parseMember( $class, $matches, $varBlock );
@@ -193,13 +195,13 @@ class Regular
 						}
 					}
 				}
-				else if( $level > self::LEVEL_CLASS_OPEN && $function ){
+				else if( $function ){
 					$functionBody[$function][]	= $originalLine;
 				}
 			}
 			if( str_ends_with( $line, '{' ) )
 				$level++;
-			if( $level < self::LEVEL_CLASS_OPEN && !preg_match( $this->regexClass, $line, $matches ) )
+			if( $level < self::LEVEL_CLASS_OPEN && 1 !== preg_match( $this->regexClass, $line, $matches ) )
 				$openClass	= FALSE;
 		}
 		while( $lines );

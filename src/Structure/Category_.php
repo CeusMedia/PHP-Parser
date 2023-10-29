@@ -45,7 +45,7 @@ class Category_
 	protected array $classes		= array();
 	protected array $interfaces		= array();
 	protected array $packages		= array();
-	protected ?string $label		= '';
+	protected string $label			= '';
 
 	/**
 	 *	Constructor, sets Label of Category if given.
@@ -55,7 +55,7 @@ class Category_
 	 */
 	public function __construct( ?string $label = NULL )
 	{
-		if( $label )
+		if( NULL !== $label )
 			$this->setLabel( $label );
 	}
 
@@ -111,8 +111,9 @@ class Category_
 #		remark( get_class( $this ).": ".$this->getLabel() );
 		$parts	= array();
 		$separator	= "_";
-		if( $this->parent ){
-			if( $parent = $this->parent->getId() ){
+		if( $this->parent instanceof Interface_ ){
+			$parent	= $this->parent->getId();
+			if( '' !== $parent ){
 #				remark( $this->parent->getId() );
 				if( get_class( $this->parent ) == '\\CeusMedia\\PhpParser\\Structure\\Category_' )
 					$separator	= '-';

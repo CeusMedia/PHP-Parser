@@ -27,6 +27,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use ArrayIterator;
+use CeusMedia\Common\FS\File\Reader as FileReader;
 use DomainException;
 use RuntimeException;
 
@@ -194,7 +195,7 @@ class Container_
 		}
 	}
 
-	public function load( array $config )
+	public function load( array $config ): self
 	{
 		if( !empty( $config['creator.file.data.archive'] ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
@@ -203,6 +204,7 @@ class Container_
 				if( $fp = gzopen( $uri, "r" ) ){
 					while( !gzeof( $fp ) )
 						$serial	.= gzgets( $fp, 4096 );
+					/** @var Container_ $data */
 					$data	= unserialize( $serial );
 					gzclose( $fp );
 					return $data;
@@ -211,9 +213,11 @@ class Container_
 		}
 		if( !empty( $config['creator.file.data.serial'] ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.serial'];
-			if( file_exists( $uri ) ){
-				$serial	= file_get_contents( $uri );
-				return unserialize( $serial );
+			$reader	= new FileReader( $uri );
+			if( $reader->exists() ){
+				/** @var Container_ $data */
+				$data	= unserialize( $reader->readString() );
+				return $data;
 			}
 		}
 		throw new RuntimeException( 'No data file existing' );
@@ -234,6 +238,8 @@ class Container_
 		if( !empty( $config['creator.file.data.archive'] ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
 			$gz		= gzopen( $uri, 'w9' );
+			if( FALSE === $gz )
+				throw new RuntimeException( 'Could not write compressed file' );
 			gzwrite( $gz, $serial );
 			gzclose( $gz );
 		}

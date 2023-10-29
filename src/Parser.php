@@ -45,6 +45,7 @@ class Parser
 	const STRATEGY_REGULAR		= 0;
 	const STRATEGY_REFLECTION	= 1;
 
+	/** @var int<0,1> $strategy */
 	protected int $strategy		= 0;
 
 	public function __construct()
@@ -60,9 +61,13 @@ class Parser
 		return $parser->parseFile( $fileName, '' );
 	}
 
+	/**
+	 *	@param		int<0,1>		$strategy
+	 *	@return		self
+	 */
 	public function setStrategy( int $strategy ): self
 	{
-		if( !in_array( $strategy, [self::STRATEGY_REGULAR, self::STRATEGY_REFLECTION] ) )
+		if( !in_array( $strategy, [self::STRATEGY_REGULAR, self::STRATEGY_REFLECTION], TRUE ) )
 			throw new RangeException( 'Invalid strategy' );
 		$this->strategy	= $strategy;
 		return $this;

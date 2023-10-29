@@ -27,6 +27,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
 
 use CeusMedia\PhpParser\Structure\Method_;
 use DomainException;
+use RuntimeException;
 
 /**
  *	...
@@ -38,7 +39,7 @@ use DomainException;
  */
 Trait HasMethods
 {
-	/** @var	array		$methods		... */
+	/** @var	array<Method_>		$methods		... */
 	protected array $methods		= array();
 
 	/**
@@ -79,7 +80,7 @@ Trait HasMethods
 			return $this->methods;
 		$methods	= array();
 		foreach( $this->methods as $method )
-			if( !str_starts_with( $method->getName(), '__' ) )
+			if( !str_starts_with( $method->getName() ?? '', '__' ) )
 				$methods[$method->getName()]	= $method;
 		return $methods;
 	}
@@ -98,10 +99,13 @@ Trait HasMethods
 	 *	Sets a method.
 	 *	@access		public
 	 *	@param		Method_			$method		Method data object to set
-	 *	@return		self
+	 *	@return		static
+	 *	@throws		RuntimeException
 	 */
-	public function setMethod( Method_ $method ): self
+	public function setMethod( Method_ $method ): static
 	{
+		if( NULL === $method->getName() )
+			throw new RuntimeException( 'Method name cannot be empty' );
 		$this->methods[$method->getName()]	= $method;
 		return $this;
 	}

@@ -75,7 +75,7 @@ class Return_
 		return array(
 			'type'			=> $this->getType(),
 			'description'	=> $this->getDescription(),
-			'parent'		=> $this->parent ? $this->getParent() : NULL,
+			'parent'		=> NULL !== $this->parent ? $this->getParent() : NULL,
 		);
 	}
 }

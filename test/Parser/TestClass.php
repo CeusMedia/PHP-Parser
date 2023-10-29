@@ -77,6 +77,10 @@ abstract class TestClass extends Alpha implements Beta, Gamma
 	 */
 	abstract public function __construct( ArrayObject $object, &$reference, $array = array(), $null = NULL );
 
+	/**
+	 *	@param		Object|NULL		$object
+	 *	@return		void			nothing
+	 */
 	final public function testMethod( Object $object = NULL )
 	{
 
@@ -95,7 +99,7 @@ abstract class TestClass extends Alpha implements Beta, Gamma
  *	@param		string			$string		A String
  *	@param		bool			$bool		A Boolean
  *	@param		unknown			$unknown	not used
- *	@return		mixed
+ *	@return		mixed			not specified right now
  *	@throws		Exception				if something went unexpectedly wrong
  *	@throws		RuntimeException		if something went wrong
  *	@author		Test Writer 3 <test3@writer.tld>

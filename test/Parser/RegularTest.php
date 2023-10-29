@@ -35,6 +35,13 @@ use CeusMedia\PhpParser\Structure\Throws_;
  */
 class Test_Parser_RegularTest extends TestCase
 {
+	protected ?Function_ $function;
+	protected ?Class_ $class;
+	protected ?Method_ $method1;
+	protected ?Method_ $method2;
+	protected ?Method_ $method3;
+	protected ?Method_ $method4;
+
 	/**
 	 *	Setup for every Test.
 	 *	@access		public
@@ -42,13 +49,13 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function setUp(): void
 	{
-		$this->path		= str_replace( "\\", "/", dirname( __FILE__ ) )."/" ;
-		$this->fileName	= $this->path."TestClass.php";
+		$this->path		= str_replace( "\\", '/', dirname( __FILE__ ) ).'/' ;
+		$this->fileName	= $this->path.'TestClass.php';
 		$parser			= new RegularParser();
 		$this->data		= $parser->parseFile( $this->fileName, $this->path );
 		$this->file		= $this->data->getUri();
 		$this->class	= current( $this->data->getClasses() );
-		$this->function	= current( $this->data->getFunctions() );
+		$this->function	= current( $this->data->getFunctions() ) ?: NULL;
 		$methods		= $this->class->getMethods();
 		$this->method1	= array_shift( $methods );
 		$this->method2	= array_shift( $methods );
@@ -94,7 +101,7 @@ class Test_Parser_RegularTest extends TestCase
 	public function testParseFile2()
 	{
 		$string		= '<?php\nphpinfo();\n?>';
-		$fileName	= $this->path."parser.php";
+		$fileName	= $this->path.'parser.php';
 		file_put_contents( $fileName, $string );
 
 		$parser		= new RegularParser();
@@ -125,7 +132,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataName()
 	{
-		$assertion	= "TestClass.php";
+		$assertion	= 'TestClass.php';
 		$creation	= $this->data->getBasename();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -161,7 +168,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataPackage()
 	{
-		$assertion	= "TestPackage";
+		$assertion	= 'TestPackage';
 		$creation	= $this->data->getPackage();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -177,8 +184,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new Author_( "Test Writer 1", "test1@writer.tld" ),
-			new Author_( "Test Writer 2", "test2@writer.tld" ),
+			new Author_( 'Test Writer 1', 'test1@writer.tld' ),
+			new Author_( 'Test Writer 2', 'test2@writer.tld' ),
 		);
 		$creation	= $this->data->getAuthors();
 		$this->assertEquals( $assertion, $creation );
@@ -191,7 +198,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataSince()
 	{
-		$assertion	= "today";
+		$assertion	= 'today';
 		$creation	= $this->data->getSince();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -203,7 +210,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataVersion()
 	{
-		$assertion	= "0.0.1";
+		$assertion	= '0.0.1';
 		$creation	= $this->data->getVersion();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -219,8 +226,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			"2007 Test Writer 1",
-			"2008 Test Writer 2",
+			'2007 Test Writer 1',
+			'2008 Test Writer 2',
 		);
 		$creation	= $this->data->getCopyrights();
 		$this->assertEquals( $assertion, $creation );
@@ -237,8 +244,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new License_( "TestLicense 1", "http://test.licence.org/test1.txt" ),
-			new License_( "TestLicense 2", "http://test.licence.org/test2.txt" ),
+			new License_( 'TestLicense 1', 'http://test.licence.org/test1.txt' ),
+			new License_( 'TestLicense 2', 'http://test.licence.org/test2.txt' ),
 		);
 		$creation	= $this->data->getLicenses();
 		$this->assertEquals( $assertion, $creation );
@@ -294,9 +301,12 @@ class Test_Parser_RegularTest extends TestCase
 		$creation	= is_array( $this->data->getFunctions() );
 		$this->assertTrue( $creation );
 
-		$assertion	= "doSomething";
+		$assertion	= 'doSomething';
 		$creation	= $this->function->getName();
 		$this->assertEquals( $assertion, $creation );
+
+		$this->assertEquals( 'not specified right now', $this->function->getReturn()->getDescription() );
+
 	}
 
 	/**
@@ -306,7 +316,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataFunctionDescription()
 	{
-		$assertion	= "Do something.";
+		$assertion	= 'Do something.';
 		$creation	= $this->function->getDescription();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -332,30 +342,30 @@ class Test_Parser_RegularTest extends TestCase
 
 		$this->assertTrue( is_object( $param1 ) );
 		$this->assertInstanceOf( Parameter_::class, $param1 );
-		$this->assertEquals( "StringBuffer", $param1->getCast() );
-		$this->assertEquals( "StringBuffer", $param1->getType() );
+		$this->assertEquals( 'StringBuffer', $param1->getCast() );
+		$this->assertEquals( 'StringBuffer', $param1->getType() );
 		$this->assertFalse( $param1->isReference() );
-		$this->assertEquals( "buffer", $param1->getName() );
+		$this->assertEquals( 'buffer', $param1->getName() );
 		$this->assertNull( $param1->getDefault() );
-		$this->assertEquals( "A String Buffer", $param1->getDescription() );
+		$this->assertEquals( 'A String Buffer', $param1->getDescription() );
 
 		$this->assertTrue( is_object( $param2 ) );
 		$this->assertInstanceOf( Parameter_::class, $param2 );
-		$this->assertEquals( "", $param2->getCast() );
-		$this->assertEquals( "string", $param2->getType() );
+		$this->assertEquals( '', $param2->getCast() );
+		$this->assertEquals( 'string', $param2->getType() );
 		$this->assertFalse( $param2->isReference() );
-		$this->assertEquals( "string", $param2->getName() );
+		$this->assertEquals( 'string', $param2->getName() );
 		$this->assertEquals( '"text"', $param2->getDefault() );
-		$this->assertEquals( "A String", $param2->getDescription() );
+		$this->assertEquals( 'A String', $param2->getDescription() );
 
 		$this->assertTrue( is_object( $param3 ) );
 		$this->assertInstanceOf( Parameter_::class, $param3 );
-		$this->assertEquals( "", $param3->getCast() );
-		$this->assertEquals( "bool", $param3->getType() );
+		$this->assertEquals( '', $param3->getCast() );
+		$this->assertEquals( 'bool', $param3->getType() );
 		$this->assertFalse( $param3->isReference() );
-		$this->assertEquals( "bool", $param3->getName() );
-		$this->assertEquals( "TRUE", $param3->getDefault() );
-		$this->assertEquals( "A Boolean", $param3->getDescription() );
+		$this->assertEquals( 'bool', $param3->getName() );
+		$this->assertEquals( 'TRUE', $param3->getDefault() );
+		$this->assertEquals( 'A Boolean', $param3->getDescription() );
 	}
 
 	/**
@@ -366,7 +376,7 @@ class Test_Parser_RegularTest extends TestCase
 	public function testParseFileFileDataFunctionReturn()
 	{
 		$this->assertInstanceOf( Return_::class, $this->function->getReturn() );
-		$assertion	= new Return_( "mixed", "" );
+		$assertion	= new Return_( 'mixed', 'not specified right now' );
 		$this->assertEquals( $assertion, $this->function->getReturn() );
 	}
 
@@ -381,8 +391,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new Throws_( "Exception", "if something went unexpectedly wrong" ),
-			new Throws_( "RuntimeException", "if something went wrong" )
+			new Throws_( 'Exception', 'if something went unexpectedly wrong' ),
+			new Throws_( 'RuntimeException', 'if something went wrong' )
 		);
 		$creation	= $this->function->getThrows();
 		$this->assertEquals( $assertion, $creation );
@@ -399,8 +409,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new Author_( "Test Writer 3", "test3@writer.tld" ),
-			new Author_( "Test Writer 4", "test4@writer.tld" ),
+			new Author_( 'Test Writer 3', 'test3@writer.tld' ),
+			new Author_( 'Test Writer 4', 'test4@writer.tld' ),
 		);
 		$creation	= $this->function->getAuthors();
 		$this->assertEquals( $assertion, $creation );
@@ -413,7 +423,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataFunctionSince()
 	{
-		$assertion	= "01.02.03";
+		$assertion	= '01.02.03';
 		$creation	= $this->function->getSince();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -425,7 +435,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileFileDataFunctionVersion()
 	{
-		$assertion	= "1.2.3";
+		$assertion	= '1.2.3';
 		$creation	= $this->function->getVersion();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -453,7 +463,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataName()
 	{
-		$assertion	= "TestClass";
+		$assertion	= 'TestClass';
 		$creation	= $this->class->getName();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -477,7 +487,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataPackage()
 	{
-		$assertion	= "TestPackage";
+		$assertion	= 'TestPackage';
 		$creation	= $this->class->getPackage();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -489,7 +499,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataSubPackage()
 	{
-		$assertion	= "TestSubPackage";
+		$assertion	= 'TestSubPackage';
 		$creation	= $this->class->getSubpackage();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -553,8 +563,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new Author_( "Test Writer 1", "test1@writer.tld" ),
-			new Author_( "Test Writer 2", "test2@writer.tld" ),
+			new Author_( 'Test Writer 1', 'test1@writer.tld' ),
+			new Author_( 'Test Writer 2', 'test2@writer.tld' ),
 		);
 		$creation	= $this->class->getAuthors();
 		$this->assertEquals( $assertion, $creation );
@@ -567,7 +577,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataSince()
 	{
-		$assertion	= "today";
+		$assertion	= 'today';
 		$creation	= $this->class->getSince();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -579,7 +589,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataVersion()
 	{
-		$assertion	= "0.0.1";
+		$assertion	= '0.0.1';
 		$creation	= $this->class->getVersion();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -595,8 +605,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			"2007 Test Writer 1",
-			"2008 Test Writer 2",
+			'2007 Test Writer 1',
+			'2008 Test Writer 2',
 		);
 		$creation	= $this->class->getCopyrights();
 		$this->assertEquals( $assertion, $creation );
@@ -613,8 +623,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new License_( "TestLicense 1", "http://test.licence.org/test1.txt" ),
-			new License_( "TestLicense 2", "http://test.licence.org/test2.txt" ),
+			new License_( 'TestLicense 1', 'http://test.licence.org/test1.txt' ),
+			new License_( 'TestLicense 2', 'http://test.licence.org/test2.txt' ),
 		);
 		$creation	= $this->class->getLicenses();
 		$this->assertEquals( $assertion, $creation );
@@ -673,7 +683,7 @@ class Test_Parser_RegularTest extends TestCase
 		$creation	= is_array( $this->class->getMethods() );
 		$this->assertTrue( $creation );
 
-		$assertion	= "__construct";
+		$assertion	= '__construct';
 		$creation	= $this->method1->getName();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -748,7 +758,7 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataMethodAccess()
 	{
-		$assertion	= "public";
+		$assertion	= 'public';
 		$creation	= $this->method1->getAccess();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -776,38 +786,38 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( is_object( $param1 ) );
 		$this->assertInstanceOf( Parameter_::class, $param1 );
 		$this->assertFalse( $param1->isReference() );
-		$this->assertEquals( "object", $param1->getName() );
-		$this->assertEquals( "ArrayObject", $param1->getType() );
-		$this->assertEquals( "ArrayObject", $param1->getCast() );
+		$this->assertEquals( 'object', $param1->getName() );
+		$this->assertEquals( 'ArrayObject', $param1->getType() );
+		$this->assertEquals( 'ArrayObject', $param1->getCast() );
 		$this->assertNull( $param1->getDefault() );
-		$this->assertEquals( "An Array Object", $param1->getDescription() );
+		$this->assertEquals( 'An Array Object', $param1->getDescription() );
 
 		$this->assertTrue( is_object( $param2 ) );
 		$this->assertInstanceOf( Parameter_::class, $param2 );
 		$this->assertTrue( $param2->isReference() );
-		$this->assertEquals( "reference", $param2->getName() );
-		$this->assertEquals( "mixed", $param2->getType() );
+		$this->assertEquals( 'reference', $param2->getName() );
+		$this->assertEquals( 'mixed', $param2->getType() );
 		$this->assertNull( $param2->getCast() );
 		$this->assertNull( $param2->getDefault() );
-		$this->assertEquals( "Reference of unknown Type", $param2->getDescription() );
+		$this->assertEquals( 'Reference of unknown Type', $param2->getDescription() );
 
 		$this->assertTrue( is_object( $param3 ) );
 		$this->assertInstanceOf( Parameter_::class, $param3 );
 		$this->assertFalse( $param3->isReference() );
-		$this->assertEquals( "array", $param3->getName() );
-		$this->assertEquals( "array", $param3->getType() );
+		$this->assertEquals( 'array', $param3->getName() );
+		$this->assertEquals( 'array', $param3->getType() );
 		$this->assertNull( $param3->getCast() );
-		$this->assertEquals( "array()", $param3->getDefault() );
-		$this->assertEquals( "An Array", $param3->getDescription() );
+		$this->assertEquals( 'array()', $param3->getDefault() );
+		$this->assertEquals( 'An Array', $param3->getDescription() );
 
 		$this->assertTrue( is_object( $param4 ) );
 		$this->assertInstanceOf( Parameter_::class, $param4 );
 		$this->assertFalse( $param4->isReference() );
-		$this->assertEquals( "null", $param4->getName() );
-		$this->assertEquals( "mixed", $param4->getType() );
+		$this->assertEquals( 'null', $param4->getName() );
+		$this->assertEquals( 'mixed', $param4->getType() );
 		$this->assertNull( $param4->getCast() );
-		$this->assertEquals( "NULL", $param4->getDefault() );
-		$this->assertEquals( "Always NULL", $param4->getDescription() );
+		$this->assertEquals( 'NULL', $param4->getDefault() );
+		$this->assertEquals( 'Always NULL', $param4->getDescription() );
 	}
 
 	/**
@@ -815,9 +825,11 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataMethodReturn()
+	public function testParseFileClassDataMethod1Return()
 	{
-		$assertion	= new Return_( "void", "nothing" );
+		$this->assertInstanceOf( Return_::class, $this->method1->getReturn() );
+		$assertion	= new Return_( 'void', 'nothing' );
+		$assertion->setParent( $this->method1 );
 		$creation	= $this->method1->getReturn();
 		$this->assertEquals( $assertion, $creation );
 	}
@@ -851,8 +863,8 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new Author_( "Test Writer 5", "test5@writer.tld" ),
-			new Author_( "Test Writer 6", "test6@writer.tld" )
+			new Author_( 'Test Writer 5', 'test5@writer.tld' ),
+			new Author_( 'Test Writer 6', 'test6@writer.tld' )
 		);
 		$creation	= $this->method1->getAuthors();
 		$this->assertEquals( $assertion, $creation );
@@ -865,20 +877,8 @@ class Test_Parser_RegularTest extends TestCase
 	 */
 	public function testParseFileClassDataMethodSince()
 	{
-		$assertion	= "03.02.01";
+		$assertion	= '03.02.01';
 		$creation	= $this->method1->getSince();
-		$this->assertEquals( $assertion, $creation );
-	}
-
-	/**
-	 *	Tests Method 'parseFile'.
-	 *	@access		public
-	 *	@return		void
-	 */
-	public function testParseFileClassDataMethodVersion()
-	{
-		$assertion	= "3.2.1";
-		$creation	= $this->method1->getVersion();
 		$this->assertEquals( $assertion, $creation );
 	}
 }

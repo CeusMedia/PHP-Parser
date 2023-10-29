@@ -70,7 +70,7 @@ class Author_
 	{
 		if( $this->name != $author->name )
 			throw new Exception( 'Not merge-able' );
-		if( $author->getEmail() )
+		if( NULL !== $author->getEmail() )
 			$this->setEmail( $author->getEmail() );
 		return $this;
 	}

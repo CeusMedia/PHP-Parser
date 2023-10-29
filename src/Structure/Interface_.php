@@ -134,9 +134,9 @@ class Interface_
 	public function getId(): string
 	{
 		$parts	= array();
-		if( $this->category )
+		if( NULL !== $this->category )
 			$parts[]	= $this->category;
-		if( $this->package )
+		if( NULL !== $this->package )
 			$parts[]	= $this->package;
 #		$parts[]	= $this->parent->getBasename();
 		$parts[]	= $this->name;
@@ -167,11 +167,11 @@ class Interface_
 	{
 		if( $this->name != $artefact->getName() )
 			throw new Exception( 'Not merge-able' );
-		if( $artefact->getDescription() )
+		if( NULL !== $artefact->getDescription() )
 			$this->setDescription( $artefact->getDescription() );
-		if( $artefact->getSince() )
+		if( NULL !== $artefact->getSince() )
 			$this->setSince( $artefact->getSince() );
-		if( $artefact->getVersion() )
+		if( NULL !== $artefact->getVersion() )
 			$this->setVersion( $artefact->getVersion() );
 		foreach( $artefact->getCopyrights() as $copyright )
 			$this->setCopyright( $copyright );

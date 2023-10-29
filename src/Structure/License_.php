@@ -69,7 +69,7 @@ class License_
 	{
 		if( $this->name != $license->getName() )
 			throw new \Exception( 'Not merge-able' );
-		if( $license->getUrl() )
+		if( NULL !== $license->getUrl() )
 			$this->setUrl( $license->getUrl() );
 		return $this;
 	}

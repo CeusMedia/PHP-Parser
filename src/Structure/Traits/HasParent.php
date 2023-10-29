@@ -25,6 +25,15 @@
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
 
+use CeusMedia\PhpParser\Structure\Category_;
+use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\File_;
+use CeusMedia\PhpParser\Structure\Function_;
+use CeusMedia\PhpParser\Structure\Interface_;
+use CeusMedia\PhpParser\Structure\Method_;
+use CeusMedia\PhpParser\Structure\Parameter_;
+use CeusMedia\PhpParser\Structure\Trait_;
+
 /**
  *	...
  *	@category		Library
@@ -35,26 +44,26 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  */
 Trait HasParent
 {
-	/** @var	mixed		$parent		... */
-	protected $parent		= NULL;
-
 	/**
 	 *	Returns parent structure object, if set.
 	 *	@access		public
-	 *	@return		mixed		Parent structure object
+	 *	@return		object|NULL		Parent structure object
 	 */
-	public function getParent(): mixed
+	public function getParent(): object|NULL
 	{
 		return $this->parent;
 	}
 
+	/** @var	object|NULL		$parent		... */
+	protected $parent		= NULL;
+
 	/**
 	 *	Sets parent structure object, if available.
 	 *	@access		public
-	 *	@param		mixed			$parent		Parent structure object
+	 *	@param		object|NULL		$parent		Parent structure object
 	 *	@return		self
 	 */
-	public function setParent( mixed $parent ): self
+	public function setParent( object|null $parent ): self
 	{
 		$this->parent	= $parent;
 		return $this;

@@ -32,6 +32,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasPackage;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
@@ -48,7 +49,7 @@ use Exception;
  */
 class Function_
 {
-	use HasAuthors, HasCategory, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
+	use HasAuthors, HasCategory, HasDescription, HasName, HasPackage, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	array		$throws				... */
 	protected array $throws		= array();
@@ -123,14 +124,14 @@ class Function_
 	public function merge( Function_ $function ): self
 	{
 		if( $this->name != $function->getName() )
-			throw new Exception( 'Not mergable' );
-		if( $function->getDescription() )
+			throw new Exception( 'Not merge-able' );
+		if( NULL !== $function->getDescription() )
 			$this->setDescription( $function->getDescription() );
-		if( $function->getSince() )
+		if( NULL !== $function->getSince() )
 			$this->setSince( $function->getSince() );
-		if( $function->getVersion() )
+		if( NULL !== $function->getVersion() )
 			$this->setVersion( $function->getVersion() );
-		if( $function->getReturn() )
+		if( NULL !== $function->getReturn() )
 			$this->setReturn( $function->getReturn() );
 		foreach( $function->getCopyrights() as $copyright )
 			$this->setCopyright( $copyright );

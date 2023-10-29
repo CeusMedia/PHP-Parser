@@ -160,14 +160,14 @@ class Reflection
 			foreach( $class->getProperties() as $property )
 				$object->setMember( $this->readProperty( $property ) );
 		}
-		$object->setDescription( $class->getDocComment() );
+		$object->setDescription( $class->getDocComment() ?: NULL );
 		$object->setLine( $class->getStartLine().'-'.$class->getEndLine() );
 
 		foreach( $class->getMethods() as $method )
 			$object->setMethod( $this->readMethod( $method ) );
 
 		$parser		= new RegularDocParser;
-		$docData	= $parser->parseBlock( $class->getDocComment() );
+		$docData	= $parser->parseBlock( $class->getDocComment() ?: '' );
 		$decorator	= new DocDecorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
@@ -176,7 +176,7 @@ class Reflection
 	public function readMethod( ReflectionMethod $method ): Method_
 	{
 		$object	= new Method_( $method->name );
-		$object->setDescription( $method->getDocComment() );
+		$object->setDescription( $method->getDocComment() ?: NULL );
 		foreach( $method->getParameters() as $parameter )
 		{
 			$parameter	= $this->readParameter( $parameter );
@@ -184,7 +184,7 @@ class Reflection
 		}
 		$object->setLine( $method->getStartLine().'-'.$method->getEndLine() );
 		$parser		= new RegularDocParser;
-		$docData	= $parser->parseBlock( $method->getDocComment() );
+		$docData	= $parser->parseBlock( $method->getDocComment() ?: '' );
 		$decorator	= new DocDecorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
@@ -196,8 +196,10 @@ class Reflection
 		$object->setReference( $parameter->isPassedByReference() );
 		if( $parameter->getClass() )
 			$object->setCast( $parameter->getClass()->name );
-		if( $parameter->isDefaultValueAvailable() )
-			$object->setDefault( $parameter->getDefaultValue() );
+		if( $parameter->isDefaultValueAvailable() ){
+			/** @phpstan-ignore-next-line */
+			$object->setDefault( (string) $parameter->getDefaultValue() );
+		}
 		return $object;
 	}
 

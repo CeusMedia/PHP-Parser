@@ -59,9 +59,9 @@ Trait HasPackage
 	/**
 	 *	Sets package.
 	 *	@param		string			$string		Package name
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setPackage( string $string ): self
+	public function setPackage( string $string ): static
 	{
 		$string			= str_replace( array( "/", "::", ":", "." ), "_", $string );
 		$this->package	= $string;

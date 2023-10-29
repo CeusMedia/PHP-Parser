@@ -62,34 +62,40 @@ class Regular
 	 *	@param		string		$docComment			Lines of Doc Block
 	 *	@return		array
 	 */
-	public function parseBlock( $docComment )
+	public function parseBlock( string $docComment ): array
 	{
 		$lines		= explode( "\n", $docComment );
 		$data		= array();
 		$descLines	= array();
 		foreach( $lines as $line ){
-			if( preg_match( $this->regexParam, $line, $matches ) ){
-				$data['param'][$matches[4]]	= $this->parseParameter( $matches );
+			if( 1 === preg_match( $this->regexParam, $line, $matches ) ){
+				$name	= $matches[4];
+				$data['param']			??= [];
+				$data['param'][$name]	= $this->parseParameter( $matches );
 			}
-			else if( preg_match( $this->regexReturn, $line, $matches ) ){
+			else if( 1 === preg_match( $this->regexReturn, $line, $matches ) ){
 				$data['return']	= $this->parseReturn( $matches );
 			}
-			else if( preg_match( $this->regexThrows, $line, $matches ) ){
+			else if( 1 === preg_match( $this->regexThrows, $line, $matches ) ){
+				$data['throws']		??= [];
 				$data['throws'][]	= $this->parseThrows( $matches );
 			}
-			else if( preg_match( $this->regexTrigger, $line, $matches ) ){
+			else if( 1 === preg_match( $this->regexTrigger, $line, $matches ) ){
+				$data['trigger']	??= [];
 				$data['trigger'][]	= $this->parseTrigger( $matches );
 			}
-			else if( preg_match( $this->regexAuthor, $line, $matches ) ){
+			else if( 1 === preg_match( $this->regexAuthor, $line, $matches ) ){
 				$author	= new Author_( trim( $matches[1] ) );
 				if( isset( $matches[3] ) )
 					$author->setEmail( trim( $matches[3] ) );
+				$data['author']		??= [];
 				$data['author'][]	= $author;
 			}
-			else if( preg_match( $this->regexLicense, $line, $matches ) ){
+			else if( 1 === preg_match( $this->regexLicense, $line, $matches ) ){
+				$data['license']	??= [];
 				$data['license'][]	= $this->parseLicense( $matches );
 			}
-			else if( preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) ){
+			else if( 1 === preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) ){
 				switch( $matches[1] ){
 					case 'implements':
 					case 'deprecated':
@@ -98,6 +104,7 @@ class Regular
 					case 'see':
 					case 'uses':
 					case 'link':
+						$data[$matches[1]]		??= [];
 						$data[$matches[1]][]	= $matches[2];
 						break;
 					case 'since':
@@ -112,7 +119,7 @@ class Regular
 						break;
 				}
 			}
-			else if( !$data && preg_match( "/^\*\s*([^@].+)?$/", $line, $matches ) )
+			else if( !$data && 1 === preg_match( "/^\*\s*([^@].+)?$/", $line, $matches ) )
 				$descLines[]	= isset( $matches[1] ) ? trim( $matches[1] ) : "";
 		}
 		$data['description']	= trim( implode( "\n", $descLines ) );
@@ -135,18 +142,17 @@ class Regular
 		if( isset( $matches[2] ) ){
 			$url	= trim( $matches[1] );
 			$name	= trim( $matches[2] );
-			if( preg_match( "@^https?://@", $matches[2] ) ){
+			if( 1 === preg_match( "@^https?://@", $matches[2] ) ){
 				$url	= trim( $matches[2] );
 				$name	= trim( $matches[1] );
 			}
 		}
 		else{
 			$name	= trim( $matches[1] );
-			if( preg_match( "@^https?://@", $matches[1] ) )
+			if( 1 === preg_match( "@^https?://@", $matches[1] ) )
 				$url	= trim( $matches[1] );
 		}
-		$license	= new License_( $name, $url );
-		return $license;
+		return new License_( $name, $url );
 	}
 
 	/**
@@ -225,7 +231,6 @@ class Regular
 	 */
 	public function parseVariable( array $matches ): Variable_
 	{
-		$variable	= new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
-		return $variable;
+		return new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
 	}
 }

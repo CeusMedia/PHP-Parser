@@ -81,15 +81,17 @@ class Regular
 	 */
 	protected function renderClassDocBlock( Class_ $class ): array
 	{
-		$lines	= [];
+		$lines		= [];
 		$lines[]	= '/'.'**';
-		if( $class->getDescription() )
-			foreach( preg_split( '/\r?\n/', $class->getDescription() ) as $line )
+		if( NULL !== $class->getDescription() ){
+			$parts	= preg_split( '/\r?\n/', $class->getDescription() ) ?: [];
+			foreach( $parts as $line )
 				$lines[]	= $this->renderDocBlockLine( NULL, NULL, $line );
+		}
 		foreach( $class->getAuthors() as $author ){
-			$email	= $author->getEmail() ? '<'.$author->getEmail().'>' : '';
-			$name	= $author->getName();
-			$value	= $name && $email ? $name.' '.$email : $name.$email;
+			$email		= ( '' !== ( $author->getEmail() ?? '' ) ) ? '<'.$author->getEmail().'>' : '';
+			$name		= $author->getName();
+			$value		= NULL !== $name && $email ? $name.' '.$email : $name.$email;
 			$lines[]	= $this->renderDocBlockLine( 'author', $value );
 		}
 
@@ -108,11 +110,11 @@ class Regular
 	protected function renderDocBlockLine( ?string $property, ?string $value = NULL, ?string $description = NULL ): string
 	{
 		$parts	= [" *\t"];
-		if( $property )
-			$parts[]	= '@'.$property.( $value || $description ? "\t\t" : '' );
-		if( $value )
-			$parts[]	= $value.( $description ? "\t\t" : '' );
-		if( $description )
+		if( NULL !== $property )
+			$parts[]	= '@'.$property.( NULL !== $value || NULL !== $description ? "\t\t" : '' );
+		if( NULL !== $value )
+			$parts[]	= $value.( NULL !== $description ? "\t\t" : '' );
+		if( NULL !== $description )
 			$parts[]	= $description;
 		return join( $parts );
 	}
@@ -137,12 +139,12 @@ class Regular
 	public function renderClassMethod( Method_ $method ): array
 	{
 		$lines	= ['/'.'**'];
-		if( $method->getDescription() ){
+		if( NULL !== $method->getDescription() ){
 			foreach( explode( PHP_EOL, $method->getDescription() ) as $line )
 				$lines[]	= ' *	'.$line;
 			$lines[]	= ' *';
 		}
-		if( $method->getAccess() )
+		if( NULL !== $method->getAccess() )
 			$lines[]	= ' *	@abstract';
 		if( $method->isStatic() )
 			$lines[]	= ' *	@static';
@@ -158,7 +160,7 @@ class Regular
 				$line	.= '		'.$throws->getReason();
 			$lines[]	= $line;
 		}
-		if( $method->getReturn() ){
+		if( NULL !== $method->getReturn() ){
 			$return		= $method->getReturn();
 			$desc		= $return->getDescription() ? '		'.$return->getDescription() : '';
 			$lines[]	= ' *	@return		'.$return->getType().$desc;
@@ -167,7 +169,7 @@ class Regular
 
 		$lines[] = join( [
 			$method->isAbstract() ? 'abstract ' : '',
-			$method->getAccess() ? $method->getAccess().' ' : '',
+			NULL !== $method->getAccess() ? $method->getAccess().' ' : '',
 			$method->isStatic() ? 'static ' : '',
 			'function '.$method->getName().'(',
 //			$parameters ? ' '.$parameters.' ' : '',
