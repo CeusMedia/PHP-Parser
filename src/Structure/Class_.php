@@ -27,6 +27,7 @@ namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasMembers;
 use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
+use Exception;
 use RuntimeException;
 
 /**
@@ -42,22 +43,22 @@ class Class_ extends Interface_
 	use HasMembers;
 	use MaybeFinal;
 
-	protected $abstract		= FALSE;
+	protected bool $abstract		= FALSE;
 
-	protected $implements	= array();
-	protected $uses			= array();
+	protected array $implements	= array();
+	protected array $uses			= array();
 
 	public function getExtendedClass()
 	{
 		return $this->extends;
 	}
 
-	public function getExtendingClasses()
+	public function getExtendingClasses(): array
 	{
 		return $this->extendedBy;
 	}
 
-	public function getImplementedInterfaces()
+	public function getImplementedInterfaces(): array
 	{
 		return $this->implements;
 	}
@@ -69,7 +70,7 @@ class Class_ extends Interface_
 
 	public function isAbstract(): bool
 	{
-		return (bool) $this->abstract;
+		return $this->abstract;
 	}
 
 	public function isImplementingInterface( Interface_ $interface ): bool
@@ -82,8 +83,8 @@ class Class_ extends Interface_
 
 	public function isUsingClass( Class_ $class ): bool
 	{
-		foreach( $this->uses as $className => $class )
-			if( $class == $class )
+		foreach( $this->uses as $className => $classUsed )
+			if( $classUsed == $class )
 				return TRUE;
 		return FALSE;
 	}
@@ -91,9 +92,9 @@ class Class_ extends Interface_
 	public function merge( Interface_ $artefact ): self
 	{
 		if( !$artefact instanceof Class_ )
-			throw new \RuntimeException( 'Merge of method with function not allowed' );
+			throw new RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $artefact->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $artefact->isAbstract() )
 			$this->setAbstract( $artefact->isAbstract() );
 		if( $artefact->isFinal() )
@@ -108,7 +109,7 @@ class Class_ extends Interface_
 
 	public function setAbstract( bool $isAbstract = TRUE ): self
 	{
-		$this->abstract	= (bool) $isAbstract;
+		$this->abstract	= $isAbstract;
 		return $this;
 	}
 

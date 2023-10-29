@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
+
 /**
  *	...
  *
@@ -26,6 +27,10 @@
  */
 namespace CeusMedia\PhpParser\Parser;
 
+use CeusMedia\Common\Alg\Text\Unicoder;
+use CeusMedia\Common\FS\File\Reader as FileReader;
+use CeusMedia\PhpParser\Parser\Doc\Decorator as DocParserDecorator;
+use CeusMedia\PhpParser\Parser\Doc\Regular as RegularDocParser;
 use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Class_;
 use CeusMedia\PhpParser\Structure\Interface_;
@@ -39,6 +44,10 @@ use CeusMedia\PhpParser\Structure\Author_;
 use CeusMedia\PhpParser\Structure\License_;
 use CeusMedia\PhpParser\Structure\Return_;
 use CeusMedia\PhpParser\Structure\Throws_;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionParameter;
+use ReflectionProperty;
 
 /**
  *	...
@@ -63,9 +72,9 @@ class Reflection
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
-		$content		= \CeusMedia\Common\FS\File\Reader::load( $fileName );
-		if( !\CeusMedia\Common\Alg\Text\Unicoder::isUnicode( $content ) )
-			$content		= \CeusMedia\Common\Alg\Text\Unicoder::convertToUnicode( $content );
+		$content		= FileReader::load( $fileName );
+		if( !Unicoder::isUnicode( $content ) )
+			$content		= Unicoder::convertToUnicode( $content );
 
 		//  list builtin Classes
 		$listClasses	= get_declared_classes();
@@ -132,18 +141,15 @@ class Reflection
 		return $file;
 	}
 
-	public function readClass( \ReflectionClass $class )
+	public function readClass( ReflectionClass $class )
 	{
-
-		if( $class->isInterface() )
-		{
+		if( $class->isInterface() ){
 			$object	= new Interface_( $class->name );
 			//  NOT WORKING !!!
 			if( $class->getParentClass() )
 				$object->setExtendedInterfaceName( $class->getParentClass()->name );
 		}
-		else
-		{
+		else{
 			$object	= new Class_( $class->name );
 			$object->setFinal( $class->isFinal() );
 			if( $class->getParentClass() )
@@ -162,31 +168,30 @@ class Reflection
 			$object->setMethod( $this->readMethod( $method ) );
 
 
-		$parser		= new \CeusMedia\PhpParser\Parser\Doc\Regular;
+		$parser		= new RegularDocParser;
 		$docData	= $parser->parseBlock( $class->getDocComment() );
-		$decorator	= new \CeusMedia\PhpParser\Parser\Doc\Decorator();
+		$decorator	= new DocParserDecorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
 	}
 
-	public function readMethod( \ReflectionMethod $method ): Method_
+	public function readMethod( ReflectionMethod $method ): Method_
 	{
 		$object	= new Method_( $method->name );
 		$object->setDescription( $method->getDocComment() );
-		foreach( $method->getParameters() as $parameter )
-		{
+		foreach( $method->getParameters() as $parameter ){
 			$parameter	= $this->readParameter( $parameter );
 			$object->setParameter( $parameter );
 		}
 		$object->setLine( $method->getStartLine().'-'.$method->getEndLine() );
-		$parser		= new \CeusMedia\PhpParser\Parser\Doc\Regular;
+		$parser		= new RegularDocParser;
 		$docData	= $parser->parseBlock( $method->getDocComment() );
-		$decorator	= new \CeusMedia\PhpParser\Parser\Doc\Decorator();
+		$decorator	= new DocParserDecorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
 	}
 
-	public function readParameter( \ReflectionParameter $parameter ): Parameter_
+	public function readParameter( ReflectionParameter $parameter ): Parameter_
 	{
 		$object	= new Parameter_( $parameter->name );
 		$object->setReference( $parameter->isPassedByReference() );
@@ -197,7 +202,7 @@ class Reflection
 		return $object;
 	}
 
-	public function readProperty( \ReflectionProperty $property ): Member_
+	public function readProperty( ReflectionProperty $property ): Member_
 	{
 		return new Member_( $property->name );
 	}

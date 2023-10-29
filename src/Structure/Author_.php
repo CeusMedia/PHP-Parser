@@ -26,6 +26,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use Exception;
 
 /**
  *	File/Class/Function/Method Author Data Class.
@@ -39,13 +40,13 @@ class Author_
 {
 	use HasName;
 
-	protected $email	= NULL;
+	protected ?string $email	= NULL;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
 	 *	@param		string		$name		Author name
-	 *	@param		string		$email		Author email
+	 *	@param		?string		$email		Author email
 	 *	@return		void
 	 */
 	public function __construct( string $name, string $email = NULL )
@@ -62,7 +63,7 @@ class Author_
 	public function merge( Author_ $author ): self
 	{
 		if( $this->name != $author->name )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $author->getEmail() )
 			$this->setEmail( $author->getEmail() );
 		return $this;

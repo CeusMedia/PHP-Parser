@@ -28,6 +28,8 @@ namespace CeusMedia\PhpParser\Structure;
 use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
+use Exception;
+use RuntimeException;
 
 /**
  *	Class Member Data Class.
@@ -44,7 +46,7 @@ class Member_ extends Variable_
 	use MaybeStatic;
 
 	/** @var	 string|NULL	$default		... */
-	protected $default			= NULL;
+	protected ?string $default			= NULL;
 
 	public function __toArray(): array
 	{
@@ -69,11 +71,11 @@ class Member_ extends Variable_
 	public function merge( Variable_ $member ): self
 	{
 		if( !$member instanceof Member_ )
-			throw new \RuntimeException( 'Merge of method with function not allowed' );
+			throw new RuntimeException( 'Merge of method with function not allowed' );
 		parent::merge( $member );
 #		remark( 'merging member: '.$member->getName() );
 		if( $this->name != $member->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $member->getAccess() )
 			$this->setAccess( $member->getAccess() );
 		if( $member->getDefault() )
@@ -86,7 +88,7 @@ class Member_ extends Variable_
 	/**
 	 *	Sets member default value.
 	 *	@access		public
-	 *	@param		string			$string			Member default value
+	 *	@param		?string			$string			Member default value
 	 *	@return		self
 	 */
 	public function setDefault( ?string $string ): self

@@ -26,6 +26,8 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  *	...
@@ -39,16 +41,16 @@ class Category_
 {
 	use HasParent;
 
-	protected $categories	= array();
-	protected $classes		= array();
-	protected $interfaces	= array();
-	protected $packages		= array();
-	protected $label		= '';
+	protected array $categories	= array();
+	protected array $classes		= array();
+	protected array $interfaces	= array();
+	protected array $packages		= array();
+	protected string $label		= '';
 
 	/**
 	 *	Constructure, sets Label of Category if given.
 	 *	@access		public
-	 *	@param		string		$label		Label of Category
+	 *	@param		?string		$label		Label of Category
 	 *	@return		void
 	 */
 	public function __construct( ?string $label = NULL )
@@ -96,7 +98,7 @@ class Category_
 	{
 		if( isset( $this->classes[$name] ) )
 			return $this->classes[$name];
-		throw new \RuntimeException( "Class '$name' is unknown" );
+		throw new RuntimeException( "Class '$name' is unknown" );
 	}
 
 	public function getClasses(): array
@@ -109,10 +111,8 @@ class Category_
 #		remark( get_class( $this ).": ".$this->getLabel() );
 		$parts	= array();
 		$separator	= "_";
-		if( $this->parent )
-		{
-			if( $parent = $this->parent->getId() )
-			{
+		if( $this->parent ){
+			if( $parent = $this->parent->getId() ){
 #				remark( $this->parent->getId() );
 				if( get_class( $this->parent ) == '\\CeusMedia\\PhpParser\\Structure\\Category_' )
 					$separator	= '-';
@@ -132,7 +132,7 @@ class Category_
 	{
 		if( isset( $this->interfaces[$name] ) )
 			return $this->interfaces[$name];
-		throw new \RuntimeException( "Interface '$name' is unknown" );
+		throw new RuntimeException( "Interface '$name' is unknown" );
 	}
 
 	public function getInterfaces(): array
@@ -150,7 +150,7 @@ class Category_
 		//  no package name given
 		if( 0 === strlen( trim( $name ) ) )
 			//  break: invalid package name
-			throw new \InvalidArgumentException( 'Package name cannot be empty' );
+			throw new InvalidArgumentException( 'Package name cannot be empty' );
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
 		//  Mainpackage name
@@ -158,7 +158,7 @@ class Category_
 		//  Mainpackage is not existing
 		if( !array_key_exists( $main, $this->packages ) )
 			//  break: unknown Mainpackage
-			throw new \RuntimeException( 'Package "'.$name.'" is unknown' );
+			throw new RuntimeException( 'Package "'.$name.'" is unknown' );
 		//  has no Subpackage, must be existing Mainpackage
 		if( count( $parts ) == 1 )
 			//  return Mainpackage
@@ -204,7 +204,7 @@ class Category_
 		//  no package name given
 		if( 0 === strlen( trim( $name ) ) )
 			//  break: invalid package name
-			throw new \InvalidArgumentException( 'Package name cannot be empty' );
+			throw new InvalidArgumentException( 'Package name cannot be empty' );
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
 		//  Mainpackage name
@@ -244,20 +244,18 @@ class Category_
 		//  no package name given
 		if( 0 === strlen( trim( $name ) ) )
 			//  break: invalid package name
-			throw new \InvalidArgumentException( 'Package name cannot be empty' );
+			throw new InvalidArgumentException( 'Package name cannot be empty' );
 
 		//  set underscore as separator
 		$parts		= explode( "_", str_replace( ".", "_", $name ) );
 		//  Mainpackage name
 		$main	= $parts[0];
 		//  has Subpackage
-		if( count( $parts ) > 1 )
-		{
+		if( count( $parts ) > 1 ){
 			//  Subpackage key
 			$sub	= implode( "_", array_slice( $parts, 1 ) );
 			//  Mainpackage is not existing
-			if( !array_key_exists( $main, $this->packages ) )
-			{
+			if( !array_key_exists( $main, $this->packages ) ){
 				//  create empty Mainpackage for now
 				$this->packages[$main]	= new Package_( $main );
 				$this->packages[$main]->setParent( $this );
@@ -265,17 +263,14 @@ class Category_
 			//  give Subpackage to Mainpackage
 			$this->packages[$main]->setPackage( $sub, $package );
 		}
-		else
-		{
+		else{
 			//  Package is not existing
-			if( !array_key_exists( $name, $this->packages ) )
-			{
+			if( !array_key_exists( $name, $this->packages ) ){
 				//  add Package
 				$this->packages[$name]	= $package;
 				$this->packages[$name]->setParent( $this );
 			}
-			else
-			{
+			else{
 				//  iterate Classes in Package
 				foreach( $package->getClasses() as $class )
 					//  add Class to existing Package

@@ -32,6 +32,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
+use RuntimeException;
 
 /**
  *	File Data Class.
@@ -46,42 +47,42 @@ class File_
 	use HasAuthors, HasDescription, HasLinks, HasLicense, HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	 string|NULL	$unicode		... */
-	public $unicode;
+	public ?string $unicode;
 
 	/** @var	 string|NULL	$basename		... */
-	protected $basename		= NULL;
+	protected ?string $basename		= NULL;
 
 	/** @var	 string|NULL	$pathname		... */
-	protected $pathname		= NULL;
+	protected ?string $pathname		= NULL;
 
 	/** @var	 string|NULL	$uri			... */
-	protected $uri			= NULL;
+	protected ?string $uri			= NULL;
 
 	/** @var	 string|NULL	$category		... */
-	protected $category		= NULL;
+	protected ?string $category		= NULL;
 
 	/** @var	 string|NULL	$package		... */
-	protected $package		= NULL;
+	protected ?string $package		= NULL;
 
 	/** @var	 string|NULL	$subpackage		... */
-	protected $subpackage	= NULL;
+	protected ?string $subpackage	= NULL;
 
 /*	protected $usedClasses	= array();*/
 
 	/** @var	 array		$functions		... */
-	protected $functions	= array();
+	protected array $functions	= array();
 
 	/** @var	 array		$classes		... */
-	protected $classes		= array();
+	protected array $classes		= array();
 
 	/** @var	 array		$interfaces		... */
-	protected $interfaces	= array();
+	protected array $interfaces	= array();
 
 	/** @var	 array		$traits			... */
-	protected $traits		= array();
+	protected array $traits		= array();
 
 	/** @var	 string		$sourceCode		... */
-	protected $sourceCode	= '';
+	protected string $sourceCode	= '';
 
 
 	public function addClass( Class_ $class ): self
@@ -102,12 +103,12 @@ class File_
 		return $this;
 	}
 
-	public function getBasename()
+	public function getBasename(): ?string
 	{
 		return $this->basename;
 	}
 
-	public function getCategory()
+	public function getCategory(): ?string
 	{
 		return $this->category;
 	}
@@ -116,7 +117,7 @@ class File_
 	{
 		if( isset( $this->classes[$name] ) )
 			return $this->classes[$name];
-		throw new \RuntimeException( 'Class "'.$name.'" is unknown' );
+		throw new RuntimeException( 'Class "'.$name.'" is unknown' );
 	}
 
 	public function getClasses(): array
@@ -133,7 +134,7 @@ class File_
 	{
 		if( isset( $this->functions[$name] ) )
 			return $this->functions[$name];
-		throw new \RuntimeException( 'Function "'.$name.'" is unknown' );
+		throw new RuntimeException( 'Function "'.$name.'" is unknown' );
 	}
 
 	public function getFunctions(): array
@@ -156,7 +157,7 @@ class File_
 	{
 		if( isset( $this->interfaces[$name] ) )
 			return $this->interfaces[$name];
-		throw new \RuntimeException( 'Interface "'.$name.'" is unknown' );
+		throw new RuntimeException( 'Interface "'.$name.'" is unknown' );
 	}
 
 	public function getInterfaces(): array
@@ -164,7 +165,7 @@ class File_
 		return $this->interfaces;
 	}
 
-	public function getPackage()
+	public function getPackage(): ?string
 	{
 		return $this->package;
 	}
@@ -174,12 +175,12 @@ class File_
 		return $this->pathname;
 	}
 
-	public function getSourceCode()
+	public function getSourceCode(): string
 	{
 		return $this->sourceCode;
 	}
 
-	public function getSubpackage()
+	public function getSubpackage(): ?string
 	{
 		return $this->subpackage;
 	}

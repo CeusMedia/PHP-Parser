@@ -36,7 +36,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
 Trait MaybeStatic
 {
 	/** @var	 bool		$static		... */
-	protected $static		= FALSE;
+	protected bool $static		= FALSE;
 
 	/**
 	 *	Indicates whether this structure is statically usable.

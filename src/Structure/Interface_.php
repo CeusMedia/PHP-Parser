@@ -35,6 +35,8 @@ use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
+use Exception;
+use RuntimeException;
 
 /**
  *	Interface Data Class.
@@ -49,42 +51,42 @@ class Interface_
 	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	 string|NULL	$category		... */
-	protected $category			= NULL;
+	protected ?string $category			= NULL;
 
 	/** @var	 string|NULL	$package		... */
-	protected $package			= NULL;
+	protected ?string $package			= NULL;
 
 	/** @var	 string|NULL	$subpackage		... */
-	protected $subpackage		= NULL;
+	protected ?string $subpackage		= NULL;
 
 	/** @var	 Interface_|string|NULL		$extends		... */
 	protected $extends			= NULL;
 
 	/** @var	 array			$implementedBy		... */
-	protected $implementedBy	= array();
+	protected array $implementedBy	= array();
 
 	/** @var	 array			$extendedBy		... */
-	protected $extendedBy		= array();
+	protected array $extendedBy		= array();
 
 	/** @var	 array			$usedBy		... */
-	protected $usedBy			= array();
+	protected array $usedBy			= array();
 
 	/** @var	 array			$composedBy		... */
-	protected $composedBy		= array();
+	protected array $composedBy		= array();
 
 	/** @var	 array			$receivedBy		... */
-	protected $receivedBy		= array();
+	protected array $receivedBy		= array();
 
 	/** @var	 array			$returnedBy		... */
-	protected $returnedBy		= array();
+	protected array $returnedBy		= array();
 
 	/** @var	 array			$methods		... */
-	protected $methods			= array();
+	protected array $methods			= array();
 
 	/**
 	 *	Constructor, binding a File_.
 	 *	@access		public
-	 *	@param		string		$name		File with contains this interface
+	 *	@param		?string		$name		File with contains this interface
 	 *	@return		void
 	 */
 	public function __construct( string $name = NULL )
@@ -164,17 +166,17 @@ class Interface_
 	}
 
 	/**
-	 *	Returns a interface method by its name.
+	 *	Returns an interface method by its name.
 	 *	@access		public
 	 *	@param		string			$name		Method name
 	 *	@return		Method_			Method data object
-	 *	@throws		\RuntimeException if method is not existing
+	 *	@throws		RuntimeException if method is not existing
 	 */
-	public function & getMethod( string $name )
+	public function & getMethod( string $name ): Method_
 	{
 		if( isset( $this->methods[$name] ) )
 			return $this->methods[$name];
-		throw new \RuntimeException( "Method '$name' is unknown" );
+		throw new RuntimeException( "Method '$name' is unknown" );
 	}
 
 	/**
@@ -213,7 +215,7 @@ class Interface_
 		return $this->returnedBy;
 	}
 
-	public function getSubpackage()
+	public function getSubpackage(): ?string
 	{
 		return $this->subpackage;
 	}
@@ -236,7 +238,7 @@ class Interface_
 	public function merge( Interface_ $artefact ): self
 	{
 		if( $this->name != $artefact->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $artefact->getDescription() )
 			$this->setDescription( $artefact->getDescription() );
 		if( $artefact->getSince() )
@@ -244,7 +246,8 @@ class Interface_
 		if( $artefact->getVersion() )
 			$this->setVersion( $artefact->getVersion() );
 		if( $artefact->getCopyright() )
-			$this->setCopyright( $artefact->getCopyright() );
+			foreach( $artefact->getCopyright() as $copyright )
+				$this->setCopyright( $copyright );
 
 		foreach( $artefact->getAuthors() as $author )
 			$this->setAuthor( $author );
