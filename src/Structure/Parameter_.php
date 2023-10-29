@@ -31,6 +31,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
 use CeusMedia\PhpParser\Structure\Traits\HasType;
+use Exception;
 
 /**
  *	Function/Method Parameter Data Class.
@@ -47,20 +48,20 @@ class Parameter_
 	use HasDescription, HasName, HasLineInFile, HasType, HasParent;
 
 	/** @var	 string|NULL	$cast			... */
-	protected $cast			= NULL;
+	protected ?string $cast			= NULL;
 
 	/** @var	 bool		$reference		... */
-	protected $reference	= FALSE;
+	protected bool $reference	= FALSE;
 
 	/** @var	 string|NULL	$default		... */
-	protected $default		= NULL;
+	protected ?string $default		= NULL;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
 	 *	@param		string			$name			Parameter name
 	 *	@param		string			$type			Parameter type
-	 *	@param		string			$description	Parameter description
+	 *	@param		?string			$description	Parameter description
 	 *	@return		void
 	 */
 	public function __construct( string $name, $type = NULL, ?string $description = NULL )
@@ -73,7 +74,7 @@ class Parameter_
 	}
 
 	/**
-	 *	Returns casted type of parameter.
+	 *	Returns cast type of parameter.
 	 *	@access		public
 	 *	@return		string|NULL		Type string or data object
 	 */
@@ -106,7 +107,7 @@ class Parameter_
 	{
 #		remark( "merging parameter: ".$parameter->getName() );
 		if( $this->name != $parameter->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( NULL !== $parameter->getCast() )
 			$this->setCast( $parameter->getCast() );
 		if( NULL !== $parameter->getDefault() )
@@ -125,9 +126,9 @@ class Parameter_
 	}
 
 	/**
-	 *	Sets parameter casted type.
+	 *	Sets parameter cast type.
 	 *	@access		public
-	 *	@param		mixed			$type			Casted type string or data object
+	 *	@param		mixed			$type			Cast type string or data object
 	 *	@return		self
 	 */
 	public function setCast( $type ): self

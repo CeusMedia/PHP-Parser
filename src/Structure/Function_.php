@@ -35,6 +35,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
+use Exception;
 
 /**
  *	File Function Data Class.
@@ -49,19 +50,19 @@ class Function_
 	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	 array		$throws				... */
-	protected $throws		= array();
+	protected array $throws		= array();
 
 	/** @var	 array		$triggers			... */
-	protected $triggers		= array();
+	protected array $triggers		= array();
 
 	/** @var	 array		$param				... */
-	protected $param		= array();
+	protected array $param		= array();
 
 	/** @var	 Return_|NULL	$return			... */
-	protected $return		= NULL;
+	protected ?Return_ $return		= NULL;
 
 	/** @var	 array		$sourceCode		... */
-	protected $sourceCode	= [];
+	protected array $sourceCode	= [];
 
 	public function __construct( string $name )
 	{
@@ -81,9 +82,9 @@ class Function_
 	/**
 	 *	Returns return type as string or data object.
 	 *	@access		public
-	 *	@return		mixed			Return type as string or data object
+	 *	@return		?Return_			Return type as string or data object
 	 */
-	public function getReturn()
+	public function getReturn(): ?Return_
 	{
 		return $this->return;
 	}
@@ -93,7 +94,7 @@ class Function_
 	 *	@access		public
 	 *	@return		array			Method source code (multiline string)
 	 */
-	public function getSourceCode()
+	public function getSourceCode(): array
 	{
 		return $this->sourceCode;
 	}
@@ -121,7 +122,7 @@ class Function_
 	public function merge( Function_ $function ): self
 	{
 		if( $this->name != $function->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $function->getDescription() )
 			$this->setDescription( $function->getDescription() );
 		if( $function->getSince() )
@@ -129,7 +130,8 @@ class Function_
 		if( $function->getVersion() )
 			$this->setVersion( $function->getVersion() );
 		if( $function->getCopyright() )
-			$this->setCopyright( $function->getCopyright() );
+			foreach( $function->getCopyright() as $copyright )
+				$this->setCopyright( $copyright );
 		if( $function->getReturn() )
 			$this->setReturn( $function->getReturn() );
 

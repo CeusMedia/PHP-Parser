@@ -36,7 +36,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
 Trait HasAccessibility
 {
 	/** @var	 string|NULL	$access		... */
-	protected $access			= NULL;
+	protected ?string $access			= NULL;
 
 	/**
 	 *	Returns accessibility of structure.

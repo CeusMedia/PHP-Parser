@@ -36,7 +36,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
 Trait MaybeFinal
 {
 	/** @var	 bool		$final		... */
-	protected $final		= FALSE;
+	protected bool $final		= FALSE;
 
 	/**
 	 *	Returns whether this structure is final.

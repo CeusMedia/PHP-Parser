@@ -29,6 +29,8 @@ use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
 use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
+use Exception;
+use RuntimeException;
 
 /**
  *	Class Method Data Class.
@@ -46,7 +48,7 @@ class Method_ extends Function_
 	use MaybeStatic;
 
 	/** @var	 bool		$abstract		... */
-	protected $abstract		= FALSE;
+	protected bool $abstract		= FALSE;
 
 	/**
 	 *	Indicates whether method is abstract.
@@ -55,7 +57,7 @@ class Method_ extends Function_
 	 */
 	public function isAbstract(): bool
 	{
-		return (bool) $this->abstract;
+		return $this->abstract;
 	}
 
 	/**
@@ -66,9 +68,9 @@ class Method_ extends Function_
 	public function merge( Function_ $method ): self
 	{
 		if( !$method instanceof Method_ )
-			throw new \RuntimeException( 'Merge of method with function not allowed' );
+			throw new RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $method->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( $method->getAccess() )
 			$this->setAccess( $method->getAccess() );
 		if( $method->getParent() )
@@ -90,7 +92,7 @@ class Method_ extends Function_
 	 */
 	public function setAbstract( bool $isAbstract = TRUE ): self
 	{
-		$this->abstract	= (bool) $isAbstract;
+		$this->abstract	= $isAbstract;
 		return $this;
 	}
 }

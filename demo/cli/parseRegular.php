@@ -2,9 +2,9 @@
 ( @include_once __DIR__.'/../../vendor/autoload.php' ) or
 	die( 'Please use composer to install required packages.'.PHP_EOL );
 
-new UI_DevOutput;
-
 use CeusMedia\PhpParser\Parser\Regular as Parser;
+
+new CeusMedia\Common\UI\DevOutput;
 
 $path	= realpath( __DIR__.'/../../src' ).'/';
 
@@ -50,8 +50,8 @@ class Tree
 
 	protected function indexRecursive( $path, &$nodes, $steps = array() ){
 		$parser		= new Parser();
-		$folder		= new FS_Folder( $path );
-		$children	= $folder->index( FS::TYPE_FOLDER );
+		$folder		= new CeusMedia\Common\FS\Folder( $path );
+		$children	= $folder->index( CeusMedia\Common\FS::TYPE_FOLDER );
 		foreach( $children as $child ){
 			$nodes[$child->getName()]	= (object) array(
 				'type'		=> 'folder',
@@ -65,7 +65,7 @@ class Tree
 			$newSteps	= array_merge( $steps, array( $child->getName() ) );
 			$this->indexRecursive( $newPath, $child->nodes, $newSteps );
 		}
-		$children	= $folder->index( FS::TYPE_FILE );
+		$children	= $folder->index( CeusMedia\Common\FS::TYPE_FILE );
 		foreach( $children as $child ){
 			$file	= $parser->parseFile( $child->getPathName(), '' );
 			$nodes[$child->getName()]	= (object) array(

@@ -37,13 +37,13 @@ use CeusMedia\PhpParser\Structure\Class_;
  */
 class Regular
 {
-	protected $buffer	= [];
+	protected array $buffer	= [];
 
 	public function __construct()
 	{
 	}
 
-	public function renderClass( Class_ $class )
+	public function renderClass( Class_ $class ): string
 	{
 		$classContent	= [];
 
@@ -114,7 +114,7 @@ class Regular
 		return $lines;
 	}
 
-	public function renderClassMethod( $method )
+	public function renderClassMethod( $method ): array
 	{
 		$lines	= ['/'.'**'];
 		if( $method->getDescription() ){
@@ -147,7 +147,7 @@ class Regular
 			$method->getAccess() ? $method->getAccess().' ' : '',
 			$method->isStatic() ? 'static ' : '',
 			'function '.$method->getName().'(',
-			$parameters ? ' '.$parameters.' ' : '',
+//			$parameters ? ' '.$parameters.' ' : '',
 			')',
 			$method->getReturn() ? ': '.$method->getReturn()->getType() : '',
 		] );

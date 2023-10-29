@@ -26,6 +26,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use Exception;
 
 /**
  *	Function/Method Throws Data Class.
@@ -40,16 +41,16 @@ class Throws_
 	use HasName;
 
 	/** @var	 string|NULL	$reason		... */
-	protected $reason	= NULL;
+	protected ?string $reason	= NULL;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
 	 *	@param		string		$name		Exception name
-	 *	@param		string		$reason		Exception reason
+	 *	@param		?string		$reason		Exception reason
 	 *	@return		void
 	 */
-	public function __construct( string $name = NULL, ?string $reason = NULL )
+	public function __construct( string $name, ?string $reason = NULL )
 	{
 		$this->setName( $name );
 		$this->setReason( $reason );
@@ -68,7 +69,7 @@ class Throws_
 	public function merge( Throws_ $throws ): self
 	{
 		if( $this->name != $throws->getName() )
-			throw new \Exception( 'Not mergable' );
+			throw new Exception( 'Not merge-able' );
 		if( NULL !== $throws->getReason() )
 			$this->setReason( $throws->getReason() );
 		return $this;

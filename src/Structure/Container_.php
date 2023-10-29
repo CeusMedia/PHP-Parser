@@ -25,6 +25,10 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use ArrayIterator;
+use Exception;
+use RuntimeException;
+
 /**
  *	...
  *	@category		Library
@@ -37,25 +41,25 @@ namespace CeusMedia\PhpParser\Structure;
  */
 class Container_
 {
-	protected $files				= array();
-	protected $classIdList			= array();
-	protected $classNameList		= array();
-	protected $interfaceIdList		= array();
-	protected $interfacesNameList	= array();
+	protected array $files				= array();
+	protected array $classIdList		= array();
+	protected array $classNameList		= array();
+	protected array $interfaceIdList	= array();
+	protected array $interfacesNameList	= array();
 
 	/**
 	 *	Searches for a Class by its Name in same Category and Package.
-	 *	Otherwise searches in different Packages and finally in different Categories.
+	 *	Otherwise, searches in different Packages and finally in different Categories.
 	 *	@access		public
 	 *	@param		string				$className			Name of Class to find Data Object for
 	 *	@param		Interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
 	 *	@return		Class_
-	 *	@throws		\Exception			if Class is not known
+	 *	@throws		Exception			if Class is not known
 	 */
 	public function getClassFromClassName( string $className, Interface_ $relatedArtefact ): Class_
 	{
 		if( !isset( $this->classNameList[$className] ) )
-			throw new \Exception( 'Unknown class "'.$className.'"' );
+			throw new Exception( 'Unknown class "'.$className.'"' );
 		$list	= $this->classNameList[$className];
 		$category	= $relatedArtefact->getCategory();
 		$package	= $relatedArtefact->getPackage();
@@ -77,7 +81,7 @@ class Container_
 	public function & getClassFromId( string $id ): Class_
 	{
 		if( !isset( $this->classIdList[$id] ) )
-			throw new \Exception( 'Class with ID '.$id.' is unknown' );
+			throw new Exception( 'Class with ID '.$id.' is unknown' );
 		return $this->classIdList[$id];
 	}
 
@@ -85,12 +89,12 @@ class Container_
 	{
 		if( isset( $this->files[$name] ) )
 			return $this->files[$name];
-		throw new \RuntimeException( "File '$name' is unADT_PHP_known" );
+		throw new RuntimeException( "File '$name' is unADT_PHP_known" );
 	}
 
-	public function getFileIterator(): \ArrayIterator
+	public function getFileIterator(): ArrayIterator
 	{
-		return new \ArrayIterator( $this->files );
+		return new ArrayIterator( $this->files );
 	}
 
 	public function & getFiles(): array
@@ -101,23 +105,23 @@ class Container_
 	public function & getInterfaceFromId( string $id ): Interface_
 	{
 		if( !isset( $this->interfaceIdList[$id] ) )
-			throw new \Exception( 'Interface with ID '.$id.' is unknown' );
+			throw new Exception( 'Interface with ID '.$id.' is unknown' );
 		return $this->interfaceIdList[$id];
 	}
 
 	/**
 	 *	Searches for an Interface by its Name in same Category and Package.
-	 *	Otherwise is searches in different Packages and finally in different Categories.
+	 *	Otherwise, is searches in different Packages and finally in different Categories.
 	 *	@access		public
 	 *	@param		string				$interfaceName		Name of Interface to find Data Object for
 	 *	@param		Interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
 	 *	@return		Interface_
-	 *	@throws		\Exception			if Interface is not known
+	 *	@throws		Exception			if Interface is not known
 	 */
 	public function getInterfaceFromInterfaceName( string $interfaceName, Interface_ $relatedArtefact ): Interface_
 	{
 		if( !isset( $this->interfacesNameList[$interfaceName] ) )
-			throw new \Exception( 'Unknown interface "'.$interfaceName.'"' );
+			throw new Exception( 'Unknown interface "'.$interfaceName.'"' );
 		$list		= $this->interfacesNameList[$interfaceName];
 		$category	= $relatedArtefact->getCategory();
 		$package	= $relatedArtefact->getPackage();
@@ -142,7 +146,7 @@ class Container_
 
 	/**
 	 *	Builds internal index of Classes for direct access bypassing the tree.
-	 *	Afterwards the methods getClassFromClassName() and getClassFromId() can be used.
+	 *	Afterward the methods getClassFromClassName() and getClassFromId() can be used.
 	 *	@access		public
 	 *	@param		string		$defaultCategory		Default Category Name
 	 *	@param		string		$defaultPackage			Default Package Name
@@ -164,7 +168,7 @@ class Container_
 
 	/**
 	 *	Builds internal index of Interfaces for direct access bypassing the tree.
-	 *	Afterwards the methods getInterfaceFromInterfaceName() and getInterfaceFromId() can be used.
+	 *	Afterward the methods getInterfaceFromInterfaceName() and getInterfaceFromId() can be used.
 	 *	@access		public
 	 *	@param		string		$defaultCategory		Default Category Name
 	 *	@param		string		$defaultPackage			Default Package Name
@@ -207,7 +211,7 @@ class Container_
 				return $data;
 			}
 		}
-		throw new \RuntimeException( 'No data file existing' );
+		throw new RuntimeException( 'No data file existing' );
 	}
 
 	/**

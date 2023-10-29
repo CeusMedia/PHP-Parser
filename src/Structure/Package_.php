@@ -25,6 +25,8 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use RuntimeException;
+
 /**
  *	...
  *	@category		Library
@@ -35,7 +37,7 @@ namespace CeusMedia\PhpParser\Structure;
  */
 class Package_ extends Category_
 {
-	protected $files	= array();
+	protected array $files	= array();
 
 	/**
 	 *	@deprecated	seems to be unused
@@ -44,7 +46,7 @@ class Package_ extends Category_
 	{
 		if( isset( $this->files[$name] ) )
 			return $this->files[$name];
-		throw new \RuntimeException( "File '$name' is unknown" );
+		throw new RuntimeException( "File '$name' is unknown" );
 	}
 
 	public function getFiles(): array

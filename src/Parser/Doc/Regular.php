@@ -47,14 +47,14 @@ use CeusMedia\PhpParser\Structure\Trigger_;
  */
 class Regular
 {
-	protected $regexParam		= '@^\*\s+\@param\s+(([\S]+)\s+)?(\$?([\S]+))\s*(.+)?$@';
-	protected $regexReturn		= '@\*\s+\@return\s+(\w+)\s*(.+)?$@i';
-	protected $regexThrows		= '@\*\s+\@throws\s+(\w+)\s*(.+)?$@i';
-	protected $regexTrigger		= '@\*\s+\@trigger\s+(\w+)\s*(.+)?$@i';
-	protected $regexAuthor		= '@\*\s+\@author\s+(.+)\s*(<(.+)>)?$@iU';
-	protected $regexLicense		= '@\*\s+\@license\s+(\S+)( .+)?$@i';
+	public string $regexVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
+	protected string $regexParam		= '@^\*\s+\@param\s+(([\S]+)\s+)?(\$?([\S]+))\s*(.+)?$@';
+	protected string $regexReturn		= '@\*\s+\@return\s+(\w+)\s*(.+)?$@i';
+	protected string $regexThrows		= '@\*\s+\@throws\s+(\w+)\s*(.+)?$@i';
+	protected string $regexTrigger		= '@\*\s+\@trigger\s+(\w+)\s*(.+)?$@i';
+	protected string $regexAuthor		= '@\*\s+\@author\s+(.+)\s*(<(.+)>)?$@iU';
+	protected string $regexLicense		= '@\*\s+\@license\s+(\S+)( .+)?$@i';
 	//  not used
-	public $regexVariable	= '@^/\*\*\s+\@var\s+(\w+)\s+\$(\w+)(\s(.+))?\*\/$@s';
 
 	/**
 	 *	Parses a Doc Block and returns Array of collected Information.
@@ -62,7 +62,7 @@ class Regular
 	 *	@param		string		$docComment			Lines of Doc Block
 	 *	@return		array
 	 */
-	public function parseBlock( $docComment )
+	public function parseBlock( string $docComment ): array
 	{
 		$lines		= explode( "\n", $docComment );
 		$data		= array();
@@ -145,8 +145,7 @@ class Regular
 			if( preg_match( "@^https?://@", $matches[1] ) )
 				$url	= trim( $matches[1] );
 		}
-		$license	= new License_( $name, $url );
-		return $license;
+		return new License_( $name, $url );
 	}
 
 	/**
@@ -157,8 +156,7 @@ class Regular
 	 */
 	public function parseMember( array $matches ): Member_
 	{
-		$member	= new Member_( $matches[2], $matches[1], trim( $matches[4] ) );
-		return $member;
+		return new Member_( $matches[2], $matches[1], trim( $matches[4] ) );
 	}
 
 	/**
@@ -225,7 +223,6 @@ class Regular
 	 */
 	public function parseVariable( array $matches ): Variable_
 	{
-		$variable	= new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
-		return $variable;
+		return new Variable_( $matches[2], $matches[1], trim( $matches[4] ) );
 	}
 }
