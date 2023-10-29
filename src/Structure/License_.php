@@ -26,6 +26,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use Exception;
 
 /**
  *	File/Class License Data Class.

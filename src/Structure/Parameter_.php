@@ -31,6 +31,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
 use CeusMedia\PhpParser\Structure\Traits\HasType;
+use Exception;
 
 /**
  *	Function/Method Parameter Data Class.

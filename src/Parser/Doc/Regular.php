@@ -163,8 +163,7 @@ class Regular
 	 */
 	public function parseMember( array $matches ): Member_
 	{
-		$member	= new Member_( $matches[2], $matches[1], trim( $matches[4] ) );
-		return $member;
+		return new Member_( $matches[2], $matches[1], trim( $matches[4] ) );
 	}
 
 	/**
