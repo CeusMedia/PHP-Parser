@@ -20,7 +20,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2021 Christian Würker
+ *	@copyright		2020-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser;
@@ -36,7 +36,7 @@ use CeusMedia\PhpParser\Structure\Class_;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2021 Christian Würker
+ *	@copyright		2020-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Renderer
