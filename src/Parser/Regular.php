@@ -30,6 +30,7 @@ namespace CeusMedia\PhpParser\Parser;
 
 use CeusMedia\Common\Alg\Text\Unicoder;
 use CeusMedia\Common\FS\File\Reader as FileReader;
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Parser\Doc\Regular as DocParser;
 use CeusMedia\PhpParser\Parser\Doc\Decorator as DocDecorator;
 use CeusMedia\PhpParser\Structure\File_;
@@ -85,6 +86,7 @@ class Regular
 	 *	@param		string		$fileName		File Name of PHP File to parse
 	 *	@param		string		$innerPath		Base Path to File to be removed in Information
 	 *	@return		File_
+	 *	@throws		MergeException
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
@@ -96,6 +98,8 @@ class Regular
 		$fileBlock		= NULL;
 		$openClass		= FALSE;
 		$function		= NULL;
+		$functionName	= NULL;
+		/** @var array<string,array<int,string>> $functionBody */
 		$functionBody	= array();
 		$file			= new File_;
 		$file->setBasename( basename( $fileName ) );
@@ -166,7 +170,7 @@ class Regular
 				if( 1 === preg_match( $this->regexMethod, $line, $matches ) ){
 					if( $class instanceof Interface_ ){
 						$method		= $this->parseMethod( $class, $matches );
-						$function	= $matches[6];
+						$functionName	= $matches[6];
 						$class->setMethod( $method );
 					}
 				}
@@ -195,8 +199,8 @@ class Regular
 						}
 					}
 				}
-				else if( $function ){
-					$functionBody[$function][]	= $originalLine;
+				else if( NULL !== $functionName ){
+					$functionBody[$functionName][]	= $originalLine;
 				}
 			}
 			if( str_ends_with( $line, '{' ) )
@@ -309,6 +313,7 @@ class Regular
 	 *	@param		array						$matches		Matches of RegEx
 	 *	@param		mixed|NULL					$docBlock		Variable data object from Doc Parser
 	 *	@return		Member_
+	 *	@throws		MergeException
 	 */
 	protected function parseMember( Class_|Interface_|Trait_ $parent, array $matches, mixed $docBlock = NULL ): Member_
 	{
@@ -321,10 +326,9 @@ class Regular
 			$variable->setAccess( $matches[2] == "var" ? NULL : $matches[2] );
 		$variable->setStatic( (bool) trim( $matches[3] ) );
 
-		if( NULL !== $docBlock )
-			if( $docBlock instanceof Variable_ )
-				if( $docBlock->getName() == $variable->getName() )
-					$variable->merge( $docBlock );
+		if( $docBlock instanceof Variable_ )
+			if( $docBlock->getName() == $variable->getName() )
+				$variable->merge( $docBlock );
 		return $variable;
 	}
 

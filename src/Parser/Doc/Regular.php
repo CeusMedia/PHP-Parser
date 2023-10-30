@@ -65,34 +65,36 @@ class Regular
 	public function parseBlock( string $docComment ): array
 	{
 		$lines		= explode( "\n", $docComment );
-		$data		= array();
+		$data		= array(
+			'param'		=> [],
+			'throws'	=> [],
+			'author'	=> [],
+			'license'	=> [],
+			'trigger'	=> [],
+		);
 		$descLines	= array();
+		$matches	= array();
 		foreach( $lines as $line ){
 			if( 1 === preg_match( $this->regexParam, $line, $matches ) ){
 				$name	= $matches[4];
-				$data['param']			??= [];
 				$data['param'][$name]	= $this->parseParameter( $matches );
 			}
 			else if( 1 === preg_match( $this->regexReturn, $line, $matches ) ){
 				$data['return']	= $this->parseReturn( $matches );
 			}
 			else if( 1 === preg_match( $this->regexThrows, $line, $matches ) ){
-				$data['throws']		??= [];
 				$data['throws'][]	= $this->parseThrows( $matches );
 			}
 			else if( 1 === preg_match( $this->regexTrigger, $line, $matches ) ){
-				$data['trigger']	??= [];
 				$data['trigger'][]	= $this->parseTrigger( $matches );
 			}
 			else if( 1 === preg_match( $this->regexAuthor, $line, $matches ) ){
 				$author	= new Author_( trim( $matches[1] ) );
 				if( isset( $matches[3] ) )
 					$author->setEmail( trim( $matches[3] ) );
-				$data['author']		??= [];
 				$data['author'][]	= $author;
 			}
 			else if( 1 === preg_match( $this->regexLicense, $line, $matches ) ){
-				$data['license']	??= [];
 				$data['license'][]	= $this->parseLicense( $matches );
 			}
 			else if( 1 === preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) ){
@@ -119,13 +121,13 @@ class Regular
 						break;
 				}
 			}
-			else if( !$data && 1 === preg_match( "/^\*\s*([^@].+)?$/", $line, $matches ) )
-				$descLines[]	= isset( $matches[1] ) ? trim( $matches[1] ) : "";
+			else if( [] === array_filter( $data ) ){
+				if( 1 === preg_match( "/^\*\s*([^@].+)?$/", $line, $matches ) )
+					$descLines[]	= isset( $matches[1] ) ? trim( $matches[1] ) : "";
+			}
 		}
 		$data['description']	= trim( implode( "\n", $descLines ) );
 
-		if( !isset( $data['throws'] ) )
-			$data['throws']	= array();
 		return $data;
 	}
 
