@@ -26,12 +26,12 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
 use CeusMedia\PhpParser\Structure\Traits\HasType;
-use Exception;
 
 /**
  *	Function/Method Parameter Data Class.
@@ -103,11 +103,16 @@ class Parameter_
 		return $this->reference;
 	}
 
+	/**
+	 *	@param		Parameter_		$parameter
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Parameter_ $parameter ): self
 	{
 #		remark( "merging parameter: ".$parameter->getName() );
 		if( $this->name != $parameter->getName() )
-			throw new \Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $parameter->getCast() )
 			$this->setCast( $parameter->getCast() );
 		if( NULL !== $parameter->getDefault() )

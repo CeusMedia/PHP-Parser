@@ -25,6 +25,7 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasCategory;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
@@ -38,7 +39,6 @@ use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
-use Exception;
 
 /**
  *	Interface Data Class.
@@ -163,10 +163,15 @@ class Interface_
 		return $this->usedBy;
 	}
 
+	/**
+	 *	@param		Interface_		$artefact
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Interface_ $artefact ): self
 	{
 		if( $this->name != $artefact->getName() )
-			throw new Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $artefact->getDescription() )
 			$this->setDescription( $artefact->getDescription() );
 		if( NULL !== $artefact->getSince() )

@@ -47,6 +47,7 @@ use CeusMedia\PhpParser\Structure\Throws_;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
+use ReflectionProperty;
 
 /**
  *	...
@@ -197,7 +198,6 @@ class Reflection
 		if( $parameter->getClass() )
 			$object->setCast( $parameter->getClass()->name );
 		if( $parameter->isDefaultValueAvailable() ){
-			/** @phpstan-ignore-next-line */
 			$object->setDefault( (string) $parameter->getDefaultValue() );
 		}
 		return $object;

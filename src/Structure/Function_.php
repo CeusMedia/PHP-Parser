@@ -25,6 +25,7 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasCategory;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
@@ -121,10 +122,15 @@ class Function_
 		return $this->triggers;
 	}
 
+	/**
+	 *	@param		Function_		$function		Function to merge with
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Function_ $function ): self
 	{
 		if( $this->name != $function->getName() )
-			throw new Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $function->getDescription() )
 			$this->setDescription( $function->getDescription() );
 		if( NULL !== $function->getSince() )

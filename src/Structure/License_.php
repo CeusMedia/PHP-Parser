@@ -25,6 +25,7 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
 use Exception;
 
@@ -66,10 +67,15 @@ class License_
 		return $this->url;
 	}
 
+	/**
+	 *	@param		License_		$license
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( License_ $license ): self
 	{
 		if( $this->name != $license->getName() )
-			throw new \Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $license->getUrl() )
 			$this->setUrl( $license->getUrl() );
 		return $this;

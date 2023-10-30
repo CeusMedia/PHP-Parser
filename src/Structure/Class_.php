@@ -25,9 +25,9 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasMembers;
 use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
-use Exception;
 use RuntimeException;
 
 /**
@@ -92,15 +92,14 @@ class Class_ extends Interface_
 	/**
 	 *	@param		Interface_		$artefact
 	 *	@return		self
-	 *	@throws		Exception
-	 *	@todo		replace exception by specific merge exception
+	 *	@throws		MergeException
 	 */
 	public function merge( Interface_ $artefact ): self
 	{
 		if( !$artefact instanceof Class_ )
 			throw new RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $artefact->getName() )
-			throw new Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( $artefact->isAbstract() )
 			$this->setAbstract( $artefact->isAbstract() );
 		if( $artefact->isFinal() )

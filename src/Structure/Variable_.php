@@ -25,6 +25,7 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
@@ -65,11 +66,16 @@ class Variable_
 			$this->setDescription( $description );
 	}
 
+	/**
+	 *	@param		Variable_		$variable
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Variable_ $variable ): self
 	{
 #		remark( 'merging variable: '.$variable->getName() );
 		if( $this->name != $variable->getName() )
-			throw new \Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $variable->getType() )
 			$this->setType( $variable->getType() );
 		if( NULL !== $variable->getDescription() )

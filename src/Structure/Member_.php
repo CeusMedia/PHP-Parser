@@ -25,6 +25,7 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
@@ -69,6 +70,7 @@ class Member_ extends Variable_
 	/**
 	 *	@param		Variable_		$member
 	 *	@return		self
+	 *	@throws		MergeException
 	 *	@noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
 	public function merge( Variable_ $member ): self
@@ -78,7 +80,7 @@ class Member_ extends Variable_
 		parent::merge( $member );
 #		remark( 'merging member: '.$member->getName() );
 		if( $this->name != $member->getName() )
-			throw new \Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $member->getAccess() )
 			$this->setAccess( $member->getAccess() );
 		if( NULL !== $member->getDefault() )

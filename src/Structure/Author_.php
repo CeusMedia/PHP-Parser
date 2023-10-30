@@ -25,8 +25,8 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
-use Exception;
 
 /**
  *	File/Class/Function/Method Author Data Class.
@@ -63,13 +63,12 @@ class Author_
 	/**
 	 *	@param		Author_		$author
 	 *	@return		self
-	 *	@throws		Exception
-	 *	@todo		replace exception by specific merge exception
+	 *	@throws		MergeException
 	 */
 	public function merge( Author_ $author ): self
 	{
 		if( $this->name != $author->name )
-			throw new Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $author->getEmail() )
 			$this->setEmail( $author->getEmail() );
 		return $this;

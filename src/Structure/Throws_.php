@@ -25,6 +25,7 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
 
 /**
@@ -65,10 +66,15 @@ class Throws_
 		return $this->reason;
 	}
 
+	/**
+	 *	@param		Throws_		$throws
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Throws_ $throws ): self
 	{
 		if( $this->name != $throws->getName() )
-			throw new \Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $throws->getReason() )
 			$this->setReason( $throws->getReason() );
 		return $this;

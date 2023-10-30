@@ -25,10 +25,12 @@
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
 use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
+use RuntimeException;
 
 /**
  *	Class Method Data Class.
@@ -62,6 +64,7 @@ class Method_ extends Function_
 	 *	@access		public
 	 *	@param		Function_		$method		...
 	 *	@return		self
+	 *	@throws		MergeException
 	 *	@noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
 	public function merge( Function_ $method ): self
@@ -69,7 +72,7 @@ class Method_ extends Function_
 		if( !$method instanceof Method_ )
 			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $method->getName() )
-			throw new \Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $method->getAccess() )
 			$this->setAccess( $method->getAccess() );
 		if( NULL !== $method->getParent() )
