@@ -176,7 +176,7 @@ class Regular
 				}
 				else if( $level <= self::LEVEL_CLASS_OPEN ){
 					if( 1 === preg_match( $this->docParser->regexVariable, $line, $matches ) ){
-						if( $class )
+						if( NULL !== $class )
 							$this->varBlocks[$class->getName()."::".$matches[2]]	= $this->docParser->parseMember( $matches );
 						else
 							$this->varBlocks[$matches[2]]	= $this->docParser->parseVariable( $matches );
@@ -211,7 +211,7 @@ class Regular
 		while( $lines );
 
 		$file->setSourceCode( $content );
-		if( $class ){
+		if( NULL !== $class ){
 			foreach( $class->getMethods() as $methodName => $method )
 				if( isset( $functionBody[$methodName] ) )
 					$method->setSourceCode( $functionBody[$methodName] );
@@ -256,20 +256,20 @@ class Regular
 				$artefact->setAbstract( (bool) $matches[1] );
 				if( isset( $matches[7] ) )
 					foreach( array_slice( $matches, 8 ) as $match )
-						if( trim( $match ) && !preg_match( "@^,|{@", trim( $match ) ) )
+						if( trim( $match ) && 0 === preg_match( "@^,|{@", trim( $match ) ) )
 							$artefact->setImplementedInterfaceName( trim( $match ) );
 				break;
 		}
 		$artefact->setParent( $parent );
 		$artefact->setLine( $this->lineNumber );
 //		$artefact->setType( $matches[3] );
-		if( $this->openBlocks ){
+		if( [] !== $this->openBlocks ){
 			$this->docDecorator->decorateCodeDataWithDocData( $artefact, array_pop( $this->openBlocks ) );
 			$this->openBlocks	= [];
 		}
-		if( !$artefact->getCategory() && $parent->getCategory() )
+		if( !$artefact->getCategory() && NULL !== $parent->getCategory() )
 			$artefact->setCategory( $parent->getCategory() );
-		if( !$artefact->getPackage() && $parent->getPackage() )
+		if( !$artefact->getPackage() && NULL !== $parent->getPackage() )
 			$artefact->setPackage( $parent->getPackage() );
 		return $artefact;
 	}
@@ -289,16 +289,16 @@ class Regular
 		if( isset( $matches[8] ) )
 			$function->setReturn( new Return_( $matches[9] ) );
 
-		if( trim( $matches[7] ) ){
+		if( '' !== trim( $matches[7] ) ){
 			$paramList	= [];
 			foreach( explode( ",", $matches[7] ) as $param ){
 				$param	 = trim( $param );
-				if( !preg_match( $this->regexParam, $param, $matches ) )
+				if( 0 === preg_match( $this->regexParam, $param, $matches ) )
 					continue;
 				$function->setParameter( $this->parseParameter( $function, $matches ) );
 			}
 		}
-		if( $this->openBlocks ){
+		if( [] !== $this->openBlocks ){
 			$methodBlock	= array_pop( $this->openBlocks );
 			$this->docDecorator->decorateCodeDataWithDocData( $function, $methodBlock );
 			$this->openBlocks	= [];
@@ -385,7 +385,7 @@ class Regular
 		$parameter	= new Parameter_( $matches[5] );
 		$parameter->setParent( $parent );
 		$parameter->setLine( $this->lineNumber );
-		if( trim( $matches[2] ) )
+		if( '' !== trim( $matches[2] ) )
 			$parameter->setCast( $matches[2] );
 		$parameter->setReference( (bool) $matches[4] );
 

@@ -91,7 +91,7 @@ class Regular
 		foreach( $class->getAuthors() as $author ){
 			$email		= ( '' !== ( $author->getEmail() ?? '' ) ) ? '<'.$author->getEmail().'>' : '';
 			$name		= $author->getName();
-			$value		= NULL !== $name && $email ? $name.' '.$email : $name.$email;
+			$value		= ( NULL !== $name && '' !== $email ) ? $name.' '.$email : $name.$email;
 			$lines[]	= $this->renderDocBlockLine( 'author', $value );
 		}
 
@@ -162,7 +162,7 @@ class Regular
 		}
 		if( NULL !== $method->getReturn() ){
 			$return		= $method->getReturn();
-			$desc		= $return->getDescription() ? '		'.$return->getDescription() : '';
+			$desc		= NULL !== $return->getDescription() ? '		'.$return->getDescription() : '';
 			$lines[]	= ' *	@return		'.$return->getType().$desc;
 		}
 		$lines[] = ' */';
@@ -174,7 +174,7 @@ class Regular
 			'function '.$method->getName().'(',
 //			$parameters ? ' '.$parameters.' ' : '',
 			')',
-			$method->getReturn() ? ': '.$method->getReturn()->getType() : '',
+			NULL !== $method->getReturn() ? ': '.$method->getReturn()->getType() : '',
 		] );
 		$lines[]	= '{';
 		$lines[]	= join( $this->indentLines( $method->getSourceCode() ) );

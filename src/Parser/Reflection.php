@@ -146,13 +146,13 @@ class Reflection
 		if( $class->isInterface() ){
 			$object	= new Interface_( $class->name );
 			//  NOT WORKING !!!
-			if( $class->getParentClass() )
+			if( FALSE !== $class->getParentClass() )
 				$object->setExtendedInterfaceName( $class->getParentClass()->name );
 		}
 		else{
 			$object	= new Class_( $class->name );
 			$object->setFinal( $class->isFinal() );
-			if( $class->getParentClass() )
+			if( FALSE !== $class->getParentClass() )
 				$object->setExtendedClassName( $class->getParentClass()->name );
 			foreach( $class->getInterfaceNames() as $interfaceName )
 				$object->setImplementedInterfaceName( $interfaceName );
@@ -195,7 +195,7 @@ class Reflection
 	{
 		$object	= new Parameter_( $parameter->name );
 		$object->setReference( $parameter->isPassedByReference() );
-		if( $parameter->getClass() )
+		if( NULL !== $parameter->getClass() )
 			$object->setCast( $parameter->getClass()->name );
 		if( $parameter->isDefaultValueAvailable() ){
 			$object->setDefault( (string) $parameter->getDefaultValue() );
