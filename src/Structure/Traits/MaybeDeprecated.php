@@ -36,7 +36,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
 Trait MaybeDeprecated
 {
 	/** @var	array		$deprecations		... */
-	protected array $deprecations		= array();
+	protected array $deprecations		= [];
 
 	/**
 	 *	Returns list of deprecation strings.

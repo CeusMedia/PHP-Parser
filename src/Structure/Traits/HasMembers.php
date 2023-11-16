@@ -39,7 +39,7 @@ use DomainException;
 Trait HasMembers
 {
 	/** @var	array		$members		... */
-	protected array $members		= array();
+	protected array $members		= [];
 
 	/**
 	 *	Returns a member data object by its name.

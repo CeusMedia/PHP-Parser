@@ -40,7 +40,7 @@ use RuntimeException;
 Trait HasMethods
 {
 	/** @var	array<Method_>		$methods		... */
-	protected array $methods		= array();
+	protected array $methods		= [];
 
 	/**
 	 *	Returns an interface method by its name.
@@ -78,7 +78,7 @@ Trait HasMethods
 	{
 		if( $withMagics )
 			return $this->methods;
-		$methods	= array();
+		$methods	= [];
 		foreach( $this->methods as $method )
 			if( !str_starts_with( $method->getName() ?? '', '__' ) )
 				$methods[$method->getName()]	= $method;

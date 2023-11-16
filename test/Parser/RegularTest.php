@@ -807,7 +807,7 @@ class Test_Parser_RegularTest extends TestCase
 		$this->assertEquals( 'array', $param3->getName() );
 		$this->assertEquals( 'array', $param3->getType() );
 		$this->assertNull( $param3->getCast() );
-		$this->assertEquals( 'array()', $param3->getDefault() );
+		$this->assertEquals( '[]', $param3->getDefault() );
 		$this->assertEquals( 'An Array', $param3->getDescription() );
 
 		$this->assertTrue( is_object( $param4 ) );

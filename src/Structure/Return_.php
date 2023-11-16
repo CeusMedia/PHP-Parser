@@ -72,10 +72,10 @@ class Return_
 	 */
 	public function toArray(): array
 	{
-		return array(
+		return [
 			'type'			=> $this->getType(),
 			'description'	=> $this->getDescription(),
 			'parent'		=> NULL !== $this->parent ? $this->getParent() : NULL,
-		);
+		];
 	}
 }

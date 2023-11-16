@@ -38,20 +38,7 @@ use CeusMedia\PhpParser\Structure\License_;
 Trait HasLicense
 {
 	/** @var	array		$licenses		... */
-	protected array $licenses		= array();
-
-	/** @var	array		$copyright		... */
-	protected array $copyright	= array();
-
-	/**
-	 *	Returns copyright notes.
-	 *	@access		public
-	 *	@return		array			Copyright notes
-	 */
-	public function getCopyrights(): array
-	{
-		return $this->copyright;
-	}
+	protected array $licenses		= [];
 
 	/**
 	 *	Returns list of licenses.
@@ -61,18 +48,6 @@ Trait HasLicense
 	public function getLicenses(): array
 	{
 		return $this->licenses;
-	}
-
-	/**
-	 *	Sets copyright notes.
-	 *	@access		public
-	 *	@param		string			$copyright		Copyright notes
-	 *	@return		self
-	 */
-	public function setCopyright( string $copyright ): self
-	{
-		$this->copyright[]	= $copyright;
-		return $this;
 	}
 
 	/**

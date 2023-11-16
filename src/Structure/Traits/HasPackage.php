@@ -63,7 +63,7 @@ Trait HasPackage
 	 */
 	public function setPackage( string $string ): static
 	{
-		$string			= str_replace( array( "/", "::", ":", "." ), "_", $string );
+		$string			= str_replace( ["/", "::", ":", "."], "_", $string );
 		$this->package	= $string;
 		return $this;
 	}

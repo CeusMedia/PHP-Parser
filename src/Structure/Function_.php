@@ -28,6 +28,7 @@ namespace CeusMedia\PhpParser\Structure;
 use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasCategory;
+use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
@@ -50,16 +51,16 @@ use Exception;
  */
 class Function_
 {
-	use HasAuthors, HasCategory, HasDescription, HasName, HasPackage, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
+	use HasAuthors, HasCategory, HasDescription, HasName, HasPackage, HasParent, HasLinks, HasLicense, HasCopyright, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	array		$throws				... */
-	protected array $throws		= array();
+	protected array $throws		= [];
 
 	/** @var	array		$triggers			... */
-	protected array $triggers		= array();
+	protected array $triggers		= [];
 
 	/** @var	array		$param				... */
-	protected array $param		= array();
+	protected array $param		= [];
 
 	/** @var	Return_|NULL	$return			... */
 	protected ?Return_ $return		= NULL;

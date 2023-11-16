@@ -124,7 +124,7 @@ class Reflection
 			if( $interface instanceof Interface_ )
 				$file->addInterface( $interface );
 */
-/*		$functionBody	= array();
+/*		$functionBody	= [];
 		$lines			= explode( "\n", $content );
 		$fileBlock		= NULL;
 		$openClass		= FALSE;

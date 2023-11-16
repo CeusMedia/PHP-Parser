@@ -64,8 +64,8 @@ class Regular
 	protected string $regexMethod	= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
 	protected string $regexParam	= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
 	protected string $regexVariable	= '@^(static\s+)?(protected|private|public|var)\s+(static\s+)?\$(\w+)(\s+=\s+([^(]+))?.*$@';
-	protected array $varBlocks		= array();
-	protected array $openBlocks		= array();
+	protected array $varBlocks		= [];
+	protected array $openBlocks		= [];
 	protected int $lineNumber		= 0;
 
 	protected DocParser $docParser;
@@ -100,7 +100,7 @@ class Regular
 		$function		= NULL;
 		$functionName	= NULL;
 		/** @var array<string,array<int,string>> $functionBody */
-		$functionBody	= array();
+		$functionBody	= [];
 		$file			= new File_;
 		$file->setBasename( basename( $fileName ) );
 		$file->setPathname( substr( str_replace( "\\", "/", $fileName ), strlen( $innerPath ) ) );
@@ -121,7 +121,7 @@ class Regular
 				$level--;
 
 			if( $line == "/**" && $level < 2 ){
-				$list	= array();
+				$list	= [];
 				while( 1 !== preg_match( "@\*?\*/\s*$@", $line ) ){
 					$list[]	= $line;
 					$next	= array_shift( $lines ) ?? '';
@@ -265,7 +265,7 @@ class Regular
 //		$artefact->setType( $matches[3] );
 		if( $this->openBlocks ){
 			$this->docDecorator->decorateCodeDataWithDocData( $artefact, array_pop( $this->openBlocks ) );
-			$this->openBlocks	= array();
+			$this->openBlocks	= [];
 		}
 		if( !$artefact->getCategory() && $parent->getCategory() )
 			$artefact->setCategory( $parent->getCategory() );
@@ -290,7 +290,7 @@ class Regular
 			$function->setReturn( new Return_( $matches[9] ) );
 
 		if( trim( $matches[7] ) ){
-			$paramList	= array();
+			$paramList	= [];
 			foreach( explode( ",", $matches[7] ) as $param ){
 				$param	 = trim( $param );
 				if( !preg_match( $this->regexParam, $param, $matches ) )
@@ -301,7 +301,7 @@ class Regular
 		if( $this->openBlocks ){
 			$methodBlock	= array_pop( $this->openBlocks );
 			$this->docDecorator->decorateCodeDataWithDocData( $function, $methodBlock );
-			$this->openBlocks	= array();
+			$this->openBlocks	= [];
 		}
 		return $function;
 	}
@@ -355,7 +355,7 @@ class Regular
 		$method->setReturn( $return );
 
 		if( trim( $matches[7] ) ){
-			$paramList	= array();
+			$paramList	= [];
 			foreach( explode( ",", $matches[7] ) as $param ){
 				$param	 = trim( $param );
 				if( !preg_match( $this->regexParam, $param, $matches ) )
@@ -366,7 +366,7 @@ class Regular
 		if( $this->openBlocks ){
 			$methodBlock	= array_pop( $this->openBlocks );
 			$this->docDecorator->decorateCodeDataWithDocData( $method, $methodBlock );
-			$this->openBlocks	= array();
+			$this->openBlocks	= [];
 		}
 #		if( !$method->getAccess() )
 #			$method->setAccess( 'public' );

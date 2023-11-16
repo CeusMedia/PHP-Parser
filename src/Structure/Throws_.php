@@ -100,9 +100,9 @@ class Throws_
 	 */
 	public function toArray(): array
 	{
-		return array(
+		return [
 			'name'		=> $this->getName(),
 			'reason'	=> $this->getReason(),
-		);
+		];
 	}
 }

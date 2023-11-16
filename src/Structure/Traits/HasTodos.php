@@ -36,7 +36,7 @@ namespace CeusMedia\PhpParser\Structure\Traits;
 Trait HasTodos
 {
 	/** @var	array		$todos		... */
-	protected array $todos		= array();
+	protected array $todos		= [];
 
 	/**
 	 *	Returns list of todos.

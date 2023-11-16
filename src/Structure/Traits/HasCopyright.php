@@ -33,60 +33,30 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@copyright		2020-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasLinks
+Trait HasCopyright
 {
-	/** @var	array		$links		... */
-	protected array $links		= [];
-
-	/** @var	array		$sees		... */
-	protected array $sees		= [];
+	/** @var	array		$copyright		... */
+	protected array $copyright	= [];
 
 	/**
-	 *	Returns list of links.
+	 *	Returns copyright notes.
 	 *	@access		public
-	 *	@return		array			List of links
+	 *	@return		array			Copyright notes
 	 */
-	public function getLinks(): array
+	public function getCopyrights(): array
 	{
-		return $this->links;
+		return $this->copyright;
 	}
 
 	/**
-	 *	Returns list of see-also-references.
+	 *	Sets copyright notes.
 	 *	@access		public
-	 *	@return		array		List of see-also-references
-	 */
-	public function getSees(): array
-	{
-		return $this->sees;
-	}
-
-	public function hasLinks(): bool
-	{
-		return count( $this->links ) > 0;
-	}
-
-	/**
-	 *	Sets link.
-	 *	@access		public
-	 *	@param		string			$string		Link
+	 *	@param		string			$copyright		Copyright notes
 	 *	@return		self
 	 */
-	public function setLink( string $string ): self
+	public function setCopyright( string $copyright ): self
 	{
-		$this->links[]	= $string;
-		return $this;
-	}
-
-	/**
-	 *	Sets see-also-reference of variable.
-	 *	@access		public
-	 *	@param		string		$string			See-also-reference
-	 *	@return		self
-	 */
-	public function setSee( string $string ): self
-	{
-		$this->sees[]	= $string;
+		$this->copyright[]	= $copyright;
 		return $this;
 	}
 }

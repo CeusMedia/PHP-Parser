@@ -37,7 +37,7 @@ use RuntimeException;
  */
 class Package_ extends Category_
 {
-	protected array $files	= array();
+	protected array $files	= [];
 
 	/**
 	 *	@deprecated	seems to be unused

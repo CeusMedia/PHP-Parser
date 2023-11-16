@@ -41,10 +41,10 @@ class Category_
 {
 	use HasParent;
 
-	protected array $categories		= array();
-	protected array $classes		= array();
-	protected array $interfaces		= array();
-	protected array $packages		= array();
+	protected array $categories		= [];
+	protected array $classes		= [];
+	protected array $interfaces		= [];
+	protected array $packages		= [];
 	protected string $label			= '';
 
 	/**
@@ -109,7 +109,7 @@ class Category_
 	public function getId(): ?string
 	{
 #		remark( get_class( $this ).": ".$this->getLabel() );
-		$parts	= array();
+		$parts	= [];
 		$separator	= "_";
 		if( $this->parent instanceof Interface_ ){
 			$parent	= $this->parent->getId();

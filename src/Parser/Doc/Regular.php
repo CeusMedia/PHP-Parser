@@ -65,15 +65,15 @@ class Regular
 	public function parseBlock( string $docComment ): array
 	{
 		$lines		= explode( "\n", $docComment );
-		$data		= array(
+		$data		= [
 			'param'		=> [],
 			'throws'	=> [],
 			'author'	=> [],
 			'license'	=> [],
 			'trigger'	=> [],
-		);
-		$descLines	= array();
-		$matches	= array();
+		];
+		$descLines	= [];
+		$matches	= [];
 		foreach( $lines as $line ){
 			if( 1 === preg_match( $this->regexParam, $line, $matches ) ){
 				$name	= $matches[4];

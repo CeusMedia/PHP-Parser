@@ -44,11 +44,11 @@ use RuntimeException;
 class Container_
 {
 	/** @var	array<string,File_>		$files  */
-	protected array $files					= array();
-	protected array $classIdList			= array();
-	protected array $classNameList			= array();
-	protected array $interfaceIdList		= array();
-	protected array $interfacesNameList		= array();
+	protected array $files					= [];
+	protected array $classIdList			= [];
+	protected array $classNameList			= [];
+	protected array $interfaceIdList		= [];
+	protected array $interfacesNameList		= [];
 
 	/**
 	 *	Searches for a Class by its Name in same Category and Package.

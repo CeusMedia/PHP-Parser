@@ -45,8 +45,8 @@ class Class_ extends Interface_
 
 	protected bool $abstract		= FALSE;
 
-	protected array $implements		= array();
-	protected array $uses			= array();
+	protected array $implements		= [];
+	protected array $uses			= [];
 
 	public function getExtendedClass(): string|Interface_|null
 	{

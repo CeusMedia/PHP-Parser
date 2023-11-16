@@ -28,6 +28,7 @@ namespace CeusMedia\PhpParser\Structure;
 use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasCategory;
+use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
@@ -50,28 +51,28 @@ use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
  */
 class Interface_
 {
-	use HasAuthors, HasCategory, HasDescription, HasMethods, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasPackage, HasVersion, HasTodos, MaybeDeprecated;
+	use HasAuthors, HasCategory, HasDescription, HasMethods, HasName, HasParent, HasLinks, HasLicense, HasCopyright, HasLineInFile, HasPackage, HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	Interface_|Class_|string|NULL		$extends		... */
 	protected Interface_|Class_|string|NULL $extends			= NULL;
 
 	/** @var	array			$implementedBy		... */
-	protected array $implementedBy	= array();
+	protected array $implementedBy	= [];
 
 	/** @var	array			$extendedBy		... */
-	protected array $extendedBy		= array();
+	protected array $extendedBy		= [];
 
 	/** @var	array			$usedBy		... */
-	protected array $usedBy			= array();
+	protected array $usedBy			= [];
 
 	/** @var	array			$composedBy		... */
-	protected array $composedBy		= array();
+	protected array $composedBy		= [];
 
 	/** @var	array			$receivedBy		... */
-	protected array $receivedBy		= array();
+	protected array $receivedBy		= [];
 
 	/** @var	array			$returnedBy		... */
-	protected array $returnedBy		= array();
+	protected array $returnedBy		= [];
 
 	/**
 	 *	Constructor, binding a File_.
@@ -133,7 +134,7 @@ class Interface_
 	 */
 	public function getId(): string
 	{
-		$parts	= array();
+		$parts	= [];
 		if( NULL !== $this->category )
 			$parts[]	= $this->category;
 		if( NULL !== $this->package )

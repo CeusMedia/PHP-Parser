@@ -26,6 +26,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
@@ -44,7 +45,7 @@ use RuntimeException;
  */
 class File_
 {
-	use HasAuthors, HasDescription, HasLinks, HasLicense, HasVersion, HasTodos, MaybeDeprecated;
+	use HasAuthors, HasDescription, HasLinks, HasLicense, HasCopyright,  HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	string|NULL		$unicode		... */
 	public ?string $unicode;
@@ -67,19 +68,19 @@ class File_
 	/** @var	string|NULL		$subpackage		... */
 	protected ?string $subpackage	= NULL;
 
-/*	protected $usedClasses	= array();*/
+/*	protected $usedClasses	= [];*/
 
 	/** @var	array<Function_>		$functions		... */
-	protected array $functions		= array();
+	protected array $functions		= [];
 
 	/** @var	array<Class_>		$classes		... */
-	protected array $classes		= array();
+	protected array $classes		= [];
 
 	/** @var	array<Interface_>		$interfaces		... */
-	protected array $interfaces		= array();
+	protected array $interfaces		= [];
 
 	/** @var	array<Trait_>		$traits			... */
-	protected array $traits			= array();
+	protected array $traits			= [];
 
 	/** @var	string		$sourceCode		... */
 	protected string $sourceCode	= '';
@@ -147,7 +148,7 @@ class File_
 
 	public function getId(): string
 	{
-		$parts	= array();
+		$parts	= [];
 		if( NULL !== $this->category )
 			$parts[]	= $this->category;
 		if( NULL !== $this->package )
