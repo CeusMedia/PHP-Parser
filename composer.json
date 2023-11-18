@@ -23,6 +23,7 @@
         "ceus-media/common": "^1.0 | 1.0@dev | dev-master"
     },
     "require-dev": {
+        "ceus-media/doc-creator": "^0.9.6 | 0.9.x-dev | dev-master",
         "phpunit/phpunit": "^9.5 | ^10",
         "phpstan/phpstan": "^1",
         "phpstan/phpstan-strict-rules": "^1",
@@ -35,6 +36,10 @@
         }
     },
     "scripts": {
+        "dev:create-docs": [
+            "@dev:install",
+            "php vendor/ceus-media/doc-creator/doc-creator.php --config-file=util/doc-creator.xml"
+        ],
         "dev:install-quiet": "composer install --quiet",
         "dev:update-quiet": "composer update --quiet",
         "dev:phpunit": [
@@ -67,6 +72,7 @@
         ]
     },
     "scripts-descriptions": {
+        "dev:create-docs": "Create API documentation",
         "dev:install": "Installs project dependencies for Development stage",
         "dev:update": "Updates project dependencies for Development stage",
         "dev:unit": "Run unit tests",
