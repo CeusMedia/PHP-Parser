@@ -19,7 +19,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser_Parser_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2008-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -51,7 +51,7 @@ use CeusMedia\PhpParser\Structure\Throws_;
 /**
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser_Parser_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2008-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -60,6 +60,7 @@ use CeusMedia\PhpParser\Structure\Throws_;
  */
 class Regular
 {
+	protected ?string $namespace		= NULL;
 	protected string $regexClass	= '@^(abstract )?(final )?(interface |class |trait )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
 	protected string $regexMethod	= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
 	protected string $regexParam	= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
@@ -93,6 +94,7 @@ class Regular
 		$content		= FileReader::load( $fileName );
 		if( !Unicoder::isUnicode( $content ) )
 			$content	= Unicoder::convertToUnicode( $content );
+		$this->namespace		= $this->getNamespaceFromFile( $fileName );
 
 		$lines			= explode( "\n", $content );
 		$fileBlock		= NULL;
@@ -228,6 +230,21 @@ class Regular
 	//  --  PROTECTED  --  //
 
 	/**
+	 *	Tries to detect namespace declared on head of file.
+	 *	@param		string		$filePath
+	 *	@return		string|NULL
+	 */
+	protected function getNamespaceFromFile( string $filePath ): ?string
+	{
+		$content	= php_strip_whitespace( $filePath );
+		$content	= preg_replace( '/^<?.+\r?\n/', '', $content );
+		foreach( explode( '; ', trim( $content ) ) as $line )
+			if( str_starts_with( trim( $line ), 'namespace' ) )
+				return trim( str_replace( 'namespace ', '', $line ) );
+		return NULL;
+	}
+
+	/**
 	 *	Parses a Class Signature and returns collected Information.
 	 *	@access		protected
 	 *	@param		File_				$parent			File Object of current Class
@@ -260,6 +277,7 @@ class Regular
 							$artefact->setImplementedInterfaceName( trim( $match ) );
 				break;
 		}
+		$artefact->setNamespace( $this->namespace );
 		$artefact->setParent( $parent );
 		$artefact->setLine( $this->lineNumber );
 //		$artefact->setType( $matches[3] );

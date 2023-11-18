@@ -13,17 +13,23 @@ $structure	= 'Structure/Parameter_';
 $structure	= 'Structure/Method_';
 $method		= 'merge';
 
+remark( 'Parsing: '.$structure );
+
 $nodes		= array();
 $parser		= new Parser();
 $parameter	= $parser->parseFile( $path.$structure.'.php', $path );
+$class		= current( $parameter->getClasses() );
 
-remark( 'Parsing: '.$structure );
 
+remark( 'Class Name: '.$class->getName() );
+remark( 'Namespace: '.$class->getNamespace() );
+remark( 'Full Class Name: '.$class->getNamespacedName() );
+remark( 'Absolut Class Name: '.$class->getAbsoluteName() );
 remark( 'Methods:' );
-print_m( current( $parameter->getClasses() )->getMethods() );
+print_m( $class->getMethods() );
 
 remark( 'Method: '.$method );
-$method	= current( $parameter->getClasses() )->getMethod( $method );
+$method	= $class->getMethod( $method );
 remark( '- Parameters:' );
 foreach( $method->getParameters() as $paramKey => $paramData ){
 	$paramType	= $paramData->getType();
@@ -59,7 +65,7 @@ class Tree
 				'nodes'		=> array(),
 				'fullpath'	=> $child->getPathName(),
 				'path'		=> $steps ? join( '/', $steps ) : '',
-				'label'		=> $child->getName(),
+				'label'		=> $child->getNamespace() . $child->getName(),
 			);
 			$newPath	= $path.'/'.$child->getName();
 			$newSteps	= array_merge( $steps, array( $child->getName() ) );

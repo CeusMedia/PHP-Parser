@@ -35,6 +35,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
 use CeusMedia\PhpParser\Structure\Traits\HasMethods;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasNamespace;
 use CeusMedia\PhpParser\Structure\Traits\HasPackage;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
@@ -51,7 +52,7 @@ use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
  */
 class Interface_
 {
-	use HasAuthors, HasCategory, HasDescription, HasMethods, HasName, HasParent, HasLinks, HasLicense, HasCopyright, HasLineInFile, HasPackage, HasVersion, HasTodos, MaybeDeprecated;
+	use HasNamespace, HasAuthors, HasCategory, HasDescription, HasMethods, HasName, HasParent, HasLinks, HasLicense, HasCopyright, HasLineInFile, HasPackage, HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	Interface_|Class_|string|NULL		$extends		... */
 	protected Interface_|Class_|string|NULL $extends			= NULL;
@@ -109,6 +110,11 @@ class Interface_
 		return $this;
 	}
 
+	public function getAbsoluteName(): string
+	{
+		return '\\'.$this->getNamespacedName();
+	}
+
 	public function getComposingClasses(): array
 	{
 		return $this->composedBy;
@@ -147,6 +153,12 @@ class Interface_
 	public function getImplementingClasses(): array
 	{
 		return $this->implementedBy;
+	}
+
+	public function getNamespacedName(): string
+	{
+		$prefix	= NULL !== $this->namespace ? $this->namespace.'\\' : '';
+		return $prefix.$this->name;
 	}
 
 	public function getReceivingClasses(): array

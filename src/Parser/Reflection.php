@@ -19,7 +19,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser_Parser_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2010-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -53,7 +53,7 @@ use ReflectionProperty;
  *	...
  *
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser_Parser_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@copyright		2010-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
@@ -62,6 +62,8 @@ use ReflectionProperty;
 class Reflection
 {
 	protected bool $verbose	= TRUE;
+
+	protected ?string $namespace	= NULL;
 
 	/**
 	 *	Parses a PHP File and returns nested Array of collected Information.
@@ -75,6 +77,7 @@ class Reflection
 		$content		= FileReader::load( $fileName );
 		if( !Unicoder::isUnicode( $content ) )
 			$content		= Unicoder::convertToUnicode( $content );
+		$this->namespace	= $this->getNamespaceFromFile( $fileName );
 
 		//  list builtin Classes
 		$listClasses	= get_declared_classes();
@@ -161,6 +164,7 @@ class Reflection
 			foreach( $class->getProperties() as $property )
 				$object->setMember( $this->readProperty( $property ) );
 		}
+		$object->setNamespace( $this->namespace );
 		$object->setDescription( $class->getDocComment() ?: NULL );
 		$object->setLine( $class->getStartLine().'-'.$class->getEndLine() );
 
@@ -206,5 +210,20 @@ class Reflection
 	public function readProperty( \ReflectionProperty $property ): Member_
 	{
 		return new Member_( $property->name );
+	}
+
+	/**
+	 *	Tries to detect namespace declared on head of file.
+	 *	@param		string		$filePath
+	 *	@return		string|NULL
+	 */
+	protected function getNamespaceFromFile( string $filePath ): ?string
+	{
+		$content	= php_strip_whitespace( $filePath );
+		$content	= preg_replace( '/^<?.+\r?\n/', '', $content );
+		foreach( explode( '; ', trim( $content ) ) as $line )
+			if( str_starts_with( trim( $line ), 'namespace' ) )
+				return trim( str_replace( 'namespace ', '', $line ) );
+		return NULL;
 	}
 }

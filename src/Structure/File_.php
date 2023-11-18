@@ -30,6 +30,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
+use CeusMedia\PhpParser\Structure\Traits\HasNamespace;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
@@ -45,7 +46,7 @@ use RuntimeException;
  */
 class File_
 {
-	use HasAuthors, HasDescription, HasLinks, HasLicense, HasCopyright,  HasVersion, HasTodos, MaybeDeprecated;
+	use HasNamespace, HasAuthors, HasDescription, HasLinks, HasLicense, HasCopyright,  HasVersion, HasTodos, MaybeDeprecated;
 
 	/** @var	string|NULL		$unicode		... */
 	public ?string $unicode;
