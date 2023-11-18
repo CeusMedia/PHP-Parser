@@ -32,6 +32,7 @@ use CeusMedia\PhpParser\Structure\Function_;
 use CeusMedia\PhpParser\Structure\Interface_;
 use CeusMedia\PhpParser\Structure\Method_;
 use CeusMedia\PhpParser\Structure\Return_;
+use CeusMedia\PhpParser\Structure\Trait_;
 
 /**
  *	...
@@ -53,12 +54,12 @@ class Decorator
 	 *	Parameters are given with an associative list indexed by parameter name.
 	 *
 	 *	@access		protected
-	 *	@param		File_|Interface_|Class_|Function_|Method_	$codeData		Data collected by parsing Code
+	 *	@param		File_|Interface_|Class_|Trait_|Function_|Method_	$codeData		Data collected by parsing Code
 	 *	@param		array		$docData		Data collected by parsing Documentation
 	 *	@return		void
 	 *	@todo		fix merge problem -> seems to be fixed (what was the problem again?)
 	 */
-	public function decorateCodeDataWithDocData( File_|Interface_|Class_|Function_|Method_ $codeData, array $docData ): void
+	public function decorateCodeDataWithDocData( File_|Interface_|Class_|Trait_|Function_|Method_ $codeData, array $docData ): void
 	{
 		foreach( $docData as $key => $value ){
 			if( !$value )

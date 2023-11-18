@@ -44,6 +44,7 @@ class Category_
 	protected array $categories		= [];
 	protected array $classes		= [];
 	protected array $interfaces		= [];
+	protected array $traits			= [];
 	protected array $packages		= [];
 	protected string $label			= '';
 
@@ -84,6 +85,18 @@ class Category_
 	}
 
 	/**
+	 *	Relates a Trait Object to this Category.
+	 *	@access		public
+	 *	@param		Trait_	$trait		Trait Object to relate to this Category
+	 *	@return		self
+	 */
+	public function addTrait( Trait_ $trait ): self
+	{
+		$this->traits[$trait->getName()]	= $trait;
+		return $this;
+	}
+
+	/**
 	 *	@deprecated		not used yet
 	 */
 	public function getCategories(): array
@@ -101,6 +114,10 @@ class Category_
 		throw new RuntimeException( "Class '$name' is unknown" );
 	}
 
+	/**
+	 *	Returns list of classes within this category.
+	 *	@return		array<Class_>
+	 */
 	public function getClasses(): array
 	{
 		return $this->classes;
@@ -136,6 +153,10 @@ class Category_
 		throw new RuntimeException( "Interface '$name' is unknown" );
 	}
 
+	/**
+	 *	Returns list of interfaces within this category.
+	 *	@return		array<Interface_>
+	 */
 	public function getInterfaces(): array
 	{
 		return $this->interfaces;
@@ -181,13 +202,22 @@ class Category_
 	}
 
 	/**
+	 *	Returns list of traits within this category.
+	 *	@return		array<Trait_>
+	 */
+	public function getTraits(): array
+	{
+		return $this->traits;
+	}
+
+	/**
 	 *	Indicates whether Classes are registered in this Category.
 	 *	@access		public
 	 *	@return		bool
 	 */
 	public function hasClasses(): bool
 	{
-		return (bool) count( $this->classes );
+		return 0 !== count( $this->classes );
 	}
 
 	/**
@@ -197,7 +227,7 @@ class Category_
 	 */
 	public function hasInterfaces(): bool
 	{
-		return (bool) count( $this->interfaces );
+		return 0 !== count( $this->interfaces );
 	}
 
 	public function hasPackage( string $name ): bool
@@ -231,7 +261,17 @@ class Category_
 	 */
 	public function hasPackages(): bool
 	{
-		return count( $this->packages ) > 0;
+		return 0 !== count( $this->packages );
+	}
+
+	/**
+	 *	Indicates whether traits are registered in this Category.
+	 *	@access		public
+	 *	@return		bool
+	 */
+	public function hasTraits(): bool
+	{
+		return 0 !== count( $this->traits );
 	}
 
 	public function setLabel( string $string ): self

@@ -91,7 +91,7 @@ class Reflection
 		//  get only own Interfaces
 		$listInterfaces	= array_diff( get_declared_interfaces(), $listInterfaces );
 		//  get only own Traits
-		$listInterfaces	= array_diff( get_declared_traits(), $listTraits );
+		$listTraits		= array_diff( get_declared_traits(), $listTraits );
 
 		$file			= new File_;
 		$file->setBasename( basename( $fileName ) );
@@ -144,7 +144,13 @@ class Reflection
 		return $file;
 	}
 
-	public function readClass( ReflectionClass $class ): Class_|Interface_
+	/**
+	 *	Reads class or interface or trait.
+	 *	@param		ReflectionClass		$class		Class or interface or trait to read
+	 *	@return		Class_|Interface_|Trait_
+	 *	@todo		finish implementation
+	 */
+	public function readClass( ReflectionClass $class ): Class_|Interface_|Trait_
 	{
 		if( $class->isInterface() ){
 			$object	= new Interface_( $class->name );
@@ -152,7 +158,13 @@ class Reflection
 			if( FALSE !== $class->getParentClass() )
 				$object->setExtendedInterfaceName( $class->getParentClass()->name );
 		}
-		else{
+		else if( $class->isTrait() ){
+			$object	= new Trait_( $class->name );
+			//  NOT WORKING !!!
+			if( FALSE !== $class->getParentClass() )
+				$object->setExtendedTraitName( $class->getParentClass()->name );
+		}
+		else {
 			$object	= new Class_( $class->name );
 			$object->setFinal( $class->isFinal() );
 			if( FALSE !== $class->getParentClass() )
@@ -202,7 +214,7 @@ class Reflection
 		if( NULL !== $parameter->getClass() )
 			$object->setCast( $parameter->getClass()->name );
 		if( $parameter->isDefaultValueAvailable() ){
-			$object->setDefault( (string) $parameter->getDefaultValue() );
+			$object->setDefault( strval( $parameter->getDefaultValue() ) );
 		}
 		return $object;
 	}
@@ -220,7 +232,7 @@ class Reflection
 	protected function getNamespaceFromFile( string $filePath ): ?string
 	{
 		$content	= php_strip_whitespace( $filePath );
-		$content	= preg_replace( '/^<?.+\r?\n/', '', $content );
+		$content	= preg_replace( '/^<?.+\r?\n/', '', $content ) ?: '';
 		foreach( explode( '; ', trim( $content ) ) as $line )
 			if( str_starts_with( trim( $line ), 'namespace' ) )
 				return trim( str_replace( 'namespace ', '', $line ) );

@@ -28,6 +28,7 @@ namespace CeusMedia\PhpParser\Structure;
 use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\MaybeAbstract;
 use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
 use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
 use RuntimeException;
@@ -46,19 +47,7 @@ class Method_ extends Function_
 	use HasParent;
 	use MaybeFinal;
 	use MaybeStatic;
-
-	/** @var	bool		$abstract		... */
-	protected bool $abstract		= FALSE;
-
-	/**
-	 *	Indicates whether method is abstract.
-	 *	@access		public
-	 *	@return		bool
-	 */
-	public function isAbstract(): bool
-	{
-		return $this->abstract;
-	}
+	use MaybeAbstract;
 
 	/**
 	 *	@access		public
@@ -83,18 +72,6 @@ class Method_ extends Function_
 			$this->setFinal( $method->isFinal() );
 		if( $method->isStatic() )
 			$this->setStatic( $method->isStatic() );
-		return $this;
-	}
-
-	/**
-	 *	Sets if method is abstract.
-	 *	@access		public
-	 *	@param		bool		$isAbstract		Flag: method is abstract
-	 *	@return		self
-	 */
-	public function setAbstract( bool $isAbstract = TRUE ): self
-	{
-		$this->abstract	= $isAbstract;
 		return $this;
 	}
 }

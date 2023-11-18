@@ -27,6 +27,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use ArrayIterator;
+use CeusMedia\Common\FS\File\Arc\Gzip;
 use CeusMedia\Common\FS\File\Reader as FileReader;
 use DomainException;
 use RuntimeException;
@@ -54,12 +55,12 @@ class Container_
 	 *	Searches for a Class by its Name in same Category and Package.
 	 *	Otherwise, searches in different Packages and finally in different Categories.
 	 *	@access		public
-	 *	@param		string				$className			Name of Class to find Data Object for
-	 *	@param		Interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
+	 *	@param		string		$className			Name of Class to find Data Object for
+	 *	@param		Class_		$relatedArtefact	A related Class or Interface (for Package and Category Information)
 	 *	@return		Class_
 	 *	@throws		DomainException		if Class is not known
 	 */
-	public function getClassFromClassName( string $className, Interface_ $relatedArtefact ): Class_
+	public function getClassFromClassName( string $className, Class_ $relatedArtefact ): Class_
 	{
 		if( !isset( $this->classNameList[$className] ) )
 			throw new DomainException( 'Unknown class "'.$className.'"' );
@@ -120,11 +121,11 @@ class Container_
 	 *	Otherwise, is searches in different Packages and finally in different Categories.
 	 *	@access		public
 	 *	@param		string				$interfaceName		Name of Interface to find Data Object for
-	 *	@param		Interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
+	 *	@param		Class_|Interface_|Trait_	$relatedArtefact	A related Class or Interface (for Package and Category Information)
 	 *	@return		Interface_
 	 *	@throws		DomainException		if Interface is not known
 	 */
-	public function getInterfaceFromInterfaceName( string $interfaceName, Interface_ $relatedArtefact ): Interface_
+	public function getInterfaceFromInterfaceName( string $interfaceName, Class_|Interface_ $relatedArtefact ): Interface_
 	{
 		if( !isset( $this->interfacesNameList[$interfaceName] ) )
 			throw new DomainException( 'Unknown interface "'.$interfaceName.'"' );
@@ -164,8 +165,8 @@ class Container_
 	{
 		foreach( $this->files as /*$fileName => */$file ){
 			foreach( $file->getClasses() as $class ){
-				$category	= $class->getCategory() ?: $defaultCategory;
-				$package	= $class->getPackage() ?: $defaultPackage;
+				$category	= $class->getCategory() ?? $defaultCategory;
+				$package	= $class->getPackage() ?? $defaultPackage;
 				$name		= $class->getName();
 				$this->classNameList[$name][$category][$package]	= $class;
 				$this->classIdList[$class->getId()]	= $class;
@@ -186,8 +187,8 @@ class Container_
 	{
 		foreach( $this->files as /*$fileName => */$file ){
 			foreach( $file->getInterfaces() as $interface ){
-				$category	= $interface->getCategory() ? $interface->getCategory() : $defaultCategory;
-				$package	= $interface->getPackage() ? $interface->getPackage() : $defaultPackage;
+				$category	= $interface->getCategory() ?? $defaultCategory;
+				$package	= $interface->getPackage() ?? $defaultPackage;
 				$name		= $interface->getName();
 				$this->interfacesNameList[$name][$category][$package]	= $interface;
 				$this->interfaceIdList[$interface->getId()]	= $interface;
@@ -197,21 +198,31 @@ class Container_
 
 	public function load( array $config ): self
 	{
-		if( !empty( $config['creator.file.data.archive'] ) ){
+		if( '' !== ( $config['creator.file.data.archive'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
+
+			/* new implementation, @todo test it and replace older one below */
+//			$reader	= new Gzip( $uri );
+//			if( $reader->exists() ){
+//				/** @var Container_ $data */
+//				$data	= unserialize( $reader->readString() );
+//				return $data;
+//			}
+
 			if( file_exists( $uri ) ){
-				$serial	= "";
-				if( $fp = gzopen( $uri, "r" ) ){
-					while( !gzeof( $fp ) )
-						$serial	.= gzgets( $fp, 4096 );
-					/** @var Container_ $data */
-					$data	= unserialize( $serial );
-					gzclose( $fp );
-					return $data;
-				}
+				$serial	= '';
+				$fp		= gzopen( $uri, 'r' );
+				if( FALSE === $fp )
+					throw new RuntimeException( 'Could not write compressed file' );
+				while( !gzeof( $fp ) )
+					$serial	.= gzgets( $fp, 4096 );
+				/** @var Container_ $data */
+				$data	= unserialize( $serial );
+				gzclose( $fp );
+				return $data;
 			}
 		}
-		if( !empty( $config['creator.file.data.serial'] ) ){
+		if( '' !== ( $config['creator.file.data.serial'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.serial'];
 			$reader	= new FileReader( $uri );
 			if( $reader->exists() ){
@@ -234,16 +245,21 @@ class Container_
 	{
 		$serial	= serialize( $this );
 		if( !file_exists( $config['doc.path'] ) )
-			mkDir( $config['doc.path'], 0777, TRUE );
-		if( !empty( $config['creator.file.data.archive'] ) ){
+			mkdir( $config['doc.path'], 0777, TRUE );
+		if( '' !== ( $config['creator.file.data.archive'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
+
+			/* new implementation, @todo test it and replace older one below */
+//			$writer	= new Gzip( $uri );
+//			$writer->writeString( $serial );
+
 			$gz		= gzopen( $uri, 'w9' );
 			if( FALSE === $gz )
 				throw new RuntimeException( 'Could not write compressed file' );
 			gzwrite( $gz, $serial );
 			gzclose( $gz );
 		}
-		else if( !empty( $config['creator.file.data.serial'] ) ){
+		else if( '' !== ( $config['creator.file.data.serial'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.serial'];
 			file_put_contents( $uri, $serial );
 		}

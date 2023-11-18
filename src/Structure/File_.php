@@ -130,11 +130,6 @@ class File_
 		return $this->classes;
 	}
 
-	public function getTraits(): array
-	{
-		return $this->traits;
-	}
-
 	public function & getFunction( string $name ): Function_
 	{
 		if( isset( $this->functions[$name] ) )
@@ -165,6 +160,10 @@ class File_
 		throw new RuntimeException( 'Interface "'.$name.'" is unknown' );
 	}
 
+	/**
+	 *	Returns a list of interfaces within this file.
+	 *	@return		array<string,Interface_>
+	 */
 	public function getInterfaces(): array
 	{
 		return $this->interfaces;
@@ -188,6 +187,15 @@ class File_
 	public function getSubpackage(): ?string
 	{
 		return $this->subpackage;
+	}
+
+	/**
+	 *	Returns a list of traits within this file.
+	 *	@return		array<string,Trait_>
+	 */
+	public function getTraits(): array
+	{
+		return $this->traits;
 	}
 
 	public function getUri(): ?string

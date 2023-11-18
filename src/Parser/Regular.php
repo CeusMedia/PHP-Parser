@@ -170,7 +170,7 @@ class Regular
 					continue;
 				}
 				if( 1 === preg_match( $this->regexMethod, $line, $matches ) ){
-					if( $class instanceof Interface_ ){
+					if( $class instanceof Interface_ || $class instanceof Trait_ || $class instanceof Class_ ){
 						$method		= $this->parseMethod( $class, $matches );
 						$functionName	= $matches[6];
 						$class->setMethod( $method );
@@ -219,9 +219,9 @@ class Regular
 					$method->setSourceCode( $functionBody[$methodName] );
 			if( $class instanceof Class_ )
 				$file->addClass( $class );
-			else if( $class instanceof Trait_ )
+			if( $class instanceof Trait_ )
 				$file->addTrait( $class );
-			else if( $class instanceof Interface_ )
+			if( $class instanceof Interface_ )
 				$file->addInterface( $class );
 		}
 		return $file;
@@ -237,7 +237,7 @@ class Regular
 	protected function getNamespaceFromFile( string $filePath ): ?string
 	{
 		$content	= php_strip_whitespace( $filePath );
-		$content	= preg_replace( '/^<?.+\r?\n/', '', $content );
+		$content	= preg_replace( '/^<?.+\r?\n/', '', $content ) ?: '';
 		foreach( explode( '; ', trim( $content ) ) as $line )
 			if( str_starts_with( trim( $line ), 'namespace' ) )
 				return trim( str_replace( 'namespace ', '', $line ) );
@@ -261,8 +261,8 @@ class Regular
 				break;
 			case 'trait':
 				$artefact	= new Trait_( $matches[4] );
-//				if( isset( $matches[5] ) )
-//					$artefact->setExtendedInterfaceName( $matches[6] );
+				if( isset( $matches[5] ) )
+					$artefact->setExtendedTraitName( $matches[6] );
 //				$artefact->setFinal( (bool) $matches[2] );
 				break;
 			default:
@@ -273,7 +273,7 @@ class Regular
 				$artefact->setAbstract( (bool) $matches[1] );
 				if( isset( $matches[7] ) )
 					foreach( array_slice( $matches, 8 ) as $match )
-						if( trim( $match ) && 0 === preg_match( "@^,|{@", trim( $match ) ) )
+						if( 0 !== strlen( trim( $match ) ) && 0 === preg_match( "@^,|{@", trim( $match ) ) )
 							$artefact->setImplementedInterfaceName( trim( $match ) );
 				break;
 		}
@@ -285,10 +285,12 @@ class Regular
 			$this->docDecorator->decorateCodeDataWithDocData( $artefact, array_pop( $this->openBlocks ) );
 			$this->openBlocks	= [];
 		}
-		if( !$artefact->getCategory() && NULL !== $parent->getCategory() )
-			$artefact->setCategory( $parent->getCategory() );
-		if( !$artefact->getPackage() && NULL !== $parent->getPackage() )
-			$artefact->setPackage( $parent->getPackage() );
+		if( NULL !== $artefact->getCategory() && '' === trim( $artefact->getCategory() ) )
+			if( NULL !== $parent->getCategory() && '' !== trim( $parent->getCategory() ) )
+				$artefact->setCategory( $parent->getCategory() );
+		if( NULL !== $artefact->getPackage() && '' === trim( $artefact->getPackage() ) )
+			if( NULL !== $parent->getPackage() && '' !== trim( $parent->getPackage() ) )
+				$artefact->setPackage( $parent->getPackage() );
 		return $artefact;
 	}
 
@@ -340,7 +342,7 @@ class Regular
 		$variable->setLine( $this->lineNumber );
 		if( isset( $matches[5] ) )
 			$variable->setDefault( preg_replace( "@;$@", "", $matches[6] ) );
-		if( !empty( $matches[2] ) )
+		if( isset( $matches[2] ) && '' !== trim( $matches[2] ) )
 			$variable->setAccess( $matches[2] == "var" ? NULL : $matches[2] );
 		$variable->setStatic( (bool) trim( $matches[3] ) );
 
@@ -353,16 +355,16 @@ class Regular
 	/**
 	 *	Parses a Method Signature and returns collected Information.
 	 *	@access		protected
-	 *	@param		Interface_			$parent			Parent Class Data Object
+	 *	@param		Class_|Interface_|Trait_	$parent			Parent Class or Interface or trait Data Object
 	 *	@param		array				$matches		Matches of RegEx
 	 *	@return		Method_
 	 */
-	protected function parseMethod( Interface_ $parent, array $matches ): Method_
+	protected function parseMethod( Class_|Interface_|Trait_ $parent, array $matches ): Method_
 	{
 		$method	= new Method_( $matches[6] );
 		$method->setParent( $parent );
 		$method->setLine( $this->lineNumber );
-		if( !empty( $matches[4] ) )
+		if( '' !== trim( $matches[4] ?? '' ) )
 			$method->setAccess( trim( $matches[4] ) );
 		$method->setAbstract( (bool) $matches[1] );
 		$method->setFinal( (bool) $matches[2] );
@@ -372,16 +374,16 @@ class Regular
 		$return->setParent( $method );
 		$method->setReturn( $return );
 
-		if( trim( $matches[7] ) ){
+		if( '' !== trim( $matches[7] ?? '' ) ){
 			$paramList	= [];
 			foreach( explode( ",", $matches[7] ) as $param ){
 				$param	 = trim( $param );
-				if( !preg_match( $this->regexParam, $param, $matches ) )
+				if( in_array( preg_match( $this->regexParam, $param, $matches ), [0, FALSE], TRUE ) )
 					continue;
 				$method->setParameter( $this->parseParameter( $method, $matches ) );
 			}
 		}
-		if( $this->openBlocks ){
+		if( 0 !== count( $this->openBlocks ) ){
 			$methodBlock	= array_pop( $this->openBlocks );
 			$this->docDecorator->decorateCodeDataWithDocData( $method, $methodBlock );
 			$this->openBlocks	= [];

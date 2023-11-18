@@ -84,9 +84,10 @@ class Regular
 		$lines		= [];
 		$lines[]	= '/'.'**';
 		if( NULL !== $class->getDescription() ){
-			$parts	= preg_split( '/\r?\n/', $class->getDescription() ) ?: [];
-			foreach( $parts as $line )
-				$lines[]	= $this->renderDocBlockLine( NULL, NULL, $line );
+			$parts	= preg_split( '/\r?\n/', $class->getDescription() );
+			if( FALSE !== $parts )
+				foreach( $parts as $line )
+					$lines[]	= $this->renderDocBlockLine( NULL, NULL, $line );
 		}
 		foreach( $class->getAuthors() as $author ){
 			$email		= ( '' !== ( $author->getEmail() ?? '' ) ) ? '<'.$author->getEmail().'>' : '';

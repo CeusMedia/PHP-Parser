@@ -55,6 +55,7 @@ class Test_Parser_RegularTest extends TestCase
 		$this->data		= $parser->parseFile( $this->fileName, $this->path );
 		$this->file		= $this->data->getUri();
 		$this->class	= current( $this->data->getClasses() );
+//		print_m( $this->class->getMethods() );die;
 		$this->function	= current( $this->data->getFunctions() ) ?: NULL;
 		$methods		= $this->class->getMethods();
 		$this->method1	= array_shift( $methods );

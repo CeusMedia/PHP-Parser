@@ -2,7 +2,7 @@
 /**
  *	...
  *
- *	Copyright (c) 2023 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2023 Christian Würker
+ *	@copyright		2021-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -30,31 +30,33 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2023 Christian Würker
+ *	@copyright		2021-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasNamespace
+Trait MaybeAbstract
 {
-	/** @var	string|NULL		$namespace		... */
-	protected ?string $namespace			= NULL;
+	/** @var	bool		$abstract		... */
+	protected bool $abstract		= FALSE;
 
 	/**
-	 *	Returns category.
-	 *	@return		string|NULL		Namespace
+	 *	Returns whether this structure is abstract.
+	 *	@access		public
+	 *	@return		boolean		Is abstract or not
 	 */
-	public function getNamespace(): ?string
+	public function isAbstract(): bool
 	{
-		return $this->namespace;
+		return $this->abstract;
 	}
 
 	/**
-	 *	Sets category.
-	 *	@param		string|NULL		$namespace		Namespace
+	 *	Sets whether this structure is abstract.
+	 *	@access		public
+	 *	@param		bool		$abstract		Flag: is abstract
 	 *	@return		self
 	 */
-	public function setNamespace( ?string $namespace ): self
+	public function setAbstract( bool $abstract ): self
 	{
-		$this->namespace	= is_string( $namespace ) ? trim( $namespace ) : NULL;
+		$this->abstract	= $abstract;
 		return $this;
 	}
 }
