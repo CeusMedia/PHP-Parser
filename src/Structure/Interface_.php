@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /**
  *	Interface Data Class.
  *
@@ -52,10 +53,24 @@ use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
  */
 class Interface_
 {
-	use HasNamespace, HasAuthors, HasCategory, HasDescription, HasMethods, HasName, HasParent, HasLinks, HasLicense, HasCopyright, HasLineInFile, HasPackage, HasVersion, HasTodos, MaybeDeprecated;
+	use HasNamespace;
+	use HasAuthors;
+	use HasCategory;
+	use HasDescription;
+	use HasMethods;
+	use HasName;
+	use HasParent;
+	use HasLinks;
+	use HasLicense;
+	use HasCopyright;
+	use HasLineInFile;
+	use HasPackage;
+	use HasVersion;
+	use HasTodos;
+	use MaybeDeprecated;
 
-	/** @var	Interface_|Class_|string|NULL		$extends		... */
-	protected Interface_|Class_|string|NULL $extends			= NULL;
+	/** @var	Interface_|string|NULL		$extends		... */
+	protected Interface_|string|NULL $extends			= NULL;
 
 	/** @var	array			$implementedBy		... */
 	protected array $implementedBy	= [];
@@ -146,7 +161,7 @@ class Interface_
 		if( NULL !== $this->package )
 			$parts[]	= $this->package;
 #		$parts[]	= $this->parent->getBasename();
-		$parts[]	= $this->name;
+		$parts[]	= str_replace( '\\', ':', $this->getNamespacedName() );
 		return implode( "-", $parts );
 	}
 

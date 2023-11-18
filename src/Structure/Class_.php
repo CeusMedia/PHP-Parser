@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /**
  *	Class Data Class.
  *
@@ -26,9 +27,24 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Exception\MergeException;
+use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasCategory;
+use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
+use CeusMedia\PhpParser\Structure\Traits\HasDescription;
+use CeusMedia\PhpParser\Structure\Traits\HasLicense;
+use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
+use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasMembers;
+use CeusMedia\PhpParser\Structure\Traits\HasMethods;
+use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasNamespace;
+use CeusMedia\PhpParser\Structure\Traits\HasPackage;
+use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\HasTodos;
+use CeusMedia\PhpParser\Structure\Traits\HasVersion;
+use CeusMedia\PhpParser\Structure\Traits\MaybeAbstract;
+use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
 use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
-use RuntimeException;
 
 /**
  *	Class Data Class.
@@ -38,17 +54,95 @@ use RuntimeException;
  *	@copyright		2015-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-class Class_ extends Interface_
+class Class_
 {
+	use HasNamespace;
+	use HasAuthors;
+	use HasCategory;
+	use HasDescription;
 	use HasMembers;
+	use HasMethods;
+	use HasName;
+	use HasParent;
+	use HasLinks;
+	use HasLicense;
+	use HasCopyright;
+	use HasLineInFile;
+	use HasPackage;
+	use HasVersion;
+	use HasTodos;
 	use MaybeFinal;
+	use MaybeAbstract;
+	use MaybeDeprecated;
 
-	protected bool $abstract		= FALSE;
+	/** @var	Class_|string|NULL		$extends		... */
+	protected Class_|string|NULL $extends			= NULL;
+
+	/** @var	array				$extendedBy		... */
+	protected array $extendedBy		= [];
 
 	protected array $implements		= [];
+
 	protected array $uses			= [];
 
-	public function getExtendedClass(): string|Interface_|null
+	/** @var	array				$usedBy		... */
+	protected array $usedBy			= [];
+
+	/** @var	array				$composedBy		... */
+	protected array $composedBy		= [];
+
+	/** @var	array				$receivedBy		... */
+	protected array $receivedBy		= [];
+
+	/** @var	array				$returnedBy		... */
+	protected array $returnedBy		= [];
+
+	/**
+	 *	Constructor.
+	 *	@access		public
+	 *	@param		string		$name		Short class name
+	 *	@return		void
+	 */
+	public function __construct( string $name )
+	{
+		$this->setName( $name );
+	}
+
+	public function addReceivingClass( Class_ $class ): self
+	{
+		$this->receivedBy[$class->getName()]	= $class;
+		return $this;
+	}
+
+	public function addReceivingInterface( Interface_ $interface ): self
+	{
+		$this->receivedBy[$interface->getName()]	= $interface;
+		return $this;
+	}
+
+	public function addReturningClass( Class_ $class ): self
+	{
+		$this->returnedBy[$class->getName()]	= $class;
+		return $this;
+	}
+
+	public function addReturningInterface( Interface_ $interface ): self
+	{
+		$this->returnedBy[$interface->getName()]	= $interface;
+		return $this;
+	}
+
+	public function getAbsoluteName(): string
+	{
+		return '\\'.$this->getNamespacedName();
+	}
+
+	public function getComposingClasses(): array
+	{
+		return $this->composedBy;
+	}
+
+	public function getExtendedClass(): string|Class_|null
 	{
 		return $this->extends;
 	}
@@ -58,9 +152,42 @@ class Class_ extends Interface_
 		return $this->extendedBy;
 	}
 
+	/**
+	 *	Returns the full ID of this clas (category_package_file_namespace:class).
+	 *	@access		public
+	 *	@return		string
+	 */
+	public function getId(): string
+	{
+		$parts	= [];
+		if( NULL !== $this->category )
+			$parts[]	= $this->category;
+		if( NULL !== $this->package )
+			$parts[]	= $this->package;
+#		$parts[]	= $this->parent->getBasename();
+		$parts[]	= str_replace( '\\', ':', $this->getNamespacedName() );
+		return implode( "-", $parts );
+	}
+
 	public function getImplementedInterfaces(): array
 	{
 		return $this->implements;
+	}
+
+	public function getNamespacedName(): string
+	{
+		$prefix	= NULL !== $this->namespace ? $this->namespace.'\\' : '';
+		return $prefix.$this->name;
+	}
+
+	public function getReceivingClasses(): array
+	{
+		return $this->receivedBy;
+	}
+
+	public function getReturningClasses(): array
+	{
+		return $this->returnedBy;
 	}
 
 	public function getUsedClasses(): array
@@ -68,14 +195,15 @@ class Class_ extends Interface_
 		return $this->uses;
 	}
 
-	public function isAbstract(): bool
+	public function getUsingClasses(): array
 	{
-		return $this->abstract;
+		return $this->usedBy;
 	}
 
 	public function isImplementingInterface( Interface_ $interface ): bool
 	{
-		foreach( $this->implements as $interfaceName => $interfaceObject )
+		/** @noinspection PhpUnusedLocalVariableInspection */
+		foreach($this->implements as $interfaceName => $interfaceObject )
 			if( $interface == $interfaceObject )
 				return TRUE;
 		return FALSE;
@@ -83,6 +211,7 @@ class Class_ extends Interface_
 
 	public function isUsingClass( Class_ $class ): bool
 	{
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		foreach( $this->uses as $className => $usedClass )
 			if( $class == $usedClass )
 				return TRUE;
@@ -90,16 +219,35 @@ class Class_ extends Interface_
 	}
 
 	/**
-	 *	@param		Interface_		$artefact
+	 *	@param		Class_		$artefact
 	 *	@return		self
 	 *	@throws		MergeException
 	 */
-	public function merge( Interface_ $artefact ): self
+	public function merge( Class_ $artefact ): self
 	{
-		if( !$artefact instanceof Class_ )
-			throw new RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $artefact->getName() )
 			throw new MergeException( 'Not merge-able' );
+		if( NULL !== $artefact->getDescription() )
+			$this->setDescription( $artefact->getDescription() );
+		if( NULL !== $artefact->getSince() )
+			$this->setSince( $artefact->getSince() );
+		if( NULL !== $artefact->getVersion() )
+			$this->setVersion( $artefact->getVersion() );
+		foreach( $artefact->getCopyrights() as $copyright )
+			$this->setCopyright( $copyright );
+		foreach( $artefact->getAuthors() as $author )
+			$this->setAuthor( $author );
+		foreach( $artefact->getLinks() as $link )
+			$this->setLink( $link );
+		foreach( $artefact->getSees() as $see )
+			$this->setSee( $see );
+		foreach( $artefact->getTodos() as $todo )
+			$this->setTodo( $todo );
+		foreach( $artefact->getDeprecations() as $deprecation )
+			$this->setDeprecation( $deprecation );
+		foreach( $artefact->getLicenses() as $license )
+			$this->setLicense( $license );
+
 		if( $artefact->isAbstract() )
 			$this->setAbstract( $artefact->isAbstract() );
 		if( $artefact->isFinal() )
@@ -112,9 +260,15 @@ class Class_ extends Interface_
 		return $this;
 	}
 
-	public function setAbstract( bool $isAbstract = TRUE ): self
+	public function setComposingClass( Class_ $class ): self
 	{
-		$this->abstract	= $isAbstract;
+		$this->composedBy[$class->getName()]	= $class;
+		return $this;
+	}
+
+	public function setComposingClassName( string $className ): self
+	{
+		$this->composedBy[$className]	= $className;
 		return $this;
 	}
 
@@ -130,43 +284,21 @@ class Class_ extends Interface_
 		return $this;
 	}
 
-	public function setExtendedInterface( Interface_ $interface ): self
-	{
-		throw new RuntimeException( 'Class cannot extend an interface' );
-	}
-
 	public function setExtendingClass( Class_ $class ): self
 	{
 		$this->extendedBy[$class->getName()]	= $class;
 		return $this;
 	}
 
-	public function setExtendingInterface( Interface_ $interface ): self
-	{
-		throw new RuntimeException( 'Interface cannot extend class' );
-	}
-
 	public function setImplementedInterface( Interface_ $interface ): self
 	{
-		$this->implements[$interface->name]	= $interface;
+		$this->implements[$interface->getName()]	= $interface;
 		return $this;
 	}
 
 	public function setImplementedInterfaceName( string $interfaceName ): self
 	{
 		$this->implements[$interfaceName]	= $interfaceName;
-		return $this;
-	}
-
-	public function setImplementingClass( Class_ $class ): self
-	{
-		$this->implementedBy[$class->getName()]	= $class;
-		return $this;
-	}
-
-	public function setImplementingClassName( string $className ): self
-	{
-		$this->implementedBy[$className]	= $className;
 		return $this;
 	}
 
@@ -179,6 +311,18 @@ class Class_ extends Interface_
 	public function setUsedClassName( string $className ): self
 	{
 		$this->uses[$className]	= $className;
+		return $this;
+	}
+
+	public function setUsingClass( Class_ $class ): self
+	{
+		$this->usedBy[$class->getName()]	= $class;
+		return $this;
+	}
+
+	public function setUsingClassName( string $className ): self
+	{
+		$this->usedBy[$className]	= $className;
 		return $this;
 	}
 }
