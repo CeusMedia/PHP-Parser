@@ -121,11 +121,11 @@ class Container_
 	 *	Otherwise, is searches in different Packages and finally in different Categories.
 	 *	@access		public
 	 *	@param		string				$interfaceName		Name of Interface to find Data Object for
-	 *	@param		Class_|Interface_|Trait_	$relatedArtefact	A related Class or Interface (for Package and Category Information)
+	 *	@param		Class_|Interface_|Trait_	$relatedArtefact	A related Class, Interface or Trait (for Package and Category Information)
 	 *	@return		Interface_
 	 *	@throws		DomainException		if Interface is not known
 	 */
-	public function getInterfaceFromInterfaceName( string $interfaceName, Class_|Interface_ $relatedArtefact ): Interface_
+	public function getInterfaceFromInterfaceName( string $interfaceName, Class_|Interface_|Trait_ $relatedArtefact ): Interface_
 	{
 		if( !isset( $this->interfacesNameList[$interfaceName] ) )
 			throw new DomainException( 'Unknown interface "'.$interfaceName.'"' );
