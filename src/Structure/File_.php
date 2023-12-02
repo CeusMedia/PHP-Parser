@@ -205,17 +205,22 @@ class File_
 
 	public function hasClasses(): bool
 	{
-		return count( $this->classes ) > 0;
+		return 0 !== count( $this->classes );
 	}
 
 	public function hasFunctions(): bool
 	{
-		return count( $this->functions ) > 0;
+		return 0 !== count( $this->functions );
 	}
 
 	public function hasInterfaces(): bool
 	{
-		return count( $this->interfaces ) > 0;
+		return 0 !== count( $this->interfaces );
+	}
+
+	public function hasTraits(): bool
+	{
+		return 0 !== count( $this->traits );
 	}
 
 	public function setBasename( string $string ): self
