@@ -161,8 +161,8 @@ class Reflection
 		else if( $class->isTrait() ){
 			$object	= new Trait_( $class->name );
 			//  NOT WORKING !!!
-			if( FALSE !== $class->getParentClass() )
-				$object->setExtendedTraitName( $class->getParentClass()->name );
+//			if( FALSE !== $class->getParentClass() )
+//				$object->setExtendedTraitName( $class->getParentClass()->name );
 		}
 		else {
 			$object	= new Class_( $class->name );

@@ -171,9 +171,11 @@ class Regular
 					continue;
 				}
 				if( 1 === preg_match( $this->regexUse, $line, $matches ) ){
-					$items	= explode( ',', $matches[2] );
-					foreach( $items as $item )
-						$class->setUsedTraitName( trim( $item ) );
+					if( $class instanceof Class_ || $class instanceof Trait_ ){
+						$items	= explode( ',', $matches[2] );
+						foreach( $items as $item )
+							$class->setUsedTraitName( trim( $item ) );
+					}
 					continue;
 				}
 				if( 1 === preg_match( $this->regexMethod, $line, $matches ) ){
@@ -268,8 +270,8 @@ class Regular
 				break;
 			case 'trait':
 				$artefact	= new Trait_( $matches[4] );
-				if( isset( $matches[5] ) )
-					$artefact->setExtendedTraitName( $matches[6] );
+//				if( isset( $matches[5] ) )
+//					$artefact->setExtendedTraitName( $matches[6] );
 //				$artefact->setFinal( (bool) $matches[2] );
 				break;
 			default:
