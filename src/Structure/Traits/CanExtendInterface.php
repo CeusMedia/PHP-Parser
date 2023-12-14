@@ -25,7 +25,7 @@
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
 
-use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\Interface_;
 
 /**
  *	...
@@ -35,31 +35,31 @@ use CeusMedia\PhpParser\Structure\Class_;
  *	@copyright		2020-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait CanExtend
+Trait CanExtendInterface
 {
-	/** @var	Class_|string|NULL		$extends		... */
-	protected Class_|string|NULL $extends				= NULL;
+	/** @var	Interface_|string|NULL		$extends		... */
+	protected Interface_|string|NULL $extends				= NULL;
 
 	/**
 	 *	Returns list of used traits in this class or trait.
 	 *	@access		public
-	 *	@return		Class_|string|NULL>					Extended class
+	 *	@return		Interface_|string|NULL>					Extended class
 	 */
-	public function getExtendedClass(): Class_|string|NULL
+	public function getExtendedInterface(): Interface_|string|NULL
 	{
 		return $this->extends;
 	}
 
-	public function extendsClass( Class_ $class ): bool
+	public function extendsInterface( Interface_ $interface ): bool
 	{
-//		return $this->extends == $class;
+//		return $this->extends == $interface;
 		return FALSE;
 	}
 
-	public function extendsClassName( string $className ): bool
+	public function extendsInterfaceName( string $interfaceName ): bool
 	{
 //		if( $this->extends() )
-//			return $this->extends->getName() === $className;
+//			return $this->extends->getName() === $interfaceName;
 //		return FALSE;
 		return FALSE;
 	}
@@ -75,22 +75,22 @@ Trait CanExtend
 
 
 	/**
-	 *	@param		Class_		$class
+	 *	@param		Interface_		$interface
 	 *	@return		static
 	 */
-	public function setExtendedClass( Class_ $class ): static
+	public function setExtendedClass( Interface_ $interface ): static
 	{
-		$this->extends	= $class;
+		$this->extends	= $interface;
 		return $this;
 	}
 
 	/**
-	 *	@param		string		$className
+	 *	@param		string		$interfaceName
 	 *	@return		static
 	 */
-	public function setExtendedClassName( string $className ): static
+	public function setExtendedInterfaceName( string $interfaceName ): static
 	{
-		$this->extends	= $className;
+		$this->extends	= $interfaceName;
 		return $this;
 	}
 }

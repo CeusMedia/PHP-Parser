@@ -27,6 +27,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Exception\MergeException;
+use CeusMedia\PhpParser\Structure\Traits\CanExtendInterface;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasCategory;
 use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
@@ -53,6 +54,7 @@ use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
  */
 class Interface_
 {
+	use CanExtendInterface;
 	use HasNamespace;
 	use HasAuthors;
 	use HasCategory;

@@ -27,7 +27,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Exception\MergeException;
-use CeusMedia\PhpParser\Structure\Traits\CanExtend;
+use CeusMedia\PhpParser\Structure\Traits\CanExtendClass;
 use CeusMedia\PhpParser\Structure\Traits\CanImplement;
 use CeusMedia\PhpParser\Structure\Traits\CanUseTraits;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
@@ -59,7 +59,7 @@ use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
  */
 class Class_
 {
-	use CanExtend;
+	use CanExtendClass;
 	use CanImplement;
 	use CanUseTraits;
 	use HasNamespace;
