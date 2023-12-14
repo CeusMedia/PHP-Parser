@@ -65,6 +65,7 @@ class Regular
 	protected string $regexMethod	= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
 	protected string $regexParam	= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
 	protected string $regexVariable	= '@^(static\s+)?(protected|private|public|var)\s+(static\s+)?\$(\w+)(\s+=\s+([^(]+))?.*$@';
+	protected string $regexUse		= '@^(use\s+)(.+)$@';
 	protected array $varBlocks		= [];
 	protected array $openBlocks		= [];
 	protected int $lineNumber		= 0;
@@ -167,6 +168,12 @@ class Regular
 					$this->lineNumber --;
 					$openClass	= FALSE;
 					$level		= self::LEVEL_CLASS_OPEN;
+					continue;
+				}
+				if( 1 === preg_match( $this->regexUse, $line, $matches ) ){
+					$items	= explode( ',', $matches[2] );
+					foreach( $items as $item )
+						$class->setUsedTraitName( trim( $item ) );
 					continue;
 				}
 				if( 1 === preg_match( $this->regexMethod, $line, $matches ) ){
