@@ -41,9 +41,9 @@ Trait CanExtendInterface
 	protected Interface_|string|NULL $extends				= NULL;
 
 	/**
-	 *	Returns list of used traits in this class or trait.
+	 *	Returns extended interface, it set so.
 	 *	@access		public
-	 *	@return		Interface_|string|NULL>					Extended class
+	 *	@return		Interface_|string|NULL>					Extended interface
 	 */
 	public function getExtendedInterface(): Interface_|string|NULL
 	{
@@ -65,7 +65,7 @@ Trait CanExtendInterface
 	}
 
 	/**
-	 * Indicates whether this class implements at least one interface.
+	 * Indicates whether this interface extends another interface.
 	 * @return bool
 	 */
 	public function extends(): bool
@@ -78,7 +78,7 @@ Trait CanExtendInterface
 	 *	@param		Interface_		$interface
 	 *	@return		static
 	 */
-	public function setExtendedClass( Interface_ $interface ): static
+	public function setExtendedInterface( Interface_ $interface ): static
 	{
 		$this->extends	= $interface;
 		return $this;
