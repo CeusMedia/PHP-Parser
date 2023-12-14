@@ -27,6 +27,9 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Exception\MergeException;
+use CeusMedia\PhpParser\Structure\Traits\CanExtend;
+use CeusMedia\PhpParser\Structure\Traits\CanImplement;
+use CeusMedia\PhpParser\Structure\Traits\CanUseTraits;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasCategory;
 use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
@@ -56,6 +59,9 @@ use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
  */
 class Class_
 {
+	use CanExtend;
+	use CanImplement;
+	use CanUseTraits;
 	use HasNamespace;
 	use HasAuthors;
 	use HasCategory;
@@ -75,13 +81,8 @@ class Class_
 	use MaybeAbstract;
 	use MaybeDeprecated;
 
-	/** @var	Class_|string|NULL		$extends		... */
-	protected Class_|string|NULL $extends			= NULL;
-
 	/** @var	array				$extendedBy		... */
 	protected array $extendedBy		= [];
-
-	protected array $implements		= [];
 
 	protected array $uses			= [];
 
@@ -142,11 +143,6 @@ class Class_
 		return $this->composedBy;
 	}
 
-	public function getExtendedClass(): string|Class_|null
-	{
-		return $this->extends;
-	}
-
 	public function getExtendingClasses(): array
 	{
 		return $this->extendedBy;
@@ -167,11 +163,6 @@ class Class_
 #		$parts[]	= $this->parent->getBasename();
 		$parts[]	= str_replace( '\\', ':', $this->getNamespacedName() );
 		return implode( "-", $parts );
-	}
-
-	public function getImplementedInterfaces(): array
-	{
-		return $this->implements;
 	}
 
 	public function getNamespacedName(): string
@@ -198,15 +189,6 @@ class Class_
 	public function getUsingClasses(): array
 	{
 		return $this->usedBy;
-	}
-
-	public function isImplementingInterface( Interface_ $interface ): bool
-	{
-		/** @noinspection PhpUnusedLocalVariableInspection */
-		foreach($this->implements as $interfaceName => $interfaceObject )
-			if( $interface == $interfaceObject )
-				return TRUE;
-		return FALSE;
 	}
 
 	public function isUsingClass( Class_ $class ): bool
@@ -272,33 +254,9 @@ class Class_
 		return $this;
 	}
 
-	public function setExtendedClass( Class_ $class ): self
-	{
-		$this->extends	= $class;
-		return $this;
-	}
-
-	public function setExtendedClassName( string $class ): self
-	{
-		$this->extends	= $class;
-		return $this;
-	}
-
 	public function setExtendingClass( Class_ $class ): self
 	{
 		$this->extendedBy[$class->getName()]	= $class;
-		return $this;
-	}
-
-	public function setImplementedInterface( Interface_ $interface ): self
-	{
-		$this->implements[$interface->getName()]	= $interface;
-		return $this;
-	}
-
-	public function setImplementedInterfaceName( string $interfaceName ): self
-	{
-		$this->implements[$interfaceName]	= $interfaceName;
 		return $this;
 	}
 

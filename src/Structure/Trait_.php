@@ -27,6 +27,7 @@
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Exception\MergeException;
+use CeusMedia\PhpParser\Structure\Traits\CanUseTraits;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasCategory;
 use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
@@ -54,6 +55,7 @@ use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
  */
 class Trait_
 {
+	use CanUseTraits;
 	use HasNamespace;
 	use HasAuthors;
 	use HasCategory;
@@ -71,17 +73,10 @@ class Trait_
 	use HasTodos;
 	use MaybeDeprecated;
 
-	/** @var	Trait_|string|NULL		$extends		... */
-	protected Trait_|string|NULL $extends			= NULL;
-
-
-	/** @var	array				$extendedBy		... */
-	protected array $extendedBy		= [];
-
-	/** @var	array				$usedBy		... */
+	/** @var	array				$usedBy		List of classes using this trait */
 	protected array $usedByClasses	= [];
 
-	/** @var	array				$usedBy		... */
+	/** @var	array				$usedBy		List of traits using this trait */
 	protected array $usedByTraits	= [];
 
 	/**
@@ -98,19 +93,6 @@ class Trait_
 	public function getAbsoluteName(): string
 	{
 		return '\\'.$this->getNamespacedName();
-	}
-
-	/**
-	 * @return string|Trait_|NULL
-	 */
-	public function getExtendedTrait(): string|Trait_|null
-	{
-		return $this->extends;
-	}
-
-	public function getExtendingTraits(): array
-	{
-		return $this->extendedBy;
 	}
 
 	/**
@@ -136,11 +118,19 @@ class Trait_
 		return $prefix.$this->name;
 	}
 
+	/**
+	 * Returns list of classes using this trait.
+	 * @return array<string,Class_|string>
+	 */
 	public function getUsingClasses(): array
 	{
 		return $this->usedByClasses;
 	}
 
+	/**
+	 * Returns list of traits using this trait.
+	 * @return array<string,Trait_|string>
+	 */
 	public function getUsingTraits(): array
 	{
 		return $this->usedByTraits;
@@ -177,30 +167,6 @@ class Trait_
 			$this->setLicense( $license );
 
 		//	@todo		many are missing
-		return $this;
-	}
-
-	public function setExtendedTrait( Trait_ $trait ): self
-	{
-		$this->extends	= $trait;
-		return $this;
-	}
-
-	public function setExtendedTraitName( string|Trait_|null $trait ): self
-	{
-		$this->extends	= $trait;
-		return $this;
-	}
-
-	public function setExtendingTrait_( Trait_ $trait ): self
-	{
-		$this->extendedBy[$trait->getName()]	= $trait;
-		return $this;
-	}
-
-	public function setExtendingTraitName( string $trait ): self
-	{
-		$this->extendedBy[$trait]	= $trait;
 		return $this;
 	}
 
