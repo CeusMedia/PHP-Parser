@@ -71,9 +71,6 @@ class Interface_
 	use HasTodos;
 	use MaybeDeprecated;
 
-	/** @var	Interface_|string|NULL		$extends		... */
-	protected Interface_|string|NULL $extends			= NULL;
-
 	/** @var	array			$implementedBy		... */
 	protected array $implementedBy	= [];
 
@@ -135,14 +132,6 @@ class Interface_
 	public function getComposingClasses(): array
 	{
 		return $this->composedBy;
-	}
-
-	/**
-	 * @return string|Interface_|NULL
-	 */
-	public function getExtendedInterface(): string|Interface_|null
-	{
-		return $this->extends;
 	}
 
 	public function getExtendingInterfaces(): array
@@ -236,18 +225,6 @@ class Interface_
 	public function setComposingClassName( string $className ): self
 	{
 		$this->composedBy[$className]	= $className;
-		return $this;
-	}
-
-	public function setExtendedInterface( Interface_ $interface ): self
-	{
-		$this->extends	= $interface;
-		return $this;
-	}
-
-	public function setExtendedInterfaceName( string|Interface_|null $interface ): self
-	{
-		$this->extends	= $interface;
 		return $this;
 	}
 
