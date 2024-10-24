@@ -15,14 +15,14 @@
  *	@author			Test Writer 2 <test2@writer.tld>
  *	@since			today
  *	@version		0.0.1
- *	@license		http://test.licence.org/test1.txt TestLicense 1
- *	@license		http://test.licence.org/test2.txt TestLicense 2
+ *	@license		https://test.licence.org/test1.txt TestLicense 1
+ *	@license		https://test.licence.org/test2.txt TestLicense 2
  *	@copyright		2007 Test Writer 1
  *	@copyright		2008 Test Writer 2
- *	@see			http://sub.domain.tld/1
- *	@see			http://sub.domain.tld/2
- *	@link			http://sub.domain.tld/test1
- *	@link			http://sub.domain.tld/test2
+ *	@see			https://sub.domain.tld/1
+ *	@see			https://sub.domain.tld/2
+ *	@link			https://sub.domain.tld/test1
+ *	@link			https://sub.domain.tld/test2
  */
 /**
  *	Test Class.
@@ -40,14 +40,14 @@
  *	@author			Test Writer 2 <test2@writer.tld>
  *	@since			today
  *	@version		0.0.1
- *	@license		http://test.licence.org/test1.txt TestLicense 1
- *	@license		http://test.licence.org/test2.txt TestLicense 2
+ *	@license		https://test.licence.org/test1.txt TestLicense 1
+ *	@license		https://test.licence.org/test2.txt TestLicense 2
  *	@copyright		2007 Test Writer 1
  *	@copyright		2008 Test Writer 2
- *	@see			http://sub.domain.tld/1
- *	@see			http://sub.domain.tld/2
- *	@link			http://sub.domain.tld/test1
- *	@link			http://sub.domain.tld/test2
+ *	@see			https://sub.domain.tld/1
+ *	@see			https://sub.domain.tld/2
+ *	@link			https://sub.domain.tld/test1
+ *	@link			https://sub.domain.tld/test2
  */
 abstract class TestClass extends Alpha implements Beta, Gamma
 {

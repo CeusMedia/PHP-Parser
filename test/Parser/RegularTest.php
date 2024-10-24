@@ -7,15 +7,16 @@ declare( strict_types = 1 );
  *	@since			10.08.2008
  *	@version		0.1
  */
+namespace CeusMedia\PhpParserTest\Parser;
 
 use PHPUnit\Framework\TestCase;
 use CeusMedia\PhpParser\Parser\Regular as RegularParser;
 use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Class_;
-use CeusMedia\PhpParser\Structure\Interface_;
-use CeusMedia\PhpParser\Structure\Trait_;
-use CeusMedia\PhpParser\Structure\Variable_;
-use CeusMedia\PhpParser\Structure\Member_;
+#use CeusMedia\PhpParser\Structure\Interface_;
+#use CeusMedia\PhpParser\Structure\Trait_;
+#use CeusMedia\PhpParser\Structure\Variable_;
+#use CeusMedia\PhpParser\Structure\Member_;
 use CeusMedia\PhpParser\Structure\Function_;
 use CeusMedia\PhpParser\Structure\Method_;
 use CeusMedia\PhpParser\Structure\Parameter_;
@@ -26,21 +27,24 @@ use CeusMedia\PhpParser\Structure\Throws_;
 
 /**
  *	TestUnit of Parser\Regular.
- *	@extends		PHPUnit\Framework\TestCase
- *	@uses			CeusMedia\PhpParser\Parser\Regular
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@since			10.08.2008
  *	@version		0.1
- *	@covers			CeusMedia\PhpParser\Parser\Regular
+ *	@covers			\CeusMedia\PhpParser\Parser\Regular
  */
-class Test_Parser_RegularTest extends TestCase
+class RegularTest extends TestCase
 {
-	protected ?Function_ $function;
-	protected ?Class_ $class;
-	protected ?Method_ $method1;
-	protected ?Method_ $method2;
-	protected ?Method_ $method3;
-	protected ?Method_ $method4;
+	protected string $path;
+	protected string $fileName;
+	protected File_ $data;
+	protected Function_ $function;
+	protected Class_ $class;
+	protected string $file;
+	protected Method_ $method1;
+	protected Method_ $method2;
+	protected Method_ $method3;
+	protected Method_ $method4;
+
 
 	/**
 	 *	Setup for every Test.
@@ -53,14 +57,26 @@ class Test_Parser_RegularTest extends TestCase
 		$this->fileName	= $this->path.'TestClass.php';
 		$parser			= new RegularParser();
 		$this->data		= $parser->parseFile( $this->fileName, $this->path );
-		$this->file		= $this->data->getUri();
-		$this->class	= current( $this->data->getClasses() );
+
+		/** @var Class_ $class */
+		$class		= current( $this->data->getClasses() );
+		/** @var Function_ $function */
+		$function	= current( $this->data->getFunctions() );
+
+		$this->class	= $class;
+		$this->function	= $function;
+		$this->file		= $this->data->getUri() ?? '';
 //		print_m( $this->class->getMethods() );die;
-		$this->function	= current( $this->data->getFunctions() ) ?: NULL;
+
+
 		$methods		= $this->class->getMethods();
+		/** @phpstan-ignore-next-line */
 		$this->method1	= array_shift( $methods );
+		/** @phpstan-ignore-next-line */
 		$this->method2	= array_shift( $methods );
+		/** @phpstan-ignore-next-line */
 		$this->method3	= array_shift( $methods );
+		/** @phpstan-ignore-next-line */
 		$this->method4	= array_shift( $methods );
 	}
 
@@ -78,7 +94,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFile1()
+	public function testParseFile1(): void
 	{
 		$parser	= new RegularParser();
 		$data		= $parser->parseFile( $this->fileName, $this->path );
@@ -99,7 +115,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFile2()
+	public function testParseFile2(): void
 	{
 		$string		= '<?php\nphpinfo();\n?>';
 		$fileName	= $this->path.'parser.php';
@@ -121,7 +137,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileData()
+	public function testParseFileFileData(): void
 	{
 		$this->assertInstanceOf( File_::class, $this->data );
 	}
@@ -131,7 +147,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataName()
+	public function testParseFileFileDataName(): void
 	{
 		$assertion	= 'TestClass.php';
 		$creation	= $this->data->getBasename();
@@ -143,7 +159,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataUri()
+	public function testParseFileFileDataUri(): void
 	{
 		$assertion	= $this->fileName;
 		$creation	= $this->data->getUri();
@@ -155,7 +171,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataDescription()
+	public function testParseFileFileDataDescription(): void
 	{
 		$assertion	= "Test Class File.\n\nThis is a Description.";
 		$creation	= $this->data->getDescription();
@@ -167,7 +183,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataPackage()
+	public function testParseFileFileDataPackage(): void
 	{
 		$assertion	= 'TestPackage';
 		$creation	= $this->data->getPackage();
@@ -179,7 +195,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataAuthor()
+	public function testParseFileFileDataAuthor(): void
 	{
 		$creation	= is_array( $this->data->getAuthors() );
 		$this->assertTrue( $creation );
@@ -197,7 +213,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataSince()
+	public function testParseFileFileDataSince(): void
 	{
 		$assertion	= 'today';
 		$creation	= $this->data->getSince();
@@ -209,7 +225,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataVersion()
+	public function testParseFileFileDataVersion(): void
 	{
 		$assertion	= '0.0.1';
 		$creation	= $this->data->getVersion();
@@ -221,7 +237,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataCopyright()
+	public function testParseFileFileDataCopyright(): void
 	{
 		$creation	= is_array( $this->data->getCopyrights() );
 		$this->assertTrue( $creation );
@@ -239,14 +255,14 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataLicense()
+	public function testParseFileFileDataLicense(): void
 	{
 		$creation	= is_array( $this->data->getLicenses() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new License_( 'TestLicense 1', 'http://test.licence.org/test1.txt' ),
-			new License_( 'TestLicense 2', 'http://test.licence.org/test2.txt' ),
+			new License_( 'TestLicense 1', 'https://test.licence.org/test1.txt' ),
+			new License_( 'TestLicense 2', 'https://test.licence.org/test2.txt' ),
 		);
 		$creation	= $this->data->getLicenses();
 		$this->assertEquals( $assertion, $creation );
@@ -257,14 +273,14 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataSee()
+	public function testParseFileFileDataSee(): void
 	{
 		$creation	= is_array( $this->data->getSees() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			'http://sub.domain.tld/1',
-			'http://sub.domain.tld/2',
+			'https://sub.domain.tld/1',
+			'https://sub.domain.tld/2',
 		);
 		$creation	= $this->data->getSees();
 		$this->assertEquals( $assertion, $creation );
@@ -275,14 +291,14 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataLink()
+	public function testParseFileFileDataLink(): void
 	{
 		$creation	= is_array( $this->data->getLinks() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			'http://sub.domain.tld/test1',
-			'http://sub.domain.tld/test2',
+			'https://sub.domain.tld/test1',
+			'https://sub.domain.tld/test2',
 		);
 		$creation	= $this->data->getLinks();
 		$this->assertEquals( $assertion, $creation );
@@ -297,7 +313,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunction()
+	public function testParseFileFileDataFunction(): void
 	{
 		$creation	= is_array( $this->data->getFunctions() );
 		$this->assertTrue( $creation );
@@ -306,7 +322,7 @@ class Test_Parser_RegularTest extends TestCase
 		$creation	= $this->function->getName();
 		$this->assertEquals( $assertion, $creation );
 
-		$this->assertEquals( 'not specified right now', $this->function->getReturn()->getDescription() );
+		$this->assertEquals( 'not specified right now', $this->function->getReturn()?->getDescription() );
 
 	}
 
@@ -315,7 +331,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunctionDescription()
+	public function testParseFileFileDataFunctionDescription(): void
 	{
 		$assertion	= 'Do something.';
 		$creation	= $this->function->getDescription();
@@ -327,7 +343,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunctionParam()
+	public function testParseFileFileDataFunctionParam(): void
 	{
 		$creation	= is_array( $this->function->getParameters() );
 		$this->assertTrue( $creation );
@@ -374,7 +390,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunctionReturn()
+	public function testParseFileFileDataFunctionReturn(): void
 	{
 		$this->assertInstanceOf( Return_::class, $this->function->getReturn() );
 		$assertion	= new Return_( 'mixed', 'not specified right now' );
@@ -386,7 +402,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunctionThrows()
+	public function testParseFileFileDataFunctionThrows(): void
 	{
 		$creation	= is_array( $this->function->getThrows() );
 		$this->assertTrue( $creation );
@@ -404,7 +420,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunctionAuthor()
+	public function testParseFileFileDataFunctionAuthor(): void
 	{
 		$creation	= is_array( $this->function->getAuthors() );
 		$this->assertTrue( $creation );
@@ -422,7 +438,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunctionSince()
+	public function testParseFileFileDataFunctionSince(): void
 	{
 		$assertion	= '01.02.03';
 		$creation	= $this->function->getSince();
@@ -434,7 +450,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileFileDataFunctionVersion()
+	public function testParseFileFileDataFunctionVersion(): void
 	{
 		$assertion	= '1.2.3';
 		$creation	= $this->function->getVersion();
@@ -451,7 +467,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassData()
+	public function testParseFileClassData(): void
 	{
 		$creation	= is_array( $this->data->getClasses() );
 		$this->assertTrue( $creation );
@@ -462,7 +478,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataName()
+	public function testParseFileClassDataName(): void
 	{
 		$assertion	= 'TestClass';
 		$creation	= $this->class->getName();
@@ -474,7 +490,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataDescription()
+	public function testParseFileClassDataDescription(): void
 	{
 		$assertion	= "Test Class.\n\nThis is a Description.";
 		$creation	= $this->class->getDescription();
@@ -486,7 +502,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataPackage()
+	public function testParseFileClassDataPackage(): void
 	{
 		$assertion	= 'TestPackage';
 		$creation	= $this->class->getPackage();
@@ -498,7 +514,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataSubPackage()
+	public function testParseFileClassDataSubPackage(): void
 	{
 		$assertion	= 'TestSubPackage';
 		$creation	= $this->class->getSubpackage();
@@ -510,7 +526,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataAbstract()
+	public function testParseFileClassDataAbstract(): void
 	{
 		$creation	= $this->class->isAbstract();
 		$this->assertTrue( $creation );
@@ -521,7 +537,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataFinal()
+	public function testParseFileClassDataFinal(): void
 	{
 		$this->assertFalse( $this->class->isFinal() );
 	}
@@ -531,7 +547,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataExtends()
+	public function testParseFileClassDataExtends(): void
 	{
 		$assertion	= 'Alpha';
 		$creation	= $this->class->getExtendedClass();
@@ -543,7 +559,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataImplements()
+	public function testParseFileClassDataImplements(): void
 	{
 		$creation	= is_array( $this->class->getImplementedInterfaces() );
 		$this->assertTrue( $creation );
@@ -558,7 +574,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataAuthor()
+	public function testParseFileClassDataAuthor(): void
 	{
 		$creation	= is_array( $this->class->getAuthors() );
 		$this->assertTrue( $creation );
@@ -576,7 +592,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataSince()
+	public function testParseFileClassDataSince(): void
 	{
 		$assertion	= 'today';
 		$creation	= $this->class->getSince();
@@ -588,7 +604,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataVersion()
+	public function testParseFileClassDataVersion(): void
 	{
 		$assertion	= '0.0.1';
 		$creation	= $this->class->getVersion();
@@ -600,7 +616,7 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataCopyright()
+	public function testParseFileClassDataCopyright(): void
 	{
 		$creation	= is_array( $this->class->getCopyrights() );
 		$this->assertTrue( $creation );
@@ -618,14 +634,14 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataLicense()
+	public function testParseFileClassDataLicense(): void
 	{
 		$creation	= is_array( $this->class->getLicenses() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			new License_( 'TestLicense 1', 'http://test.licence.org/test1.txt' ),
-			new License_( 'TestLicense 2', 'http://test.licence.org/test2.txt' ),
+			new License_( 'TestLicense 1', 'https://test.licence.org/test1.txt' ),
+			new License_( 'TestLicense 2', 'https://test.licence.org/test2.txt' ),
 		);
 		$creation	= $this->class->getLicenses();
 		$this->assertEquals( $assertion, $creation );
@@ -636,14 +652,14 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataSee()
+	public function testParseFileClassDataSee(): void
 	{
 		$creation	= is_array( $this->class->getSees() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			'http://sub.domain.tld/1',
-			'http://sub.domain.tld/2',
+			'https://sub.domain.tld/1',
+			'https://sub.domain.tld/2',
 		);
 		$creation	= $this->class->getSees();
 		$this->assertEquals( $assertion, $creation );
@@ -654,14 +670,14 @@ class Test_Parser_RegularTest extends TestCase
 	 *	@access		public
 	 *	@return		void
 	 */
-	public function testParseFileClassDataLink()
+	public function testParseFileClassDataLink(): void
 	{
 		$creation	= is_array( $this->class->getLinks() );
 		$this->assertTrue( $creation );
 
 		$assertion	= array(
-			'http://sub.domain.tld/test1',
-			'http://sub.domain.tld/test2',
+			'https://sub.domain.tld/test1',
+			'https://sub.domain.tld/test2',
 		);
 		$creation	= $this->class->getLinks();
 		$this->assertEquals( $assertion, $creation );

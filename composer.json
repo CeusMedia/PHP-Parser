@@ -32,7 +32,8 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "CeusMedia\\PhpParser\\": ["src/"]
+            "CeusMedia\\PhpParser\\": ["src/"],
+            "CeusMedia\\PhpParserTest\\": ["test/"]
         }
     },
     "scripts": {
