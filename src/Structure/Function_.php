@@ -127,10 +127,10 @@ class Function_
 
 	/**
 	 *	@param		Function_		$function		Function to merge with
-	 *	@return		self
+	 *	@return		static
 	 *	@throws		MergeException
 	 */
-	public function merge( Function_ $function ): self
+	public function merge( Function_ $function ): static
 	{
 		if( $this->name != $function->getName() )
 			throw new MergeException( 'Not merge-able' );
@@ -169,9 +169,9 @@ class Function_
 	 *	Sets function link.
 	 *	@access		public
 	 *	@param		Parameter_		$parameter	Parameter data object
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setParameter( Parameter_ $parameter ): self
+	public function setParameter( Parameter_ $parameter ): static
 	{
 		$this->param[$parameter->getName()]	= $parameter;
 		return $this;
@@ -181,9 +181,9 @@ class Function_
 	 *	Sets functions return data object.
 	 *	@access		public
 	 *	@param		Return_			$return		Function's return data object
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setReturn( Return_ $return ): self
+	public function setReturn( Return_ $return ): static
 	{
 		$this->return	= $return;
 		return $this;
@@ -193,21 +193,21 @@ class Function_
 	 *	Sets method source code.
 	 *	@access		public
 	 *	@param		array			$soureCode	Method source code (multiline string)
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setSourceCode( array $soureCode ): self
+	public function setSourceCode( array $soureCode ): static
 	{
 		$this->sourceCode	= $soureCode;
 		return $this;
 	}
 
-	public function setThrows( Throws_ $throws ): self
+	public function setThrows( Throws_ $throws ): static
 	{
 		$this->throws[]	= $throws;
 		return $this;
 	}
 
-	public function setTrigger( Trigger_ $trigger ): self
+	public function setTrigger( Trigger_ $trigger ): static
 	{
 		$this->triggers[]	= $trigger;
 		return $this;

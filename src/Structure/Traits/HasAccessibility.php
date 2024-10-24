@@ -54,9 +54,9 @@ Trait HasAccessibility
 	 *	Sets accessibility of structure.
 	 *	@access		public
 	 *	@param		string|NULL		$accessibility		Structure accessibility
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setAccess( ?string $accessibility = 'public' ): self
+	public function setAccess( ?string $accessibility = 'public' ): static
 	{
 		$this->access	= $accessibility;
 		return $this;

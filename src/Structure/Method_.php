@@ -54,11 +54,11 @@ class Method_ extends Function_
 	/**
 	 *	@access		public
 	 *	@param		Function_		$method		...
-	 *	@return		self
+	 *	@return		static
 	 *	@throws		MergeException
 	 *	@noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
-	public function merge( Function_ $method ): self
+	public function merge( Function_ $method ): static
 	{
 		if( !$method instanceof Method_ )
 			throw new \RuntimeException( 'Merge of method with function not allowed' );
