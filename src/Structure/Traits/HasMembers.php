@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	...
  *
- *	Copyright (c) 2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,26 +22,26 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
 
 use CeusMedia\PhpParser\Structure\Member_;
-use RuntimeException;
+use DomainException;
 
 /**
  *	...
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 Trait HasMembers
 {
-	/** @var	 array		$members		... */
-	protected array $members		= array();
+	/** @var	array		$members		... */
+	protected array $members		= [];
 
 	/**
 	 *	Returns a member data object by its name.
@@ -47,17 +49,17 @@ Trait HasMembers
 	 *	@param		string			$name		Member name
 	 *	@return		Member_			Member data object
 	 */
-	public function & getMemberByName( string $name ): Member_
+	public function & getMemberByName( $name )
 	{
 		if( isset( $this->members[$name] ) )
 			return $this->members[$name];
-		throw new RuntimeException( "Member '$name' is unknown" );
+		throw new DomainException( "Member '$name' is unknown" );
 	}
 
 	/**
 	 *	Returns a list of member data objects.
 	 *	@access		public
-	 *	@return		array			List of member data objects
+	 *	@return		array<Member_>		List of member data objects
 	 */
 	public function getMembers(): array
 	{

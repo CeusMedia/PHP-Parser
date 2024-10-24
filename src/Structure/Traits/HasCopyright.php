@@ -22,7 +22,7 @@ declare(strict_types=1);
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -32,33 +32,33 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasTodos
+Trait HasCopyright
 {
-	/** @var	array		$todos		... */
-	protected array $todos		= [];
+	/** @var	array		$copyright		... */
+	protected array $copyright	= [];
 
 	/**
-	 *	Returns list of todos.
+	 *	Returns copyright notes.
 	 *	@access		public
-	 *	@return		array		List of todos
+	 *	@return		array			Copyright notes
 	 */
-	public function getTodos(): array
+	public function getCopyrights(): array
 	{
-		return $this->todos;
+		return $this->copyright;
 	}
 
 	/**
-	 *	Sets todo.
+	 *	Sets copyright notes.
 	 *	@access		public
-	 *	@param		string		$string			Todo string
+	 *	@param		string			$copyright		Copyright notes
 	 *	@return		self
 	 */
-	public function setTodo( string $string ): self
+	public function setCopyright( string $copyright ): self
 	{
-		$this->todos[]	= $string;
+		$this->copyright[]	= $copyright;
 		return $this;
 	}
 }

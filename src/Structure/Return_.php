@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	Function/Method Return Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +22,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
@@ -34,7 +36,7 @@ use CeusMedia\PhpParser\Structure\Traits\HasType;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Return_
@@ -44,11 +46,11 @@ class Return_
 	/**
 	 *	Constructor.
 	 *	@access		public
-	 *	@param		string		$type			Return type
+	 *	@param		mixed		$type			Return type
 	 *	@param		?string		$description	Return description
 	 *	@return		void
 	 */
-	public function __construct( $type = NULL, ?string $description = NULL )
+	public function __construct( mixed $type = NULL, ?string $description = NULL )
 	{
 		$this->setType( $type );
 		$this->setDescription( $description );
@@ -72,10 +74,10 @@ class Return_
 	 */
 	public function toArray(): array
 	{
-		return array(
+		return [
 			'type'			=> $this->getType(),
 			'description'	=> $this->getDescription(),
-			'parent'		=> $this->parent ? $this->getParent() : NULL,
-		);
+			'parent'		=> NULL !== $this->parent ? $this->getParent() : NULL,
+		];
 	}
 }

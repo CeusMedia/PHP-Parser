@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	File Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,15 +22,17 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
+use CeusMedia\PhpParser\Structure\Traits\HasNamespace;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
@@ -39,49 +43,49 @@ use RuntimeException;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class File_
 {
-	use HasAuthors, HasDescription, HasLinks, HasLicense, HasVersion, HasTodos, MaybeDeprecated;
+	use HasNamespace, HasAuthors, HasDescription, HasLinks, HasLicense, HasCopyright,  HasVersion, HasTodos, MaybeDeprecated;
 
-	/** @var	 string|NULL	$unicode		... */
+	/** @var	string|NULL		$unicode		... */
 	public ?string $unicode;
 
-	/** @var	 string|NULL	$basename		... */
+	/** @var	string|NULL		$basename		... */
 	protected ?string $basename		= NULL;
 
-	/** @var	 string|NULL	$pathname		... */
+	/** @var	string|NULL		$pathname		... */
 	protected ?string $pathname		= NULL;
 
-	/** @var	 string|NULL	$uri			... */
+	/** @var	string|NULL		$uri			... */
 	protected ?string $uri			= NULL;
 
-	/** @var	 string|NULL	$category		... */
+	/** @var	string|NULL		$category		... */
 	protected ?string $category		= NULL;
 
-	/** @var	 string|NULL	$package		... */
+	/** @var	string|NULL		$package		... */
 	protected ?string $package		= NULL;
 
-	/** @var	 string|NULL	$subpackage		... */
+	/** @var	string|NULL		$subpackage		... */
 	protected ?string $subpackage	= NULL;
 
-/*	protected $usedClasses	= array();*/
+/*	protected $usedClasses	= [];*/
 
-	/** @var	 array		$functions		... */
-	protected array $functions	= array();
+	/** @var	array<Function_>		$functions		... */
+	protected array $functions		= [];
 
-	/** @var	 array		$classes		... */
-	protected array $classes		= array();
+	/** @var	array<Class_>		$classes		... */
+	protected array $classes		= [];
 
-	/** @var	 array		$interfaces		... */
-	protected array $interfaces	= array();
+	/** @var	array<Interface_>		$interfaces		... */
+	protected array $interfaces		= [];
 
-	/** @var	 array		$traits			... */
-	protected array $traits		= array();
+	/** @var	array<Trait_>		$traits			... */
+	protected array $traits			= [];
 
-	/** @var	 string		$sourceCode		... */
+	/** @var	string		$sourceCode		... */
 	protected string $sourceCode	= '';
 
 
@@ -120,14 +124,12 @@ class File_
 		throw new RuntimeException( 'Class "'.$name.'" is unknown' );
 	}
 
+	/**
+	 * @return array<string,Class_>
+	 */
 	public function getClasses(): array
 	{
 		return $this->classes;
-	}
-
-	public function getTraits(): array
-	{
-		return $this->traits;
 	}
 
 	public function & getFunction( string $name ): Function_
@@ -144,22 +146,26 @@ class File_
 
 	public function getId(): string
 	{
-		$parts	= array();
-		if( $this->category )
+		$parts	= [];
+		if( NULL !== $this->category )
 			$parts[]	= $this->category;
-		if( $this->package )
+		if( NULL !== $this->package )
 			$parts[]	= $this->package;
 		$parts[]	= $this->basename;
 		return implode( "-", $parts );
 	}
 
-	public function & getInterface( $name ): Interface_
+	public function & getInterface( string $name ): Interface_
 	{
 		if( isset( $this->interfaces[$name] ) )
 			return $this->interfaces[$name];
 		throw new RuntimeException( 'Interface "'.$name.'" is unknown' );
 	}
 
+	/**
+	 *	Returns a list of interfaces within this file.
+	 *	@return		array<string,Interface_>
+	 */
 	public function getInterfaces(): array
 	{
 		return $this->interfaces;
@@ -170,7 +176,7 @@ class File_
 		return $this->package;
 	}
 
-	public function getPathname(): string
+	public function getPathname(): ?string
 	{
 		return $this->pathname;
 	}
@@ -185,24 +191,38 @@ class File_
 		return $this->subpackage;
 	}
 
-	public function getUri(): string
+	/**
+	 *	Returns a list of traits within this file.
+	 *	@return		array<string,Trait_>
+	 */
+	public function getTraits(): array
+	{
+		return $this->traits;
+	}
+
+	public function getUri(): ?string
 	{
 		return $this->uri;
 	}
 
 	public function hasClasses(): bool
 	{
-		return count( $this->classes ) > 0;
+		return 0 !== count( $this->classes );
 	}
 
 	public function hasFunctions(): bool
 	{
-		return count( $this->functions ) > 0;
+		return 0 !== count( $this->functions );
 	}
 
 	public function hasInterfaces(): bool
 	{
-		return count( $this->interfaces ) > 0;
+		return 0 !== count( $this->interfaces );
+	}
+
+	public function hasTraits(): bool
+	{
+		return 0 !== count( $this->traits );
 	}
 
 	public function setBasename( string $string ): self

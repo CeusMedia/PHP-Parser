@@ -22,52 +22,77 @@ declare(strict_types=1);
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
 
-use CeusMedia\PhpParser\Structure\Category_;
-use CeusMedia\PhpParser\Structure\Class_;
-use CeusMedia\PhpParser\Structure\File_;
-use CeusMedia\PhpParser\Structure\Function_;
 use CeusMedia\PhpParser\Structure\Interface_;
-use CeusMedia\PhpParser\Structure\Method_;
-use CeusMedia\PhpParser\Structure\Parameter_;
-use CeusMedia\PhpParser\Structure\Trait_;
 
 /**
  *	...
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasParent
+Trait CanExtendInterface
 {
+	/** @var	Interface_|string|NULL		$extends		... */
+	protected Interface_|string|NULL $extends				= NULL;
+
 	/**
-	 *	Returns parent structure object, if set.
+	 *	Returns extended interface, it set so.
 	 *	@access		public
-	 *	@return		object|NULL		Parent structure object
+	 *	@return		Interface_|string|NULL>					Extended interface
 	 */
-	public function getParent(): object|NULL
+	public function getExtendedInterface(): Interface_|string|NULL
 	{
-		return $this->parent;
+		return $this->extends;
 	}
 
-	/** @var	object|NULL		$parent		... */
-	protected $parent		= NULL;
+	public function extendsInterface( Interface_ $interface ): bool
+	{
+//		return $this->extends == $interface;
+		return FALSE;
+	}
+
+	public function extendsInterfaceName( string $interfaceName ): bool
+	{
+//		if( $this->extends() )
+//			return $this->extends->getName() === $interfaceName;
+//		return FALSE;
+		return FALSE;
+	}
 
 	/**
-	 *	Sets parent structure object, if available.
-	 *	@access		public
-	 *	@param		object|NULL		$parent		Parent structure object
-	 *	@return		self
+	 * Indicates whether this interface extends another interface.
+	 * @return bool
 	 */
-	public function setParent( object|null $parent ): self
+	public function extends(): bool
 	{
-		$this->parent	= $parent;
+		return NULL !== $this->extends;
+	}
+
+
+	/**
+	 *	@param		Interface_		$interface
+	 *	@return		static
+	 */
+	public function setExtendedInterface( Interface_ $interface ): static
+	{
+		$this->extends	= $interface;
+		return $this;
+	}
+
+	/**
+	 *	@param		string		$interfaceName
+	 *	@return		static
+	 */
+	public function setExtendedInterfaceName( string $interfaceName ): static
+	{
+		$this->extends	= $interfaceName;
 		return $this;
 	}
 }

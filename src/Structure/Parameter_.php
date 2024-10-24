@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	Function/Method Parameter Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,25 +22,25 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@since			0.3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
 use CeusMedia\PhpParser\Structure\Traits\HasType;
-use Exception;
 
 /**
  *	Function/Method Parameter Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@since			0.3
  *	@todo			Code Doc
@@ -47,24 +49,24 @@ class Parameter_
 {
 	use HasDescription, HasName, HasLineInFile, HasType, HasParent;
 
-	/** @var	 string|NULL	$cast			... */
-	protected ?string $cast			= NULL;
+	/** @var	mixed			$cast			... */
+	protected mixed $cast			= NULL;
 
-	/** @var	 bool		$reference		... */
-	protected bool $reference	= FALSE;
+	/** @var	bool			$reference		... */
+	protected bool $reference		= FALSE;
 
-	/** @var	 string|NULL	$default		... */
+	/** @var	string|NULL		$default		... */
 	protected ?string $default		= NULL;
 
 	/**
 	 *	Constructor.
 	 *	@access		public
 	 *	@param		string			$name			Parameter name
-	 *	@param		string			$type			Parameter type
+	 *	@param		mixed			$type			Parameter type
 	 *	@param		?string			$description	Parameter description
 	 *	@return		void
 	 */
-	public function __construct( string $name, $type = NULL, ?string $description = NULL )
+	public function __construct( string $name, mixed $type = NULL, ?string $description = NULL )
 	{
 		$this->setName( $name );
 		if( !is_null( $type ) )
@@ -76,9 +78,9 @@ class Parameter_
 	/**
 	 *	Returns cast type of parameter.
 	 *	@access		public
-	 *	@return		string|NULL		Type string or data object
+	 *	@return		mixed		Type string or data object
 	 */
-	public function getCast(): ?string
+	public function getCast(): mixed
 	{
 		return $this->cast;
 	}
@@ -103,11 +105,16 @@ class Parameter_
 		return $this->reference;
 	}
 
+	/**
+	 *	@param		Parameter_		$parameter
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Parameter_ $parameter ): self
 	{
 #		remark( "merging parameter: ".$parameter->getName() );
 		if( $this->name != $parameter->getName() )
-			throw new Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $parameter->getCast() )
 			$this->setCast( $parameter->getCast() );
 		if( NULL !== $parameter->getDefault() )
@@ -118,7 +125,7 @@ class Parameter_
 			$this->setType( $parameter->getType() );
 #		if( $parameter->getParent() )
 #			$this->setParent( $parameter->getParent() );
-		if( NULL !== $parameter->isReference() )
+		if( $parameter->isReference() )
 			$this->setParent( $parameter->getParent() );
 
 		// @todo		$reference	is missing
@@ -131,7 +138,7 @@ class Parameter_
 	 *	@param		mixed			$type			Cast type string or data object
 	 *	@return		self
 	 */
-	public function setCast( $type ): self
+	public function setCast( mixed $type ): self
 	{
 		$this->cast	= $type;
 		return $this;

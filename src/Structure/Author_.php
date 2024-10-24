@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	File/Class/Function/Method Author Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,20 +22,20 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
-use Exception;
 
 /**
  *	File/Class/Function/Method Author Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Author_
@@ -45,11 +47,11 @@ class Author_
 	/**
 	 *	Constructor.
 	 *	@access		public
-	 *	@param		string		$name		Author name
-	 *	@param		?string		$email		Author email
+	 *	@param		string			$name		Author name
+	 *	@param		string|NULL		$email		Author email
 	 *	@return		void
 	 */
-	public function __construct( string $name, string $email = NULL )
+	public function __construct( string $name, ?string $email = NULL )
 	{
 		$this->setEmail( $email );
 		$this->setName( $name );
@@ -60,11 +62,16 @@ class Author_
 		return $this->email;
 	}
 
+	/**
+	 *	@param		Author_		$author
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Author_ $author ): self
 	{
 		if( $this->name != $author->name )
-			throw new Exception( 'Not merge-able' );
-		if( $author->getEmail() )
+			throw new MergeException( 'Not merge-able' );
+		if( NULL !== $author->getEmail() )
 			$this->setEmail( $author->getEmail() );
 		return $this;
 	}

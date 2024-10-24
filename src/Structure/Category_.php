@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	...
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +22,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
@@ -34,28 +36,29 @@ use RuntimeException;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Category_
 {
 	use HasParent;
 
-	protected array $categories	= array();
-	protected array $classes		= array();
-	protected array $interfaces	= array();
-	protected array $packages		= array();
-	protected string $label		= '';
+	protected array $categories		= [];
+	protected array $classes		= [];
+	protected array $interfaces		= [];
+	protected array $traits			= [];
+	protected array $packages		= [];
+	protected string $label			= '';
 
 	/**
-	 *	Constructure, sets Label of Category if given.
+	 *	Constructor, sets Label of Category if given.
 	 *	@access		public
-	 *	@param		?string		$label		Label of Category
+	 *	@param		string|NULL		$label		Label of Category
 	 *	@return		void
 	 */
 	public function __construct( ?string $label = NULL )
 	{
-		if( $label )
+		if( NULL !== $label )
 			$this->setLabel( $label );
 	}
 
@@ -72,7 +75,7 @@ class Category_
 	}
 
 	/**
-	 *	Relates a Interface Object to this Category.
+	 *	Relates an Interface Object to this Category.
 	 *	@access		public
 	 *	@param		Interface_	$interface		Interface Object to relate to this Category
 	 *	@return		self
@@ -80,6 +83,18 @@ class Category_
 	public function addInterface( Interface_ $interface ): self
 	{
 		$this->interfaces[$interface->getName()]	= $interface;
+		return $this;
+	}
+
+	/**
+	 *	Relates a Trait Object to this Category.
+	 *	@access		public
+	 *	@param		Trait_	$trait		Trait Object to relate to this Category
+	 *	@return		self
+	 */
+	public function addTrait( Trait_ $trait ): self
+	{
+		$this->traits[$trait->getName()]	= $trait;
 		return $this;
 	}
 
@@ -94,13 +109,17 @@ class Category_
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function & getClassByName( $name ): Class_
+	public function & getClassByName( string $name ): Class_
 	{
 		if( isset( $this->classes[$name] ) )
 			return $this->classes[$name];
 		throw new RuntimeException( "Class '$name' is unknown" );
 	}
 
+	/**
+	 *	Returns list of classes within this category.
+	 *	@return		array<Class_>
+	 */
 	public function getClasses(): array
 	{
 		return $this->classes;
@@ -109,10 +128,11 @@ class Category_
 	public function getId(): ?string
 	{
 #		remark( get_class( $this ).": ".$this->getLabel() );
-		$parts	= array();
+		$parts	= [];
 		$separator	= "_";
-		if( $this->parent ){
-			if( $parent = $this->parent->getId() ){
+		if( $this->parent instanceof Interface_ ){
+			$parent	= $this->parent->getId();
+			if( '' !== $parent ){
 #				remark( $this->parent->getId() );
 				if( get_class( $this->parent ) == '\\CeusMedia\\PhpParser\\Structure\\Category_' )
 					$separator	= '-';
@@ -128,13 +148,17 @@ class Category_
 	/**
 	 *	@deprecated	seems to be unused
 	 */
-	public function & getInterfaceByName( $name ): Interface_
+	public function & getInterfaceByName( string $name ): Interface_
 	{
 		if( isset( $this->interfaces[$name] ) )
 			return $this->interfaces[$name];
 		throw new RuntimeException( "Interface '$name' is unknown" );
 	}
 
+	/**
+	 *	Returns list of interfaces within this category.
+	 *	@return		array<Interface_>
+	 */
 	public function getInterfaces(): array
 	{
 		return $this->interfaces;
@@ -145,7 +169,7 @@ class Category_
 		return $this->label;
 	}
 
-	public function & getPackage( $name ): Package_
+	public function & getPackage( string $name ): Package_
 	{
 		//  no package name given
 		if( 0 === strlen( trim( $name ) ) )
@@ -180,13 +204,22 @@ class Category_
 	}
 
 	/**
+	 *	Returns list of traits within this category.
+	 *	@return		array<Trait_>
+	 */
+	public function getTraits(): array
+	{
+		return $this->traits;
+	}
+
+	/**
 	 *	Indicates whether Classes are registered in this Category.
 	 *	@access		public
 	 *	@return		bool
 	 */
 	public function hasClasses(): bool
 	{
-		return (bool) count( $this->classes );
+		return 0 !== count( $this->classes );
 	}
 
 	/**
@@ -196,7 +229,7 @@ class Category_
 	 */
 	public function hasInterfaces(): bool
 	{
-		return (bool) count( $this->interfaces );
+		return 0 !== count( $this->interfaces );
 	}
 
 	public function hasPackage( string $name ): bool
@@ -230,7 +263,17 @@ class Category_
 	 */
 	public function hasPackages(): bool
 	{
-		return count( $this->packages ) > 0;
+		return 0 !== count( $this->packages );
+	}
+
+	/**
+	 *	Indicates whether traits are registered in this Category.
+	 *	@access		public
+	 *	@return		bool
+	 */
+	public function hasTraits(): bool
+	{
+		return 0 !== count( $this->traits );
 	}
 
 	public function setLabel( string $string ): self

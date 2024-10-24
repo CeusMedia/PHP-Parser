@@ -1,8 +1,10 @@
-<?php
+<?php /** @noinspection PhpUnused */
+declare(strict_types=1);
+
 /**
  *	...
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,13 +22,15 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
 use ArrayIterator;
-use Exception;
+use CeusMedia\Common\FS\File\Arc\Gzip;
+use CeusMedia\Common\FS\File\Reader as FileReader;
+use DomainException;
 use RuntimeException;
 
 /**
@@ -36,30 +40,31 @@ use RuntimeException;
  *	@uses			Category_
  *	@uses			Package_
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Container_
 {
-	protected array $files				= array();
-	protected array $classIdList		= array();
-	protected array $classNameList		= array();
-	protected array $interfaceIdList	= array();
-	protected array $interfacesNameList	= array();
+	/** @var	array<string,File_>		$files  */
+	protected array $files					= [];
+	protected array $classIdList			= [];
+	protected array $classNameList			= [];
+	protected array $interfaceIdList		= [];
+	protected array $interfacesNameList		= [];
 
 	/**
 	 *	Searches for a Class by its Name in same Category and Package.
 	 *	Otherwise, searches in different Packages and finally in different Categories.
 	 *	@access		public
-	 *	@param		string				$className			Name of Class to find Data Object for
-	 *	@param		Interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
+	 *	@param		string		$className			Name of Class to find Data Object for
+	 *	@param		Class_		$relatedArtefact	A related Class or Interface (for Package and Category Information)
 	 *	@return		Class_
-	 *	@throws		Exception			if Class is not known
+	 *	@throws		DomainException		if Class is not known
 	 */
-	public function getClassFromClassName( string $className, Interface_ $relatedArtefact ): Class_
+	public function getClassFromClassName( string $className, Class_ $relatedArtefact ): Class_
 	{
 		if( !isset( $this->classNameList[$className] ) )
-			throw new Exception( 'Unknown class "'.$className.'"' );
+			throw new DomainException( 'Unknown class "'.$className.'"' );
 		$list	= $this->classNameList[$className];
 		$category	= $relatedArtefact->getCategory();
 		$package	= $relatedArtefact->getPackage();
@@ -81,7 +86,7 @@ class Container_
 	public function & getClassFromId( string $id ): Class_
 	{
 		if( !isset( $this->classIdList[$id] ) )
-			throw new Exception( 'Class with ID '.$id.' is unknown' );
+			throw new DomainException( 'Class with ID '.$id.' is unknown' );
 		return $this->classIdList[$id];
 	}
 
@@ -89,9 +94,12 @@ class Container_
 	{
 		if( isset( $this->files[$name] ) )
 			return $this->files[$name];
-		throw new RuntimeException( "File '$name' is unADT_PHP_known" );
+		throw new DomainException( "File '$name' is unADT_PHP_known" );
 	}
 
+	/**
+	 * @return ArrayIterator
+	 */
 	public function getFileIterator(): ArrayIterator
 	{
 		return new ArrayIterator( $this->files );
@@ -105,7 +113,7 @@ class Container_
 	public function & getInterfaceFromId( string $id ): Interface_
 	{
 		if( !isset( $this->interfaceIdList[$id] ) )
-			throw new Exception( 'Interface with ID '.$id.' is unknown' );
+			throw new DomainException( 'Interface with ID '.$id.' is unknown' );
 		return $this->interfaceIdList[$id];
 	}
 
@@ -114,14 +122,14 @@ class Container_
 	 *	Otherwise, is searches in different Packages and finally in different Categories.
 	 *	@access		public
 	 *	@param		string				$interfaceName		Name of Interface to find Data Object for
-	 *	@param		Interface_			$relatedArtefact	A related Class or Interface (for Package and Category Information)
+	 *	@param		Class_|Interface_|Trait_	$relatedArtefact	A related Class, Interface or Trait (for Package and Category Information)
 	 *	@return		Interface_
-	 *	@throws		Exception			if Interface is not known
+	 *	@throws		DomainException		if Interface is not known
 	 */
-	public function getInterfaceFromInterfaceName( string $interfaceName, Interface_ $relatedArtefact ): Interface_
+	public function getInterfaceFromInterfaceName( string $interfaceName, Class_|Interface_|Trait_ $relatedArtefact ): Interface_
 	{
 		if( !isset( $this->interfacesNameList[$interfaceName] ) )
-			throw new Exception( 'Unknown interface "'.$interfaceName.'"' );
+			throw new DomainException( 'Unknown interface "'.$interfaceName.'"' );
 		$list		= $this->interfacesNameList[$interfaceName];
 		$category	= $relatedArtefact->getCategory();
 		$package	= $relatedArtefact->getPackage();
@@ -136,7 +144,8 @@ class Container_
 			//  this is a Guess: return Data Object of guessed Interface
 			return array_shift( $list[$category] );
 
-		return array_shift( array_shift( $list ) );
+		$firstCategory	= array_shift( $list );
+		return array_shift( $firstCategory );
 	}
 
 	public function hasFile( string $fileName ): bool
@@ -146,19 +155,19 @@ class Container_
 
 	/**
 	 *	Builds internal index of Classes for direct access bypassing the tree.
-	 *	Afterward the methods getClassFromClassName() and getClassFromId() can be used.
+	 *	Afterward, the methods getClassFromClassName() and getClassFromId() can be used.
 	 *	@access		public
 	 *	@param		string		$defaultCategory		Default Category Name
 	 *	@param		string		$defaultPackage			Default Package Name
 	 *	@return		void
 	 *	@todo		move to Environment
 	 */
-	public function indexClasses( string $defaultCategory = 'default', string $defaultPackage = 'default' )
+	public function indexClasses( string $defaultCategory = 'default', string $defaultPackage = 'default' ): void
 	{
-		foreach( $this->files as $fileName => $file ){
+		foreach( $this->files as /*$fileName => */$file ){
 			foreach( $file->getClasses() as $class ){
-				$category	= $class->getCategory() ? $class->getCategory() : $defaultCategory;
-				$package	= $class->getPackage() ? $class->getPackage() : $defaultPackage;
+				$category	= $class->getCategory() ?? $defaultCategory;
+				$package	= $class->getPackage() ?? $defaultPackage;
 				$name		= $class->getName();
 				$this->classNameList[$name][$category][$package]	= $class;
 				$this->classIdList[$class->getId()]	= $class;
@@ -168,19 +177,19 @@ class Container_
 
 	/**
 	 *	Builds internal index of Interfaces for direct access bypassing the tree.
-	 *	Afterward the methods getInterfaceFromInterfaceName() and getInterfaceFromId() can be used.
+	 *	Afterward, the methods getInterfaceFromInterfaceName() and getInterfaceFromId() can be used.
 	 *	@access		public
 	 *	@param		string		$defaultCategory		Default Category Name
 	 *	@param		string		$defaultPackage			Default Package Name
 	 *	@return		void
 	 *	@todo		move to Environment
 	 */
-	public function indexInterfaces( string $defaultCategory = 'default', string $defaultPackage = 'default' )
+	public function indexInterfaces( string $defaultCategory = 'default', string $defaultPackage = 'default' ): void
 	{
-		foreach( $this->files as $fileName => $file ){
+		foreach( $this->files as /*$fileName => */$file ){
 			foreach( $file->getInterfaces() as $interface ){
-				$category	= $interface->getCategory() ? $interface->getCategory() : $defaultCategory;
-				$package	= $interface->getPackage() ? $interface->getPackage() : $defaultPackage;
+				$category	= $interface->getCategory() ?? $defaultCategory;
+				$package	= $interface->getPackage() ?? $defaultPackage;
 				$name		= $interface->getName();
 				$this->interfacesNameList[$name][$category][$package]	= $interface;
 				$this->interfaceIdList[$interface->getId()]	= $interface;
@@ -188,26 +197,38 @@ class Container_
 		}
 	}
 
-	public function load( array $config )
+	public function load( array $config ): self
 	{
-		if( !empty( $config['creator.file.data.archive'] ) ){
+		if( '' !== ( $config['creator.file.data.archive'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
+
+			/* new implementation, @todo test it and replace older one below */
+//			$reader	= new Gzip( $uri );
+//			if( $reader->exists() ){
+//				/** @var Container_ $data */
+//				$data	= unserialize( $reader->readString() );
+//				return $data;
+//			}
+
 			if( file_exists( $uri ) ){
-				$serial	= "";
-				if( $fp = gzopen( $uri, "r" ) ){
-					while( !gzeof( $fp ) )
-						$serial	.= gzgets( $fp, 4096 );
-					$data	= unserialize( $serial );
-					gzclose( $fp );
-					return $data;
-				}
+				$serial	= '';
+				$fp		= gzopen( $uri, 'r' );
+				if( FALSE === $fp )
+					throw new RuntimeException( 'Could not write compressed file' );
+				while( !gzeof( $fp ) )
+					$serial	.= gzgets( $fp, 4096 );
+				/** @var Container_ $data */
+				$data	= unserialize( $serial );
+				gzclose( $fp );
+				return $data;
 			}
 		}
-		if( !empty( $config['creator.file.data.serial'] ) ){
+		if( '' !== ( $config['creator.file.data.serial'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.serial'];
-			if( file_exists( $uri ) ){
-				$serial	= file_get_contents( $uri );
-				$data	= unserialize( $serial );
+			$reader	= new FileReader( $uri );
+			if( $reader->exists() ){
+				/** @var Container_ $data */
+				$data	= unserialize( $reader->readString() ?? 'N;' );
 				return $data;
 			}
 		}
@@ -221,25 +242,33 @@ class Container_
 	 *	@return		void
 	 *	@todo		refactor, extract config
 	 */
-	public function save( array $config )
+	public function save( array $config ): void
 	{
 		$serial	= serialize( $this );
 		if( !file_exists( $config['doc.path'] ) )
-			mkDir( $config['doc.path'], 0777, TRUE );
-		if( !empty( $config['creator.file.data.archive'] ) ){
+			mkdir( $config['doc.path'], 0777, TRUE );
+		if( '' !== ( $config['creator.file.data.archive'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.archive'];
+
+			/* new implementation, @todo test it and replace older one below */
+//			$writer	= new Gzip( $uri );
+//			$writer->writeString( $serial );
+
 			$gz		= gzopen( $uri, 'w9' );
+			if( FALSE === $gz )
+				throw new RuntimeException( 'Could not write compressed file' );
 			gzwrite( $gz, $serial );
 			gzclose( $gz );
 		}
-		else if( !empty( $config['creator.file.data.serial'] ) ){
+		else if( '' !== ( $config['creator.file.data.serial'] ?? '' ) ){
 			$uri	= $config['doc.path'].$config['creator.file.data.serial'];
 			file_put_contents( $uri, $serial );
 		}
 	}
 
-	public function setFile( string $name, File_ $file )
+	public function setFile( string $name, File_ $file ): self
 	{
 		$this->files[$name]	= $file;
+		return $this;
 	}
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  *	...
  *
- *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ declare(strict_types=1);
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -32,33 +32,52 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasTodos
+Trait HasPackage
 {
-	/** @var	array		$todos		... */
-	protected array $todos		= [];
+	/** @var	string|NULL		$package		... */
+	protected ?string $package			= NULL;
+
+	/** @var	string|NULL		$subpackage		... */
+	protected ?string $subpackage		= NULL;
 
 	/**
-	 *	Returns list of todos.
+	 *	Returns full package name.
 	 *	@access		public
-	 *	@return		array		List of todos
+	 *	@return		string|NULL			Package name
 	 */
-	public function getTodos(): array
+	public function getPackage(): ?string
 	{
-		return $this->todos;
+		return $this->package;
+	}
+
+	public function getSubpackage(): ?string
+	{
+		return $this->subpackage;
 	}
 
 	/**
-	 *	Sets todo.
-	 *	@access		public
-	 *	@param		string		$string			Todo string
+	 *	Sets package.
+	 *	@param		string			$string		Package name
+	 *	@return		static
+	 */
+	public function setPackage( string $string ): static
+	{
+		$string			= str_replace( ["/", "::", ":", "."], "_", $string );
+		$this->package	= $string;
+		return $this;
+	}
+
+	/**
+	 *	Sets subpackage.
+	 *	@param		string			$string		Subpackage name
 	 *	@return		self
 	 */
-	public function setTodo( string $string ): self
+	public function setSubpackage( string $string ): self
 	{
-		$this->todos[]	= $string;
+		$this->subpackage	= $string;
 		return $this;
 	}
 }

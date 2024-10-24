@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	Class Member Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,23 +22,22 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
-use Exception;
-use RuntimeException;
 
 /**
  *	Class Member Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Member_ extends Variable_
@@ -45,7 +46,7 @@ class Member_ extends Variable_
 	use HasParent;
 	use MaybeStatic;
 
-	/** @var	 string|NULL	$default		... */
+	/** @var	string|NULL		$default		... */
 	protected ?string $default			= NULL;
 
 	public function __toArray(): array
@@ -61,24 +62,30 @@ class Member_ extends Variable_
 	/**
 	 *	Returns member default value.
 	 *	@access		public
-	 *	@return		string
+	 *	@return		?string
 	 */
 	public function getDefault(): ?string
 	{
 		return $this->default;
 	}
 
+	/**
+	 *	@param		Variable_		$member
+	 *	@return		self
+	 *	@throws		MergeException
+	 *	@noinspection PhpParameterNameChangedDuringInheritanceInspection
+	 */
 	public function merge( Variable_ $member ): self
 	{
 		if( !$member instanceof Member_ )
-			throw new RuntimeException( 'Merge of method with function not allowed' );
+			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		parent::merge( $member );
 #		remark( 'merging member: '.$member->getName() );
 		if( $this->name != $member->getName() )
-			throw new Exception( 'Not merge-able' );
-		if( $member->getAccess() )
+			throw new MergeException( 'Not merge-able' );
+		if( NULL !== $member->getAccess() )
 			$this->setAccess( $member->getAccess() );
-		if( $member->getDefault() )
+		if( NULL !== $member->getDefault() )
 			$this->setDefault( $member->getDefault() );
 		if( $member->isStatic() )
 			$this->setStatic( $member->isStatic() );

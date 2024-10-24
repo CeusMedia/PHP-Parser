@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  *	...
  *
- *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ declare(strict_types=1);
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -32,33 +32,31 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasTodos
+Trait HasNamespace
 {
-	/** @var	array		$todos		... */
-	protected array $todos		= [];
+	/** @var	string|NULL		$namespace		... */
+	protected ?string $namespace			= NULL;
 
 	/**
-	 *	Returns list of todos.
-	 *	@access		public
-	 *	@return		array		List of todos
+	 *	Returns category.
+	 *	@return		string|NULL		Namespace
 	 */
-	public function getTodos(): array
+	public function getNamespace(): ?string
 	{
-		return $this->todos;
+		return $this->namespace;
 	}
 
 	/**
-	 *	Sets todo.
-	 *	@access		public
-	 *	@param		string		$string			Todo string
+	 *	Sets category.
+	 *	@param		string|NULL		$namespace		Namespace
 	 *	@return		self
 	 */
-	public function setTodo( string $string ): self
+	public function setNamespace( ?string $namespace ): self
 	{
-		$this->todos[]	= $string;
+		$this->namespace	= is_string( $namespace ) ? trim( $namespace ) : NULL;
 		return $this;
 	}
 }

@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	...
  *
- *	Copyright (c) 2010-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2010-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,16 +22,19 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Parser_Doc
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2010-2020 Christian Würker
+ *	@copyright		2010-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
  */
 namespace CeusMedia\PhpParser\Parser\Doc;
 
 use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Function_;
 use CeusMedia\PhpParser\Structure\Interface_;
 use CeusMedia\PhpParser\Structure\Method_;
+use CeusMedia\PhpParser\Structure\Return_;
+use CeusMedia\PhpParser\Structure\Trait_;
 
 /**
  *	...
@@ -37,7 +42,7 @@ use CeusMedia\PhpParser\Structure\Method_;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Parser_Doc
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2010-2020 Christian Würker
+ *	@copyright		2010-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
  */
@@ -48,15 +53,15 @@ class Decorator
 	 *	In general, found doc parser data are added to the php parser data.
 	 *	Found doc data can contain strings, objects and lists of strings or objects.
 	 *	Since parameters are defined in signature and doc block, they need to be merged.
-	 *	Parameters are given with an associatove list indexed by parameter name.
+	 *	Parameters are given with an associative list indexed by parameter name.
 	 *
 	 *	@access		protected
-	 *	@param		object		$codeData		Data collected by parsing Code
+	 *	@param		File_|Interface_|Class_|Trait_|Function_|Method_	$codeData		Data collected by parsing Code
 	 *	@param		array		$docData		Data collected by parsing Documentation
 	 *	@return		void
 	 *	@todo		fix merge problem -> seems to be fixed (what was the problem again?)
 	 */
-	public function decorateCodeDataWithDocData( object $codeData, array $docData )
+	public function decorateCodeDataWithDocData( File_|Interface_|Class_|Trait_|Function_|Method_ $codeData, array $docData ): void
 	{
 		foreach( $docData as $key => $value ){
 			if( !$value )
@@ -66,13 +71,18 @@ class Decorator
 				if( $codeData instanceof Function_ ){
 					switch( $key ){
 						case 'return':
-							$codeData->setReturn( $value );
+							if( $value instanceof Return_ )
+								if( NULL !== $codeData->getReturn() )
+									$codeData->getReturn()->merge( $value );
+								else
+									$codeData->setReturn( $value );
 							break;
 					}
 				}
+				continue;
 			}
 			//  value is a simple string
-			else if( is_string( $value ) ){
+			if( is_string( $value ) ){
 				switch( $key ){
 					//  extend category
 					case 'category':	$codeData->setCategory( $value ); break;
@@ -107,7 +117,7 @@ class Decorator
 					switch( $key ){
 						case 'access':
 							//  only if no access type given by signature
-							if( !$codeData->getAccess() )
+							if( NULL === $codeData->getAccess() )
 								//  extend access type
 								$codeData->setAccess( $value );
 							break;
@@ -128,11 +138,6 @@ class Decorator
 											$parameter->merge( $itemValue );
 										}
 									}
-								}
-								break;
-							case 'return':
-								if( !$codeData instanceof Function_ ){
-									$codeData->getReturn()->merge( $value );
 								}
 								break;
 						}

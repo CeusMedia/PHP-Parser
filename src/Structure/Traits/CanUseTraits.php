@@ -22,43 +22,65 @@ declare(strict_types=1);
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
+
+use CeusMedia\PhpParser\Structure\Trait_;
 
 /**
  *	...
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasTodos
+Trait CanUseTraits
 {
-	/** @var	array		$todos		... */
-	protected array $todos		= [];
+	/** @var	array<string,Trait_|string>		$links		... */
+	protected array $usedTraits		= [];
+
+	/** @var	array		$sees		... */
+	protected array $sees		= [];
 
 	/**
-	 *	Returns list of todos.
+	 *	Returns list of used traits in this class or trait.
 	 *	@access		public
-	 *	@return		array		List of todos
+	 *	@return		array<string,Trait_|string>			List of links
 	 */
-	public function getTodos(): array
+	public function getUsedTraits(): array
 	{
-		return $this->todos;
+		return $this->usedTraits;
 	}
 
 	/**
-	 *	Sets todo.
-	 *	@access		public
-	 *	@param		string		$string			Todo string
-	 *	@return		self
+	 * Indicates whether this class or trait uses traits.
+	 * @return bool
 	 */
-	public function setTodo( string $string ): self
+	public function hasTraits(): bool
 	{
-		$this->todos[]	= $string;
+		return 0 !== count( $this->usedTraits );
+	}
+
+	/**
+	 *	@param		Trait_		$trait
+	 *	@return		static
+	 */
+	public function setUsedTrait( Trait_ $trait ): static
+	{
+		$this->usedTraits[$trait->getName()]	= $trait;
+		return $this;
+	}
+
+	/**
+	 *	@param		string		$traitName
+	 *	@return		static
+	 */
+	public function setUsedTraitName( string $traitName ): static
+	{
+		$this->usedTraits[$traitName]	= $traitName;
 		return $this;
 	}
 }

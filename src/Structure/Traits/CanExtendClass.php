@@ -22,43 +22,77 @@ declare(strict_types=1);
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
+
+use CeusMedia\PhpParser\Structure\Class_;
 
 /**
  *	...
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2021-2024 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasTodos
+Trait CanExtendClass
 {
-	/** @var	array		$todos		... */
-	protected array $todos		= [];
+	/** @var	Class_|string|NULL		$extends		... */
+	protected Class_|string|NULL $extends				= NULL;
 
 	/**
-	 *	Returns list of todos.
+	 *	Returns list of used traits in this class or trait.
 	 *	@access		public
-	 *	@return		array		List of todos
+	 *	@return		Class_|string|NULL>					Extended class
 	 */
-	public function getTodos(): array
+	public function getExtendedClass(): Class_|string|NULL
 	{
-		return $this->todos;
+		return $this->extends;
+	}
+
+	public function extendsClass( Class_ $class ): bool
+	{
+//		return $this->extends == $class;
+		return FALSE;
+	}
+
+	public function extendsClassName( string $className ): bool
+	{
+//		if( $this->extends() )
+//			return $this->extends->getName() === $className;
+//		return FALSE;
+		return FALSE;
 	}
 
 	/**
-	 *	Sets todo.
-	 *	@access		public
-	 *	@param		string		$string			Todo string
-	 *	@return		self
+	 * Indicates whether this class implements at least one interface.
+	 * @return bool
 	 */
-	public function setTodo( string $string ): self
+	public function extends(): bool
 	{
-		$this->todos[]	= $string;
+		return NULL !== $this->extends;
+	}
+
+
+	/**
+	 *	@param		Class_		$class
+	 *	@return		static
+	 */
+	public function setExtendedClass( Class_ $class ): static
+	{
+		$this->extends	= $class;
+		return $this;
+	}
+
+	/**
+	 *	@param		string		$className
+	 *	@return		static
+	 */
+	public function setExtendedClassName( string $className ): static
+	{
+		$this->extends	= $className;
 		return $this;
 	}
 }

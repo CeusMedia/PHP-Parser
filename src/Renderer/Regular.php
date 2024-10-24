@@ -2,7 +2,7 @@
 /**
  *	...
  *
- *	Copyright (c) 2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -18,21 +18,22 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser
+ *	@package		CeusMedia_PHP-Parser_Renderer
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Renderer;
 
 use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\Method_;
 
 /**
  *	...
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser
+ *	@package		CeusMedia_PHP-Parser_Renderer
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Regular
@@ -74,17 +75,24 @@ class Regular
 		return implode( PHP_EOL, $this->buffer ).PHP_EOL;
 	}
 
-	protected function renderClassDocBlock( $class ): array
+	/**
+	 *	@param		Class_		$class
+	 *	@return		array<string>
+	 */
+	protected function renderClassDocBlock( Class_ $class ): array
 	{
-		$lines	= [];
+		$lines		= [];
 		$lines[]	= '/'.'**';
-		if( $class->getDescription() )
-			foreach( preg_split( '/\r?\n/', $class->getDescription() ) as $line )
-				$lines[]	= $this->renderDocBlockLine( NULL, NULL, $line );
+		if( NULL !== $class->getDescription() ){
+			$parts	= preg_split( '/\r?\n/', $class->getDescription() );
+			if( FALSE !== $parts )
+				foreach( $parts as $line )
+					$lines[]	= $this->renderDocBlockLine( NULL, NULL, $line );
+		}
 		foreach( $class->getAuthors() as $author ){
-			$email	= $author->getEmail() ? '<'.$author->getEmail().'>' : '';
-			$name	= $author->getName();
-			$value	= $name && $email ? $name.' '.$email : $name.$email;
+			$email		= ( '' !== ( $author->getEmail() ?? '' ) ) ? '<'.$author->getEmail().'>' : '';
+			$name		= $author->getName();
+			$value		= ( NULL !== $name && '' !== $email ) ? $name.' '.$email : $name.$email;
 			$lines[]	= $this->renderDocBlockLine( 'author', $value );
 		}
 
@@ -94,19 +102,30 @@ class Regular
 //		return join( PHP_EOL, $lines );
 	}
 
+	/**
+	 *	@param		string|NULL		$property
+	 *	@param		string|NULL		$value
+	 *	@param		string|NULL		$description
+	 *	@return		string
+	 */
 	protected function renderDocBlockLine( ?string $property, ?string $value = NULL, ?string $description = NULL ): string
 	{
 		$parts	= [" *\t"];
-		if( $property )
-			$parts[]	= '@'.$property.( $value || $description ? "\t\t" : '' );
-		if( $value )
-			$parts[]	= $value.( $description ? "\t\t" : '' );
-		if( $description )
+		if( NULL !== $property )
+			$parts[]	= '@'.$property.( NULL !== $value || NULL !== $description ? "\t\t" : '' );
+		if( NULL !== $value )
+			$parts[]	= $value.( NULL !== $description ? "\t\t" : '' );
+		if( NULL !== $description )
 			$parts[]	= $description;
 		return join( $parts );
 	}
 
-	protected function indentLines( array $lines, $level = 1 ): array
+	/**
+	 *	@param		array<string>	$lines		Original lines
+	 *	@param		int				$level		Indent level
+	 *	@return		array<string>				Indented lines
+	 */
+	protected function indentLines( array $lines, int $level = 1 ): array
 	{
 		$indent	= str_repeat( "\t", $level );
 		foreach( $lines as $nr => $line )
@@ -114,15 +133,19 @@ class Regular
 		return $lines;
 	}
 
-	public function renderClassMethod( $method ): array
+	/**
+	 *	@param		Method_		$method
+	 *	@return		array<string>
+	 */
+	public function renderClassMethod( Method_ $method ): array
 	{
 		$lines	= ['/'.'**'];
-		if( $method->getDescription() ){
+		if( NULL !== $method->getDescription() ){
 			foreach( explode( PHP_EOL, $method->getDescription() ) as $line )
 				$lines[]	= ' *	'.$line;
 			$lines[]	= ' *';
 		}
-		if( $method->getAccess() )
+		if( NULL !== $method->getAccess() )
 			$lines[]	= ' *	@abstract';
 		if( $method->isStatic() )
 			$lines[]	= ' *	@static';
@@ -138,18 +161,21 @@ class Regular
 				$line	.= '		'.$throws->getReason();
 			$lines[]	= $line;
 		}
-		if( $method->getReturn() )
-			$lines[]	= ' *	@return		'.$method->getReturn()->getType();
+		if( NULL !== $method->getReturn() ){
+			$return		= $method->getReturn();
+			$desc		= NULL !== $return->getDescription() ? '		'.$return->getDescription() : '';
+			$lines[]	= ' *	@return		'.$return->getType().$desc;
+		}
 		$lines[] = ' */';
 
 		$lines[] = join( [
 			$method->isAbstract() ? 'abstract ' : '',
-			$method->getAccess() ? $method->getAccess().' ' : '',
+			NULL !== $method->getAccess() ? $method->getAccess().' ' : '',
 			$method->isStatic() ? 'static ' : '',
 			'function '.$method->getName().'(',
 //			$parameters ? ' '.$parameters.' ' : '',
 			')',
-			$method->getReturn() ? ': '.$method->getReturn()->getType() : '',
+			NULL !== $method->getReturn() ? ': '.$method->getReturn()->getType() : '',
 		] );
 		$lines[]	= '{';
 		$lines[]	= join( $this->indentLines( $method->getSourceCode() ) );

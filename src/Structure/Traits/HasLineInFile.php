@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	...
  *
- *	Copyright (c) 2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +22,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -30,31 +32,31 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 Trait HasLineInFile
 {
-	/** @var	 integer	$line		... */
-	protected int $line			= 0;
+	/** @var	int|string		$line		Line (or range like 1-3) in code */
+	protected int|string $line			= '';
 
 	/**
-	 *	Returns line in code.
+	 *	Returns line (or range like 1-3) in code.
 	 *	@access		public
-	 *	@return		integer			Line number in code
+	 *	@return		int|string			Line number (or range like 1-3) in code
 	 */
-	public function getLine(): int
+	public function getLine(): int|string
 	{
 		return $this->line;
 	}
 
 	/**
-	 *	Sets line in code.
+	 *	Sets line (or range like 1-3) in code.
 	 *	@access		public
-	 *	@param		integer			$number			Line number in code
+	 *	@param		int|string			$number			Line number in code
 	 *	@return		self
 	 */
-	public function setLine( int $number ): self
+	public function setLine( int|string $number ): self
 	{
 		$this->line	= $number;
 		return $this;

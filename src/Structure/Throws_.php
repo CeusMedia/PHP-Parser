@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	Function/Method Throws Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,27 +22,27 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
-use Exception;
 
 /**
  *	Function/Method Throws Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Throws_
 {
 	use HasName;
 
-	/** @var	 string|NULL	$reason		... */
+	/** @var	string|NULL		$reason		... */
 	protected ?string $reason	= NULL;
 
 	/**
@@ -66,10 +68,15 @@ class Throws_
 		return $this->reason;
 	}
 
+	/**
+	 *	@param		Throws_		$throws
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Throws_ $throws ): self
 	{
 		if( $this->name != $throws->getName() )
-			throw new Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $throws->getReason() )
 			$this->setReason( $throws->getReason() );
 		return $this;
@@ -95,9 +102,9 @@ class Throws_
 	 */
 	public function toArray(): array
 	{
-		return array(
+		return [
 			'name'		=> $this->getName(),
 			'reason'	=> $this->getReason(),
-		);
+		];
 	}
 }

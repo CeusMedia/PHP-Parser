@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	Function/Method Return Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +22,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2017-2020 Christian Würker
+ *	@copyright		2017-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
@@ -30,7 +32,7 @@ namespace CeusMedia\PhpParser\Structure;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2017-2020 Christian Würker
+ *	@copyright		2017-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Trigger_
@@ -54,7 +56,7 @@ class Trigger_
 	/**
 	 *	Returns condition of trigger.
 	 *	@access		public
-	 *	@return		string		Trigger condition
+	 *	@return		?string		Trigger condition
 	 */
 	public function getCondition(): ?string
 	{

@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	Class Variable Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,11 +22,12 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
@@ -35,14 +38,13 @@ use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasType;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
 use CeusMedia\PhpParser\Structure\Traits\MaybeDeprecated;
-use Exception;
 
 /**
  *	Class Variable Data Class.
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Variable_
@@ -57,7 +59,7 @@ class Variable_
 	 *	@param		?string		$description	Variable description
 	 *	@return		void
 	 */
-	public function __construct( string $name, $type = NULL, ?string $description = NULL )
+	public function __construct( string $name, mixed $type = NULL, ?string $description = NULL )
 	{
 		$this->setName( $name );
 		if( !is_null( $type ) )
@@ -66,11 +68,16 @@ class Variable_
 			$this->setDescription( $description );
 	}
 
+	/**
+	 *	@param		Variable_		$variable
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( Variable_ $variable ): self
 	{
 #		remark( 'merging variable: '.$variable->getName() );
 		if( $this->name != $variable->getName() )
-			throw new Exception( 'Not merge-able' );
+			throw new MergeException( 'Not merge-able' );
 		if( NULL !== $variable->getType() )
 			$this->setType( $variable->getType() );
 		if( NULL !== $variable->getDescription() )

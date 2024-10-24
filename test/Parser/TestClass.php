@@ -15,14 +15,14 @@
  *	@author			Test Writer 2 <test2@writer.tld>
  *	@since			today
  *	@version		0.0.1
- *	@license		http://test.licence.org/test1.txt TestLicense 1
- *	@license		http://test.licence.org/test2.txt TestLicense 2
+ *	@license		https://test.licence.org/test1.txt TestLicense 1
+ *	@license		https://test.licence.org/test2.txt TestLicense 2
  *	@copyright		2007 Test Writer 1
  *	@copyright		2008 Test Writer 2
- *	@see			http://sub.domain.tld/1
- *	@see			http://sub.domain.tld/2
- *	@link			http://sub.domain.tld/test1
- *	@link			http://sub.domain.tld/test2
+ *	@see			https://sub.domain.tld/1
+ *	@see			https://sub.domain.tld/2
+ *	@link			https://sub.domain.tld/test1
+ *	@link			https://sub.domain.tld/test2
  */
 /**
  *	Test Class.
@@ -40,14 +40,14 @@
  *	@author			Test Writer 2 <test2@writer.tld>
  *	@since			today
  *	@version		0.0.1
- *	@license		http://test.licence.org/test1.txt TestLicense 1
- *	@license		http://test.licence.org/test2.txt TestLicense 2
+ *	@license		https://test.licence.org/test1.txt TestLicense 1
+ *	@license		https://test.licence.org/test2.txt TestLicense 2
  *	@copyright		2007 Test Writer 1
  *	@copyright		2008 Test Writer 2
- *	@see			http://sub.domain.tld/1
- *	@see			http://sub.domain.tld/2
- *	@link			http://sub.domain.tld/test1
- *	@link			http://sub.domain.tld/test2
+ *	@see			https://sub.domain.tld/1
+ *	@see			https://sub.domain.tld/2
+ *	@link			https://sub.domain.tld/test1
+ *	@link			https://sub.domain.tld/test2
  */
 abstract class TestClass extends Alpha implements Beta, Gamma
 {
@@ -75,8 +75,12 @@ abstract class TestClass extends Alpha implements Beta, Gamma
 	 *	@version	3.2.1
 	 *	@since		03.02.01
 	 */
-	abstract public function __construct( ArrayObject $object, &$reference, $array = array(), $null = NULL );
+	abstract public function __construct( ArrayObject $object, &$reference, $array = [], $null = NULL );
 
+	/**
+	 *	@param		Object|NULL		$object
+	 *	@return		void			nothing
+	 */
 	final public function testMethod( Object $object = NULL )
 	{
 
@@ -95,7 +99,7 @@ abstract class TestClass extends Alpha implements Beta, Gamma
  *	@param		string			$string		A String
  *	@param		bool			$bool		A Boolean
  *	@param		unknown			$unknown	not used
- *	@return		mixed
+ *	@return		mixed			not specified right now
  *	@throws		Exception				if something went unexpectedly wrong
  *	@throws		RuntimeException		if something went wrong
  *	@author		Test Writer 3 <test3@writer.tld>

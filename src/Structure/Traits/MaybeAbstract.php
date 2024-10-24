@@ -35,30 +35,30 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@copyright		2021-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
-Trait HasTodos
+Trait MaybeAbstract
 {
-	/** @var	array		$todos		... */
-	protected array $todos		= [];
+	/** @var	bool		$abstract		... */
+	protected bool $abstract		= FALSE;
 
 	/**
-	 *	Returns list of todos.
+	 *	Returns whether this structure is abstract.
 	 *	@access		public
-	 *	@return		array		List of todos
+	 *	@return		boolean		Is abstract or not
 	 */
-	public function getTodos(): array
+	public function isAbstract(): bool
 	{
-		return $this->todos;
+		return $this->abstract;
 	}
 
 	/**
-	 *	Sets todo.
+	 *	Sets whether this structure is abstract.
 	 *	@access		public
-	 *	@param		string		$string			Todo string
+	 *	@param		bool		$abstract		Flag: is abstract
 	 *	@return		self
 	 */
-	public function setTodo( string $string ): self
+	public function setAbstract( bool $abstract ): self
 	{
-		$this->todos[]	= $string;
+		$this->abstract	= $abstract;
 		return $this;
 	}
 }

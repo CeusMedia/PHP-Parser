@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	File Function Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,17 +22,21 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAuthors;
+use CeusMedia\PhpParser\Structure\Traits\HasCategory;
+use CeusMedia\PhpParser\Structure\Traits\HasCopyright;
 use CeusMedia\PhpParser\Structure\Traits\HasDescription;
 use CeusMedia\PhpParser\Structure\Traits\HasLinks;
 use CeusMedia\PhpParser\Structure\Traits\HasLicense;
 use CeusMedia\PhpParser\Structure\Traits\HasLineInFile;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
+use CeusMedia\PhpParser\Structure\Traits\HasPackage;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
 use CeusMedia\PhpParser\Structure\Traits\HasTodos;
 use CeusMedia\PhpParser\Structure\Traits\HasVersion;
@@ -42,26 +48,26 @@ use Exception;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Function_
 {
-	use HasAuthors, HasDescription, HasName, HasParent, HasLinks, HasLicense, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
+	use HasAuthors, HasCategory, HasDescription, HasName, HasPackage, HasParent, HasLinks, HasLicense, HasCopyright, HasLineInFile, HasVersion, HasTodos, MaybeDeprecated;
 
-	/** @var	 array		$throws				... */
-	protected array $throws		= array();
+	/** @var	array		$throws				... */
+	protected array $throws		= [];
 
-	/** @var	 array		$triggers			... */
-	protected array $triggers		= array();
+	/** @var	array		$triggers			... */
+	protected array $triggers		= [];
 
-	/** @var	 array		$param				... */
-	protected array $param		= array();
+	/** @var	array		$param				... */
+	protected array $param		= [];
 
-	/** @var	 Return_|NULL	$return			... */
+	/** @var	Return_|NULL	$return			... */
 	protected ?Return_ $return		= NULL;
 
-	/** @var	 array		$sourceCode		... */
+	/** @var	array		$sourceCode		... */
 	protected array $sourceCode	= [];
 
 	public function __construct( string $name )
@@ -82,7 +88,7 @@ class Function_
 	/**
 	 *	Returns return type as string or data object.
 	 *	@access		public
-	 *	@return		?Return_			Return type as string or data object
+	 *	@return		Return_|null		Return type as string or data object
 	 */
 	public function getReturn(): ?Return_
 	{
@@ -119,22 +125,25 @@ class Function_
 		return $this->triggers;
 	}
 
-	public function merge( Function_ $function ): self
+	/**
+	 *	@param		Function_		$function		Function to merge with
+	 *	@return		static
+	 *	@throws		MergeException
+	 */
+	public function merge( Function_ $function ): static
 	{
 		if( $this->name != $function->getName() )
-			throw new Exception( 'Not merge-able' );
-		if( $function->getDescription() )
+			throw new MergeException( 'Not merge-able' );
+		if( NULL !== $function->getDescription() )
 			$this->setDescription( $function->getDescription() );
-		if( $function->getSince() )
+		if( NULL !== $function->getSince() )
 			$this->setSince( $function->getSince() );
-		if( $function->getVersion() )
+		if( NULL !== $function->getVersion() )
 			$this->setVersion( $function->getVersion() );
-		if( $function->getCopyright() )
-			foreach( $function->getCopyright() as $copyright )
-				$this->setCopyright( $copyright );
-		if( $function->getReturn() )
+		if( NULL !== $function->getReturn() )
 			$this->setReturn( $function->getReturn() );
-
+		foreach( $function->getCopyrights() as $copyright )
+			$this->setCopyright( $copyright );
 		foreach( $function->getAuthors() as $author )
 			$this->setAuthor( $author );
 		foreach( $function->getLinks() as $link )
@@ -156,17 +165,13 @@ class Function_
 		return $this;
 	}
 
-	public function setCategory(){}
-
-	public function setPackage(){}
-
 	/**
 	 *	Sets function link.
 	 *	@access		public
 	 *	@param		Parameter_		$parameter	Parameter data object
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setParameter( Parameter_ $parameter ): self
+	public function setParameter( Parameter_ $parameter ): static
 	{
 		$this->param[$parameter->getName()]	= $parameter;
 		return $this;
@@ -176,9 +181,9 @@ class Function_
 	 *	Sets functions return data object.
 	 *	@access		public
 	 *	@param		Return_			$return		Function's return data object
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setReturn( Return_ $return ): self
+	public function setReturn( Return_ $return ): static
 	{
 		$this->return	= $return;
 		return $this;
@@ -188,21 +193,21 @@ class Function_
 	 *	Sets method source code.
 	 *	@access		public
 	 *	@param		array			$soureCode	Method source code (multiline string)
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setSourceCode( array $soureCode ): self
+	public function setSourceCode( array $soureCode ): static
 	{
 		$this->sourceCode	= $soureCode;
 		return $this;
 	}
 
-	public function setThrows( Throws_ $throws ): self
+	public function setThrows( Throws_ $throws ): static
 	{
 		$this->throws[]	= $throws;
 		return $this;
 	}
 
-	public function setTrigger( Trigger_ $trigger ): self
+	public function setTrigger( Trigger_ $trigger ): static
 	{
 		$this->triggers[]	= $trigger;
 		return $this;

@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	File/Class License Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,11 +22,12 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasName;
 use Exception;
 
@@ -33,7 +36,7 @@ use Exception;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class License_
@@ -59,18 +62,23 @@ class License_
 	/**
 	 *	Returns license URL.
 	 *	@access		public
-	 *	@return		string
+	 *	@return		?string
 	 */
 	public function getUrl(): ?string
 	{
 		return $this->url;
 	}
 
+	/**
+	 *	@param		License_		$license
+	 *	@return		self
+	 *	@throws		MergeException
+	 */
 	public function merge( License_ $license ): self
 	{
 		if( $this->name != $license->getName() )
-			throw new Exception( 'Not merge-able' );
-		if( $license->getUrl() )
+			throw new MergeException( 'Not merge-able' );
+		if( NULL !== $license->getUrl() )
 			$this->setUrl( $license->getUrl() );
 		return $this;
 	}

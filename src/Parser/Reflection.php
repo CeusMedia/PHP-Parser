@@ -1,9 +1,10 @@
 <?php /** @noinspection PhpMultipleClassDeclarationsInspection */
+declare( strict_types = 1 );
 
 /**
  *	...
  *
- *	Copyright (c) 2010-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2010-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -19,9 +20,9 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser_Parser_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2010-2020 Christian Würker
+ *	@copyright		2010-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
  */
@@ -29,7 +30,7 @@ namespace CeusMedia\PhpParser\Parser;
 
 use CeusMedia\Common\Alg\Text\Unicoder;
 use CeusMedia\Common\FS\File\Reader as FileReader;
-use CeusMedia\PhpParser\Parser\Doc\Decorator as DocParserDecorator;
+use CeusMedia\PhpParser\Parser\Doc\Decorator as DocDecorator;
 use CeusMedia\PhpParser\Parser\Doc\Regular as RegularDocParser;
 use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Class_;
@@ -53,15 +54,17 @@ use ReflectionProperty;
  *	...
  *
  *	@category		Library
- *	@package		CeusMedia_PHP-Parser_Parser_Parser
+ *	@package		CeusMedia_PHP-Parser_Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2010-2020 Christian Würker
+ *	@copyright		2010-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  *	@link			https://github.com/CeusMedia/Common
  */
 class Reflection
 {
 	protected bool $verbose	= TRUE;
+
+	protected ?string $namespace	= NULL;
 
 	/**
 	 *	Parses a PHP File and returns nested Array of collected Information.
@@ -72,9 +75,11 @@ class Reflection
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
+		/** @var string $content */
 		$content		= FileReader::load( $fileName );
 		if( !Unicoder::isUnicode( $content ) )
 			$content		= Unicoder::convertToUnicode( $content );
+		$this->namespace	= $this->getNamespaceFromFile( $fileName );
 
 		//  list builtin Classes
 		$listClasses	= get_declared_classes();
@@ -88,7 +93,7 @@ class Reflection
 		//  get only own Interfaces
 		$listInterfaces	= array_diff( get_declared_interfaces(), $listInterfaces );
 		//  get only own Traits
-		$listInterfaces	= array_diff( get_declared_traits(), $listTraits );
+		$listTraits		= array_diff( get_declared_traits(), $listTraits );
 
 		$file			= new File_;
 		$file->setBasename( basename( $fileName ) );
@@ -124,7 +129,7 @@ class Reflection
 			if( $interface instanceof Interface_ )
 				$file->addInterface( $interface );
 */
-/*		$functionBody	= array();
+/*		$functionBody	= [];
 		$lines			= explode( "\n", $content );
 		$fileBlock		= NULL;
 		$openClass		= FALSE;
@@ -141,18 +146,30 @@ class Reflection
 		return $file;
 	}
 
-	public function readClass( ReflectionClass $class )
+	/**
+	 *	Reads class or interface or trait.
+	 *	@param		ReflectionClass		$class		Class or interface or trait to read
+	 *	@return		Class_|Interface_|Trait_
+	 *	@todo		finish implementation
+	 */
+	public function readClass( ReflectionClass $class ): Class_|Interface_|Trait_
 	{
 		if( $class->isInterface() ){
 			$object	= new Interface_( $class->name );
 			//  NOT WORKING !!!
-			if( $class->getParentClass() )
+			if( FALSE !== $class->getParentClass() )
 				$object->setExtendedInterfaceName( $class->getParentClass()->name );
 		}
-		else{
+		else if( $class->isTrait() ){
+			$object	= new Trait_( $class->name );
+			//  NOT WORKING !!!
+//			if( FALSE !== $class->getParentClass() )
+//				$object->setExtendedTraitName( $class->getParentClass()->name );
+		}
+		else {
 			$object	= new Class_( $class->name );
 			$object->setFinal( $class->isFinal() );
-			if( $class->getParentClass() )
+			if( FALSE !== $class->getParentClass() )
 				$object->setExtendedClassName( $class->getParentClass()->name );
 			foreach( $class->getInterfaceNames() as $interfaceName )
 				$object->setImplementedInterfaceName( $interfaceName );
@@ -161,16 +178,16 @@ class Reflection
 			foreach( $class->getProperties() as $property )
 				$object->setMember( $this->readProperty( $property ) );
 		}
-		$object->setDescription( $class->getDocComment() );
+		$object->setNamespace( $this->namespace );
+		$object->setDescription( $class->getDocComment() ?: NULL );
 		$object->setLine( $class->getStartLine().'-'.$class->getEndLine() );
 
 		foreach( $class->getMethods() as $method )
 			$object->setMethod( $this->readMethod( $method ) );
 
-
 		$parser		= new RegularDocParser;
-		$docData	= $parser->parseBlock( $class->getDocComment() );
-		$decorator	= new DocParserDecorator();
+		$docData	= $parser->parseBlock( $class->getDocComment() ?: '' );
+		$decorator	= new DocDecorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
 	}
@@ -178,15 +195,16 @@ class Reflection
 	public function readMethod( ReflectionMethod $method ): Method_
 	{
 		$object	= new Method_( $method->name );
-		$object->setDescription( $method->getDocComment() );
-		foreach( $method->getParameters() as $parameter ){
+		$object->setDescription( $method->getDocComment() ?: NULL );
+		foreach( $method->getParameters() as $parameter )
+		{
 			$parameter	= $this->readParameter( $parameter );
 			$object->setParameter( $parameter );
 		}
 		$object->setLine( $method->getStartLine().'-'.$method->getEndLine() );
 		$parser		= new RegularDocParser;
-		$docData	= $parser->parseBlock( $method->getDocComment() );
-		$decorator	= new DocParserDecorator();
+		$docData	= $parser->parseBlock( $method->getDocComment() ?: '' );
+		$decorator	= new DocDecorator();
 		$decorator->decorateCodeDataWithDocData( $object, $docData );
 		return $object;
 	}
@@ -195,15 +213,31 @@ class Reflection
 	{
 		$object	= new Parameter_( $parameter->name );
 		$object->setReference( $parameter->isPassedByReference() );
-		if( $parameter->getClass() )
+		if( NULL !== $parameter->getClass() )
 			$object->setCast( $parameter->getClass()->name );
-		if( $parameter->isDefaultValueAvailable() )
-			$object->setDefault( $parameter->getDefaultValue() );
+		if( $parameter->isDefaultValueAvailable() ){
+			$object->setDefault( strval( $parameter->getDefaultValue() ) );
+		}
 		return $object;
 	}
 
 	public function readProperty( ReflectionProperty $property ): Member_
 	{
 		return new Member_( $property->name );
+	}
+
+	/**
+	 *	Tries to detect namespace declared on head of file.
+	 *	@param		string		$filePath
+	 *	@return		string|NULL
+	 */
+	protected function getNamespaceFromFile( string $filePath ): ?string
+	{
+		$content	= php_strip_whitespace( $filePath );
+		$content	= preg_replace( '/^<?.+\r?\n/', '', $content ) ?: '';
+		foreach( explode( '; ', trim( $content ) ) as $line )
+			if( str_starts_with( trim( $line ), 'namespace' ) )
+				return trim( str_replace( 'namespace ', '', $line ) );
+		return NULL;
 	}
 }

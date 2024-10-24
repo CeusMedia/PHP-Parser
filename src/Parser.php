@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	...
  *
- *	Copyright (c) 2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +22,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser;
@@ -28,15 +30,16 @@ namespace CeusMedia\PhpParser;
 use CeusMedia\PhpParser\Parser\Regular as RegularParser;
 use CeusMedia\PhpParser\Parser\Reflection as ReflectionParser;
 use CeusMedia\PhpParser\Structure\File_;
+use RangeException;
 
 /**
  *	...
  *
- *	Copyright (c) 2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Parser
@@ -44,7 +47,8 @@ class Parser
 	const STRATEGY_REGULAR		= 0;
 	const STRATEGY_REFLECTION	= 1;
 
-	protected int $strategy			= 0;
+	/** @var int<0,1> $strategy */
+	protected int $strategy		= 0;
 
 	public function __construct()
 	{
@@ -52,20 +56,21 @@ class Parser
 
 	public function parseFile( string $fileName ): File_
 	{
-		switch( $this->strategy ){
-			case self::STRATEGY_REFLECTION:
-				$parser	= new ReflectionParser();
-				break;
-			case self::STRATEGY_REGULAR:
-			default:
-				$parser	= new RegularParser();
-				break;
-		}
+		$parser	= match( $this->strategy ){
+			self::STRATEGY_REFLECTION		=> new ReflectionParser(),
+			self::STRATEGY_REGULAR			=> new RegularParser(),
+		};
 		return $parser->parseFile( $fileName, '' );
 	}
 
+	/**
+	 *	@param		int<0,1>		$strategy
+	 *	@return		self
+	 */
 	public function setStrategy( int $strategy ): self
 	{
+		if( !in_array( $strategy, [self::STRATEGY_REGULAR, self::STRATEGY_REFLECTION], TRUE ) )
+			throw new RangeException( 'Invalid strategy' );
 		$this->strategy	= $strategy;
 		return $this;
 	}

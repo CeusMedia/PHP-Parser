@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	Class Method Data Class.
  *
- *	Copyright (c) 2008-2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2008-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,16 +22,17 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure;
 
+use CeusMedia\PhpParser\Exception\MergeException;
 use CeusMedia\PhpParser\Structure\Traits\HasAccessibility;
 use CeusMedia\PhpParser\Structure\Traits\HasParent;
+use CeusMedia\PhpParser\Structure\Traits\MaybeAbstract;
 use CeusMedia\PhpParser\Structure\Traits\MaybeFinal;
 use CeusMedia\PhpParser\Structure\Traits\MaybeStatic;
-use Exception;
 use RuntimeException;
 
 /**
@@ -37,7 +40,7 @@ use RuntimeException;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2015-2020 Christian Würker
+ *	@copyright		2015-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Method_ extends Function_
@@ -46,34 +49,24 @@ class Method_ extends Function_
 	use HasParent;
 	use MaybeFinal;
 	use MaybeStatic;
-
-	/** @var	 bool		$abstract		... */
-	protected bool $abstract		= FALSE;
-
-	/**
-	 *	Indicates whether method is abstract.
-	 *	@access		public
-	 *	@return		bool
-	 */
-	public function isAbstract(): bool
-	{
-		return $this->abstract;
-	}
+	use MaybeAbstract;
 
 	/**
 	 *	@access		public
 	 *	@param		Function_		$method		...
-	 *	@return		self
+	 *	@return		static
+	 *	@throws		MergeException
+	 *	@noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
-	public function merge( Function_ $method ): self
+	public function merge( Function_ $method ): static
 	{
 		if( !$method instanceof Method_ )
-			throw new RuntimeException( 'Merge of method with function not allowed' );
+			throw new \RuntimeException( 'Merge of method with function not allowed' );
 		if( $this->name != $method->getName() )
-			throw new Exception( 'Not merge-able' );
-		if( $method->getAccess() )
+			throw new MergeException( 'Not merge-able' );
+		if( NULL !== $method->getAccess() )
 			$this->setAccess( $method->getAccess() );
-		if( $method->getParent() )
+		if( NULL !== $method->getParent() )
 			$this->setParent( $method->getParent() );
 		if( $method->isAbstract() )
 			$this->setAbstract( $method->isAbstract() );
@@ -81,18 +74,6 @@ class Method_ extends Function_
 			$this->setFinal( $method->isFinal() );
 		if( $method->isStatic() )
 			$this->setStatic( $method->isStatic() );
-		return $this;
-	}
-
-	/**
-	 *	Sets if method is abstract.
-	 *	@access		public
-	 *	@param		bool		$isAbstract		Flag: method is abstract
-	 *	@return		self
-	 */
-	public function setAbstract( bool $isAbstract = TRUE ): self
-	{
-		$this->abstract	= $isAbstract;
 		return $this;
 	}
 }

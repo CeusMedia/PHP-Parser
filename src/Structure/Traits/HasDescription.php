@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  *	...
  *
- *	Copyright (c) 2020 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +22,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Structure\Traits;
@@ -30,12 +32,12 @@ namespace CeusMedia\PhpParser\Structure\Traits;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Structure_Traits
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020 Christian Würker
+ *	@copyright		2020-2024 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 Trait HasDescription
 {
-	/** @var	 string|NULL	$description		... */
+	/** @var	string|NULL		$description		... */
 	protected ?string $description	= NULL;
 
 	/**
@@ -52,9 +54,9 @@ Trait HasDescription
 	 *	Sets variable description.
 	 *	@access		public
 	 *	@param		string|NULL		$string			Parameter description
-	 *	@return		self
+	 *	@return		static
 	 */
-	public function setDescription( ?string $string ): self
+	public function setDescription( ?string $string ): static
 	{
 		$this->description	= $string;
 		return $this;

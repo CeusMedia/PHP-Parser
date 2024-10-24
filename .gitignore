@@ -3,3 +3,4 @@
 /.phpunit.cache
 /.idea
 /util/.phpunit.cache/test-results
+/doc/api
