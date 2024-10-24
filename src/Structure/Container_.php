@@ -228,7 +228,7 @@ class Container_
 			$reader	= new FileReader( $uri );
 			if( $reader->exists() ){
 				/** @var Container_ $data */
-				$data	= unserialize( $reader->readString() );
+				$data	= unserialize( $reader->readString() ?? 'N;' );
 				return $data;
 			}
 		}

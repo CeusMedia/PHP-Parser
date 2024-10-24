@@ -43,10 +43,10 @@ use CeusMedia\PhpParser\Structure\Member_;
 use CeusMedia\PhpParser\Structure\Function_;
 use CeusMedia\PhpParser\Structure\Method_;
 use CeusMedia\PhpParser\Structure\Parameter_;
-use CeusMedia\PhpParser\Structure\Author_;
-use CeusMedia\PhpParser\Structure\License_;
+#use CeusMedia\PhpParser\Structure\Author_;
+#use CeusMedia\PhpParser\Structure\License_;
 use CeusMedia\PhpParser\Structure\Return_;
-use CeusMedia\PhpParser\Structure\Throws_;
+#use CeusMedia\PhpParser\Structure\Throws_;
 
 
 /**
@@ -62,9 +62,9 @@ use CeusMedia\PhpParser\Structure\Throws_;
 class Regular
 {
 	protected ?string $namespace		= NULL;
-	protected string $regexClass	= '@^(abstract )?(final )?(interface |class |trait )([\w]+)( extends ([\w]+))?( implements ([\w]+)(, ([\w]+))*)?(\s*{)?@i';
-	protected string $regexMethod	= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*([\w]+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
-	protected string $regexParam	= '@^((\S+) )?((&\s*)?\$([\w]+))( ?= ?([\S]+))?$@s';
+	protected string $regexClass	= '@^(abstract )?(final )?(interface |class |trait )(\w+)( extends (\w+))?( implements (\w+)(, (\w+))*)?(\s*{)?@i';
+	protected string $regexMethod	= '@^(abstract )?(final )?(static )?(protected |private |public )?(static )?function &?\s*(\w+)\((.*)\)(\s*:\s*(\S+))?(\s*{\s*)?;?\s*$@s';
+	protected string $regexParam	= '@^((\S+) )?((&\s*)?\$(\w+))( ?= ?(\S+))?$@s';
 	protected string $regexVariable	= '@^(static\s+)?(protected|private|public|var)\s+(static\s+)?\$(\w+)(\s+=\s+([^(]+))?.*$@';
 	protected string $regexUse		= '@^(use\s+)(.+)$@';
 	protected array $varBlocks		= [];
@@ -93,6 +93,7 @@ class Regular
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
+		/** @var string $content */
 		$content		= FileReader::load( $fileName );
 		if( !Unicoder::isUnicode( $content ) )
 			$content	= Unicoder::convertToUnicode( $content );
@@ -320,7 +321,6 @@ class Regular
 			$function->setReturn( new Return_( $matches[9] ) );
 
 		if( '' !== trim( $matches[7] ) ){
-			$paramList	= [];
 			foreach( explode( ",", $matches[7] ) as $param ){
 				$param	 = trim( $param );
 				if( 0 === preg_match( $this->regexParam, $param, $matches ) )
@@ -378,7 +378,7 @@ class Regular
 			$method->setAccess( trim( $matches[4] ) );
 		$method->setAbstract( (bool) $matches[1] );
 		$method->setFinal( (bool) $matches[2] );
-		$method->setStatic( (bool) $matches[3] || (bool) $matches[5] );
+		$method->setStatic( $matches[3] || $matches[5] );
 
 		$return		= new Return_( $matches[9] ?? 'void' );
 		$return->setParent( $method );

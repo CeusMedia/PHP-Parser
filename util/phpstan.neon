@@ -7,6 +7,13 @@ parameters:
 	level: 6
 	paths:
 		- ../src
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
+		- ../test
+#		- ../demo
+	excludePaths:
+		- ../test/Parser/TestClass.php
 	treatPhpDocTypesAsCertain: false
+	ignoreErrors:
+		-
+			identifier: missingType.generics
+		-
+			identifier: missingType.iterableValue

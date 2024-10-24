@@ -75,6 +75,7 @@ class Reflection
 	 */
 	public function parseFile( string $fileName, string $innerPath ): File_
 	{
+		/** @var string $content */
 		$content		= FileReader::load( $fileName );
 		if( !Unicoder::isUnicode( $content ) )
 			$content		= Unicoder::convertToUnicode( $content );

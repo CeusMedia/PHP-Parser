@@ -70,13 +70,9 @@ class RegularTest extends TestCase
 
 
 		$methods		= $this->class->getMethods();
-		/** @phpstan-ignore-next-line */
 		$this->method1	= array_shift( $methods );
-		/** @phpstan-ignore-next-line */
 		$this->method2	= array_shift( $methods );
-		/** @phpstan-ignore-next-line */
 		$this->method3	= array_shift( $methods );
-		/** @phpstan-ignore-next-line */
 		$this->method4	= array_shift( $methods );
 	}
 

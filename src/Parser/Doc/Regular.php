@@ -67,6 +67,7 @@ class Regular
 	public function parseBlock( string $docComment ): array
 	{
 		$lines		= explode( "\n", $docComment );
+		/** @var array<string,array<int|string,object>> $data */
 		$data		= [
 			'param'		=> [],
 			'throws'	=> [],
@@ -78,6 +79,7 @@ class Regular
 		$matches	= [];
 		foreach( $lines as $line ){
 			if( 1 === preg_match( $this->regexParam, $line, $matches ) ){
+				/**	@var string $name */
 				$name	= $matches[4];
 				$data['param'][$name]	= $this->parseParameter( $matches );
 			}
