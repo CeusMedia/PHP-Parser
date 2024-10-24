@@ -1,4 +1,5 @@
 <?php /** @noinspection PhpMultipleClassDeclarationsInspection */
+declare( strict_types = 1 );
 
 /**
  *	Parses PHP Files containing a Class or Methods using regular expressions (slow).

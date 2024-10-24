@@ -1,4 +1,5 @@
 <?php /** @noinspection PhpUnused */
+declare(strict_types=1);
 
 /**
  *	Trait Data Class.
