@@ -2,7 +2,7 @@
 /**
  *	...
  *
- *	Copyright (c) 2020-2024 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2020-2025 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Renderer
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2024 Christian Würker
+ *	@copyright		2020-2025 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 namespace CeusMedia\PhpParser\Renderer;
@@ -33,7 +33,7 @@ use CeusMedia\PhpParser\Structure\Method_;
  *	@category		Library
  *	@package		CeusMedia_PHP-Parser_Renderer
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2020-2024 Christian Würker
+ *	@copyright		2020-2025 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
  */
 class Regular
@@ -73,64 +73,6 @@ class Regular
 		$this->buffer[]	= $classContent;
 		$this->buffer[]	= '}';
 		return implode( PHP_EOL, $this->buffer ).PHP_EOL;
-	}
-
-	/**
-	 *	@param		Class_		$class
-	 *	@return		array<string>
-	 */
-	protected function renderClassDocBlock( Class_ $class ): array
-	{
-		$lines		= [];
-		$lines[]	= '/'.'**';
-		if( NULL !== $class->getDescription() ){
-			$parts	= preg_split( '/\r?\n/', $class->getDescription() );
-			if( FALSE !== $parts )
-				foreach( $parts as $line )
-					$lines[]	= $this->renderDocBlockLine( NULL, NULL, $line );
-		}
-		foreach( $class->getAuthors() as $author ){
-			$email		= ( '' !== ( $author->getEmail() ?? '' ) ) ? '<'.$author->getEmail().'>' : '';
-			$name		= $author->getName();
-			$value		= ( NULL !== $name && '' !== $email ) ? $name.' '.$email : $name.$email;
-			$lines[]	= $this->renderDocBlockLine( 'author', $value );
-		}
-
-
-		$lines[]	= ' */';
-		return $lines;
-//		return join( PHP_EOL, $lines );
-	}
-
-	/**
-	 *	@param		string|NULL		$property
-	 *	@param		string|NULL		$value
-	 *	@param		string|NULL		$description
-	 *	@return		string
-	 */
-	protected function renderDocBlockLine( ?string $property, ?string $value = NULL, ?string $description = NULL ): string
-	{
-		$parts	= [" *\t"];
-		if( NULL !== $property )
-			$parts[]	= '@'.$property.( NULL !== $value || NULL !== $description ? "\t\t" : '' );
-		if( NULL !== $value )
-			$parts[]	= $value.( NULL !== $description ? "\t\t" : '' );
-		if( NULL !== $description )
-			$parts[]	= $description;
-		return join( $parts );
-	}
-
-	/**
-	 *	@param		array<string>	$lines		Original lines
-	 *	@param		int				$level		Indent level
-	 *	@return		array<string>				Indented lines
-	 */
-	protected function indentLines( array $lines, int $level = 1 ): array
-	{
-		$indent	= str_repeat( "\t", $level );
-		foreach( $lines as $nr => $line )
-			$lines[$nr]	= $indent.$line;
-		return $lines;
 	}
 
 	/**
@@ -182,5 +124,63 @@ class Regular
 		$lines[]	= '}';
 		$lines[]	= '';
 		return $lines;
+	}
+
+	/**
+	 *	@param		array<string>	$lines		Original lines
+	 *	@param		int				$level		Indent level
+	 *	@return		array<string>				Indented lines
+	 */
+	protected function indentLines( array $lines, int $level = 1 ): array
+	{
+		$indent	= str_repeat( "\t", $level );
+		foreach( $lines as $nr => $line )
+			$lines[$nr]	= $indent.$line;
+		return $lines;
+	}
+
+	/**
+	 *	@param		Class_		$class
+	 *	@return		array<string>
+	 */
+	protected function renderClassDocBlock( Class_ $class ): array
+	{
+		$lines		= [];
+		$lines[]	= '/'.'**';
+		if( NULL !== $class->getDescription() ){
+			$parts	= preg_split( '/\r?\n/', $class->getDescription() );
+			if( FALSE !== $parts )
+				foreach( $parts as $line )
+					$lines[]	= $this->renderDocBlockLine( NULL, NULL, $line );
+		}
+		foreach( $class->getAuthors() as $author ){
+			$email		= ( '' !== ( $author->getEmail() ?? '' ) ) ? '<'.$author->getEmail().'>' : '';
+			$name		= $author->getName();
+			$value		= ( NULL !== $name && '' !== $email ) ? $name.' '.$email : $name.$email;
+			$lines[]	= $this->renderDocBlockLine( 'author', $value );
+		}
+
+
+		$lines[]	= ' */';
+		return $lines;
+//		return join( PHP_EOL, $lines );
+	}
+
+	/**
+	 *	@param		string|NULL		$property
+	 *	@param		string|NULL		$value
+	 *	@param		string|NULL		$description
+	 *	@return		string
+	 */
+	protected function renderDocBlockLine( ?string $property, ?string $value = NULL, ?string $description = NULL ): string
+	{
+		$parts	= [" *\t"];
+		if( NULL !== $property )
+			$parts[]	= '@'.$property.( NULL !== $value || NULL !== $description ? "\t\t" : '' );
+		if( NULL !== $value )
+			$parts[]	= $value.( NULL !== $description ? "\t\t" : '' );
+		if( NULL !== $description )
+			$parts[]	= $description;
+		return join( $parts );
 	}
 }
