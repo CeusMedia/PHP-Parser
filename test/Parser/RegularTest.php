@@ -30,7 +30,6 @@ use CeusMedia\PhpParser\Structure\Throws_;
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
  *	@since			10.08.2008
  *	@version		0.1
- *	@covers			\CeusMedia\PhpParser\Parser\Regular
  */
 class RegularTest extends TestCase
 {

@@ -8,10 +8,15 @@
         failOnRisky="true"
         failOnWarning="true"
         cacheDirectory=".phpunit.cache"
-        requireCoverageMetadata="true"
-        beStrictAboutCoverageMetadata="true">
+        requireCoverageMetadata="false"
+        beStrictAboutCoverageMetadata="false">
+  <coverage>
+    <report>
+      <html outputDirectory="../doc/test/Coverage" lowUpperBound="35" highLowerBound="70"/>
+    </report>
+  </coverage>
   <testsuites>
-    <testsuite name="default">
+    <testsuite name="units">
       <directory suffix="Test.php">../test</directory>
     </testsuite>
   </testsuites>
