@@ -216,7 +216,9 @@ class Reflection
 		if( NULL !== $parameter->getClass() )
 			$object->setCast( $parameter->getClass()->name );
 		if( $parameter->isDefaultValueAvailable() ){
-			$object->setDefault( strval( $parameter->getDefaultValue() ) );
+			$default	= $parameter->getDefaultValue();
+			if( is_string( $default ) )
+				$object->setDefault( $default );
 		}
 		return $object;
 	}

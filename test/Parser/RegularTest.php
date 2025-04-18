@@ -68,12 +68,11 @@ class RegularTest extends TestCase
 		$this->file		= $this->data->getUri() ?? '';
 //		print_m( $this->class->getMethods() );die;
 
-
-		$methods		= $this->class->getMethods();
-		$this->method1	= array_shift( $methods );
-		$this->method2	= array_shift( $methods );
-		$this->method3	= array_shift( $methods );
-		$this->method4	= array_shift( $methods );
+		$methods		= array_values( $this->class->getMethods() );
+		for( $i=0; $i<4; $i++ ){
+			$methodKey	= 'method'.($i + 1);
+			$this->{$methodKey}	= $methods[$i];
+		}
 	}
 
 	/**
