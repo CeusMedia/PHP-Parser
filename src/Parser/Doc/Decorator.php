@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace CeusMedia\PhpParser\Parser\Doc;
 
 use CeusMedia\PhpParser\Structure\Class_;
+use CeusMedia\PhpParser\Structure\Data\DocBlock as DocBlockData;
 use CeusMedia\PhpParser\Structure\File_;
 use CeusMedia\PhpParser\Structure\Function_;
 use CeusMedia\PhpParser\Structure\Interface_;
@@ -57,14 +58,14 @@ class Decorator
 	 *
 	 *	@access		protected
 	 *	@param		File_|Interface_|Class_|Trait_|Function_|Method_	$codeData		Data collected by parsing Code
-	 *	@param		array		$docData		Data collected by parsing Documentation
+	 *	@param		DocBlockData		$docData		Data collected by parsing Documentation
 	 *	@return		void
 	 *	@todo		fix merge problem -> seems to be fixed (what was the problem again?)
 	 */
-	public function decorateCodeDataWithDocData( File_|Interface_|Class_|Trait_|Function_|Method_ $codeData, array $docData ): void
+	public function decorateCodeDataWithDocData( File_|Interface_|Class_|Trait_|Function_|Method_ $codeData, DocBlockData $docData ): void
 	{
-		foreach( $docData as $key => $value ){
-			if( !$value )
+		foreach( get_object_vars( $docData ) as $key => $value ){
+			if( NULL === $value || [] === $value || '' === $value )
 				continue;
 			//  value is an object
 			if( is_object( $value ) ){
