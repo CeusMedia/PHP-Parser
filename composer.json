@@ -20,13 +20,13 @@
     "require": {
         "php": "^8.1",
         "ext-zlib": "*",
-        "ceus-media/common": "^1.0 | 1.0.x-dev"
+        "ceus-media/common": "1.0.* | 1.0.x-dev"
     },
     "require-dev": {
-        "ceus-media/doc-creator": "^1.0 | 1.0.x-dev",
-        "phpunit/phpunit": "^10",
-        "phpstan/phpstan": "^1",
-        "phpstan/phpstan-strict-rules": "^1",
+        "ceus-media/doc-creator": "1.0.* | 1.0.x-dev",
+        "phpunit/phpunit": "10.*",
+        "phpstan/phpstan": "1.*",
+        "phpstan/phpstan-strict-rules": "1.*",
         "php-parallel-lint/php-parallel-lint": "^1.3 | dev-master"
     },
     "minimum-stability": "dev",
@@ -52,31 +52,31 @@
         "dev:update-quiet": "composer update --quiet",
         "dev:phpunit": [
             "@dev:install-quiet",
-            "php vendor/bin/phpunit --configuration util/phpunit.xml --testsuite default"
+            "XDEBUG_MODE=coverage php vendor/bin/phpunit --configuration util/phpunit.xml --testsuite units"
         ],
         "dev:phpstan": [
             "@dev:install-quiet",
-            "vendor/bin/phpstan analyze --configuration=util/phpstan.neon --memory-limit=1G --verbose"
+            "XDEBUG_MODE=off vendor/bin/phpstan analyze --configuration=util/phpstan.neon --memory-limit=1G --verbose"
         ],
         "dev:phpstan-clear": [
             "@dev:install-quiet",
-            "vendor/bin/phpstan clear-result-cache --verbose"
+            "XDEBUG_MODE=off vendor/bin/phpstan clear-result-cache --verbose"
         ],
         "dev:phpstan-save": [
             "@dev:install-quiet",
-            "vendor/bin/phpstan analyse --configuration util/phpstan.neon --generate-baseline util/phpstan-baseline.neon --xdebug --verbose"
+            "XDEBUG_MODE=off vendor/bin/phpstan analyse --configuration util/phpstan.neon --generate-baseline util/phpstan-baseline.neon --xdebug --verbose"
         ],
         "dev:rector": [
             "@dev:install-quiet",
-            "vendor/bin/rector process --config=util/rector.php --dry-run"
+            "XDEBUG_MODE=off vendor/bin/rector process --config=util/rector.php --dry-run"
         ],
         "dev:rector-fix": [
             "@dev:install-quiet",
-            "vendor/bin/rector process --config=util/rector.php"
+            "XDEBUG_MODE=off vendor/bin/rector process --config=util/rector.php"
         ],
         "dev:test-syntax": [
             "@dev:install-quiet",
-            "vendor/bin/parallel-lint . -j 10 --colors --exclude vendor"
+            "XDEBUG_MODE=off vendor/bin/parallel-lint . -j 10 --colors --exclude vendor"
         ]
     },
     "scripts-descriptions": {
