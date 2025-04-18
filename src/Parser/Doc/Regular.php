@@ -28,6 +28,7 @@ declare( strict_types = 1 );
  */
 namespace CeusMedia\PhpParser\Parser\Doc;
 
+use CeusMedia\PhpParser\Structure\Data\DocBlock;
 use CeusMedia\PhpParser\Structure\Variable_;
 use CeusMedia\PhpParser\Structure\Member_;
 use CeusMedia\PhpParser\Structure\Parameter_;
@@ -62,10 +63,11 @@ class Regular
 	 *	Parses a Doc Block and returns Array of collected Information.
 	 *	@access		public
 	 *	@param		string		$docComment			Lines of Doc Block
-	 *	@return		array
+	 *	@return		DocBlock
 	 */
-	public function parseBlock( string $docComment ): array
+	public function parseBlock( string $docComment ): DocBlock
 	{
+		$entity		= new DocBlock();
 		$lines		= explode( "\n", $docComment );
 		/** @var array<string,array<int|string,object>> $data */
 		$data		= [
@@ -81,26 +83,22 @@ class Regular
 			if( 1 === preg_match( $this->regexParam, $line, $matches ) ){
 				/**	@var string $name */
 				$name	= $matches[4];
-				$data['param'][$name]	= $this->parseParameter( $matches );
+				$entity->param[$name]	= $this->parseParameter( $matches );
 			}
-			else if( 1 === preg_match( $this->regexReturn, $line, $matches ) ){
-				$data['return']	= $this->parseReturn( $matches );
-			}
-			else if( 1 === preg_match( $this->regexThrows, $line, $matches ) ){
-				$data['throws'][]	= $this->parseThrows( $matches );
-			}
-			else if( 1 === preg_match( $this->regexTrigger, $line, $matches ) ){
-				$data['trigger'][]	= $this->parseTrigger( $matches );
-			}
+			else if( 1 === preg_match( $this->regexReturn, $line, $matches ) )
+				$entity->return	= $this->parseReturn( $matches );
+			else if( 1 === preg_match( $this->regexThrows, $line, $matches ) )
+				$entity->throws[]	= $this->parseThrows( $matches );
+			else if( 1 === preg_match( $this->regexTrigger, $line, $matches ) )
+				$entity->trigger[]	= $this->parseTrigger( $matches );
 			else if( 1 === preg_match( $this->regexAuthor, $line, $matches ) ){
 				$author	= new Author_( trim( $matches[1] ) );
 				if( isset( $matches[3] ) )
 					$author->setEmail( trim( $matches[3] ) );
-				$data['author'][]	= $author;
+				$entity->author[]	= $author;
 			}
-			else if( 1 === preg_match( $this->regexLicense, $line, $matches ) ){
-				$data['license'][]	= $this->parseLicense( $matches );
-			}
+			else if( 1 === preg_match( $this->regexLicense, $line, $matches ) )
+				$entity->license[]	= $this->parseLicense( $matches );
 			else if( 1 === preg_match( "/^\*\s+@(\w+)\s*(.*)$/", $line, $matches ) ){
 				switch( $matches[1] ){
 					case 'implements':
@@ -110,8 +108,7 @@ class Regular
 					case 'see':
 					case 'uses':
 					case 'link':
-						$data[$matches[1]]		??= [];
-						$data[$matches[1]][]	= $matches[2];
+						$entity->{$matches[1]}[]	= $matches[2];
 						break;
 					case 'since':
 					case 'version':
@@ -119,7 +116,7 @@ class Regular
 					case 'category':
 					case 'package':
 					case 'subpackage':
-						$data[$matches[1]]	= $matches[2];
+						$entity->{$matches[1]}	= $matches[2];
 						break;
 					default:
 						break;
@@ -130,9 +127,9 @@ class Regular
 					$descLines[]	= isset( $matches[1] ) ? trim( $matches[1] ) : "";
 			}
 		}
-		$data['description']	= trim( implode( "\n", $descLines ) );
+		$entity->description	= trim( implode( "\n", $descLines ) );
 
-		return $data;
+		return $entity;
 	}
 
 	/**
